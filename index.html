@@ -74,6 +74,12 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 .alert-list{display:grid;gap:10px}.alert-item{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:#fff}
 .alert-item strong{display:block;margin-bottom:3px}.alert-dot{width:10px;height:10px;border-radius:50%;background:#c8877a;margin-top:5px;flex:none}
 .detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.detail-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.mobile-admin-shortcuts{display:none}
+@media(max-width:680px){
+ .mobile-admin-shortcuts{display:block}
+ .mobile-file-box{display:block;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:12px}
+ .mobile-file-box input[type=file]{display:block;width:100%;padding:12px;border:1px dashed var(--line);border-radius:10px;background:#faf8f6}
+}
 @media(max-width:760px){.detail-grid{grid-template-columns:1fr}.scan-main-btn{width:150px;height:150px}}
 
 </style>
@@ -137,6 +143,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
     </div>
     <div class="panel"><div class="panel-head"><div class="panel-title">빠른 작업</div></div><div class="panel-body actions">
       <button class="primary" onclick="showPage('scan')">바코드 / QR 스캔</button><button class="secondary" onclick="openTransaction('USE')">사용</button><button class="secondary" onclick="openTransaction('IN')">입고</button><button class="secondary" onclick="openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="openPurchase()">구매요청</button>
+    </div></div>
+    <div class="panel admin-only mobile-admin-shortcuts"><div class="panel-head"><div class="panel-title">관리자 빠른메뉴</div></div><div class="panel-body actions">
+      <button class="secondary" onclick="showPage('products')">품목정보 관리</button>
+      <button class="primary" onclick="showPage('import')">재고 Excel Import</button>
+      <button class="secondary" onclick="showPage('admin')">직원/관리자 설정</button>
     </div></div>
     <div class="panel"><div class="panel-head"><div class="panel-title">알림센터</div><button class="ghost" onclick="showPage('alerts')">전체보기</button></div><div class="panel-body"><div id="dashboardAlerts" class="alert-list"></div></div></div>
     <div class="panel"><div class="panel-head"><div class="panel-title">최근 재고 작업</div></div><div class="panel-body table-wrap"><table><thead><tr><th>일시</th><th>구분</th><th>품목</th><th>수량</th><th>처리자</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
@@ -273,9 +284,14 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
           <div class="panel-title">Excel 초기재고 등록</div>
           <div class="muted small">통합재고 파일의 <b>데이터종류 = 현재재고</b> 행만 반영</div>
         </div>
-        <input id="excelFile" type="file" accept=".xlsx,.xls" onchange="parseExcel(this.files[0])">
+        <input id="excelFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="parseExcel(this.files[0])">
       </div>
       <div class="panel-body">
+        <div class="mobile-file-box">
+          <b>재고 Excel 파일 선택</b>
+          <div class="tiny muted" style="margin:5px 0 9px">휴대폰에서는 아래 파일선택 버튼을 직접 눌러주세요.</div>
+          <input id="excelFileMobile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="syncMobileImportFile(this)">
+        </div>
         <div id="importInfo" class="notice hide"></div>
 
         <div id="importSummary" class="import-summary hide">
@@ -411,7 +427,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 </div>
 
 <nav class="mobile-nav hide" id="mobileNav">
- <button onclick="showPage('dashboard')"><b>⌂</b>홈</button><button onclick="showPage('inventory')"><b>▤</b>재고</button><button onclick="openQuick()"><b>＋</b>작업</button><button onclick="showPage('purchase')"><b>◫</b>구매</button><button onclick="showPage('history')"><b>◷</b>이력</button>
+ <button onclick="showPage('dashboard')"><b>⌂</b>홈</button>
+ <button onclick="showPage('inventory')"><b>▤</b>재고</button>
+ <button onclick="openQuick()"><b>＋</b>작업</button>
+ <button onclick="showPage('purchase')"><b>◫</b>구매</button>
+ <button onclick="openMobileMore()"><b>☰</b>더보기</button>
 </nav>
 
 <div id="modal" class="modal hide" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><b id="modalTitle"></b><button class="ghost" onclick="closeModal()">Esc ✕</button></div><div class="sheet-body" id="modalBody"></div><div class="sheet-foot" id="modalFoot"></div></div></div>
@@ -672,6 +692,30 @@ async function reloadAll(){
 }
 function renderAll(){renderDashboard();renderInventory();renderPurchases();renderHistory();if(isAdmin()){renderAudit();renderAdmin();renderProductManagement()}}
 const titles={dashboard:'대시보드',inventory:'재고',purchase:'구매요청',history:'이력',audit:'감사로그',import:'Excel Import',admin:'관리자',scan:'스캔',usage:'사용량 분석',alerts:'알림센터',products:'품목정보 관리'};
+
+function openMobileMore(){
+ let admin=isAdmin();
+ openModal('더보기',`
+  <div class="actions" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+   <button class="secondary" onclick="closeModal();showPage('alerts')">알림센터</button>
+   <button class="secondary" onclick="closeModal();showPage('history')">이력</button>
+   ${admin?`<button class="secondary" onclick="closeModal();showPage('products')">품목정보 관리</button>
+   <button class="primary" onclick="closeModal();showPage('import')">재고 Excel Import</button>
+   <button class="secondary" onclick="closeModal();showPage('usage')">사용량 분석</button>
+   <button class="secondary" onclick="closeModal();showPage('audit')">감사로그</button>
+   <button class="secondary" onclick="closeModal();showPage('admin')">관리자 설정</button>`:''}
+  </div>
+ `,`<button class="secondary" onclick="closeModal()">닫기</button>`)
+}
+function syncMobileImportFile(input){
+ let file=input?.files?.[0];if(!file)return;
+ // parse directly; replacement routine also gets filename from mobile input if needed
+ parseExcel(file)
+}
+function selectedImportFilename(){
+ return $('excelFile')?.files?.[0]?.name||$('excelFileMobile')?.files?.[0]?.name||'replacement_import.xlsx'
+}
+
 function showPage(p){
  document.querySelectorAll('.page').forEach(x=>x.classList.add('hide'));let e=$('page-'+p);if(!e)return;e.classList.remove('hide');$('pageTitle').textContent=titles[p]||p;
  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
@@ -1787,7 +1831,7 @@ async function confirmReplaceInventory(){
  if(!rows.length)return alert('반영할 데이터가 없습니다.');
  if(!confirm(`현재 재고를 Excel 기준으로 다시 생성합니다.\n${deactivate?'Excel에 없는 기존 품목은 비활성 처리됩니다.':'기존 품목은 유지하고 재고만 0으로 만듭니다.'}\n\n정말 실행할까요?`))return;
  closeModal();$('importInfo').textContent='현재재고 재설정 처리 중... 기존재고 0 처리 → Excel 재생성';
- let filename=$('excelFile')?.files?.[0]?.name||'replacement_import.xlsx';
+ let filename=selectedImportFilename();
  let {error}=await sb.rpc('replace_current_inventory_from_excel_v18',{p_rows:importPayload(rows),p_actor_profile_id:me.id,p_filename:filename,p_deactivate_missing:deactivate});
  if(error){$('importInfo').textContent='현재재고 재설정 취소 · '+error.message;return alert('현재재고 재설정 취소: '+error.message)}
  $('importInfo').textContent=`현재재고 재설정 완료 · ${rows.length}개 Lot 반영 · 제외 ${excluded}건${deactivate?' · 미포함 품목 비활성':''}`;
