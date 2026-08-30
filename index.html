@@ -271,7 +271,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
   <div class="panel-body">
    <div class="notice">삭제는 과거 입고/사용/폐기 이력을 보존하기 위해 <b>비활성 처리</b>로 동작합니다. 필요하면 다시 활성화할 수 있습니다.</div>
    <div class="table-wrap" style="margin-top:12px"><table>
-    <thead><tr><th>품목명</th><th>분류</th><th>유통기한등급</th><th>재고등급</th><th>기본위치</th><th>바코드</th><th>QR / 2D</th><th>상태</th><th>관리</th></tr></thead>
+    <thead><tr><th>품목명</th><th>분류</th><th>유통기한등급</th><th>기본 유통기한</th><th>재고등급</th><th>기본위치</th><th>바코드</th><th>QR / 2D</th><th>상태</th><th>관리</th></tr></thead>
     <tbody id="productManageBody"></tbody>
    </table></div>
   </div>
@@ -611,10 +611,68 @@ function dashboardDrill(type){
  if(type==='exp6')$('invExpiryFilter').value='6m';
  renderInventory()
 }
+
+function normalizeGtin(v){
+ let d=String(v||'').replace(/\D/g,'');
+ if(d.length===13)return '0'+d;
+ if(d.length===14)return d;
+ return d
+}
+function gs1DateYYMMDD(s){
+ if(!/^\d{6}$/.test(s||''))return '';
+ let yy=Number(s.slice(0,2)),mm=Number(s.slice(2,4)),dd=Number(s.slice(4,6));
+ let y=2000+yy;
+ if(mm<1||mm>12||dd<1||dd>31)return '';
+ let dt=new Date(y,mm-1,dd);
+ if(dt.getFullYear()!==y||dt.getMonth()!==mm-1||dt.getDate()!==dd)return '';
+ return `${y}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`
+}
+function parseGs1Code(raw){
+ let s=String(raw||'').trim(),compact=s.replace(/\s/g,'');
+ let gtin='',expiry='',lot='',serial='';
+ let m=compact.match(/\(01\)(\d{14})/i);if(m)gtin=m[1];
+ m=compact.match(/\(17\)(\d{6})/i);if(m)expiry=gs1DateYYMMDD(m[1]);
+ m=compact.match(/\(10\)(.*?)(?=\(21\)|\(17\)|$)/i);if(m)lot=m[1];
+ m=compact.match(/\(21\)(.*?)(?=\(10\)|\(17\)|$)/i);if(m)serial=m[1];
+ if(!gtin){
+  m=compact.match(/^01(\d{14})/);if(m)gtin=m[1]
+ }
+ if(!expiry){
+  // 일반적인 GS1: 01 + GTIN14 다음에 17 + YYMMDD
+  m=compact.match(/^01\d{14}17(\d{6})/);if(m)expiry=gs1DateYYMMDD(m[1])
+ }
+ if(!lot){
+  m=compact.match(/^01\d{14}(?:17\d{6})?10(.+?)(?=21|$)/);if(m)lot=m[1]
+ }
+ if(!serial){
+  m=compact.match(/21(.+)$/);if(m&&compact.length>20)serial=m[1]
+ }
+ return {raw:s,gtin,expiry,lot,serial}
+}
+function scanInfo(code){return parseGs1Code(code)}
+function addDaysISO(days){
+ let d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+Number(days||0));
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+function productDefaultExpiry(p){return p?.default_expiry_days!=null?addDaysISO(p.default_expiry_days):''}
+function productFromGtin(gtin){
+ let g=normalizeGtin(gtin);if(!g)return null;
+ for(let c of productCodes){
+  let cv=normalizeGtin(c.code_value);
+  if(cv&&cv===g){let p=products.find(x=>x.id===c.product_id);if(p)return p}
+ }
+ return null
+}
+
 function findProductByCode(code){
  let c=String(code||'').trim();if(!c)return null;
  let pc=productCodes.find(x=>String(x.code_value).trim()===c);
- return pc?products.find(p=>p.id===pc.product_id):null
+ if(pc){let p=products.find(p=>p.id===pc.product_id);if(p)return p}
+ let info=parseGs1Code(c);
+ if(info.gtin){
+  let p=productFromGtin(info.gtin);if(p)return p
+ }
+ return null
 }
 
 
@@ -761,7 +819,7 @@ function renderInventory(){
    <td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td>
    <td><div class="actions"><button class="secondary" onclick="openTransaction('USE','${p.id}')">사용</button><button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button><button class="secondary" onclick="openMove('${p.id}')">위치 지정/이동</button><button class="ghost" onclick="openProductDetail('${p.id}')">상세</button><button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button><button class="ghost" onclick="openPurchase('${p.id}')">요청</button>${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">설정</button>`:''}</div></td>
   </tr>`
- }).join('')||`<tr><td colspan="9" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
+ }).join('')||`<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
 }
 
 function togglePurchaseDateInputs(){
@@ -995,23 +1053,40 @@ function optionsProducts(selected=''){return products.map(p=>`<option value="${p
 function optionsProfiles(){return profiles.filter(x=>!x.is_emergency_admin).map(u=>`<option value="${u.id}" ${u.id===me.id?'selected':''}>${esc(u.emp_no||'')} · ${esc(u.name||'')}</option>`).join('')}
 function optionsLocations(){return locations.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}
 function openQuick(){openModal('빠른 작업',`<div class="actions"><button class="primary" onclick="closeModal();openTransaction('USE')">사용</button><button class="secondary" onclick="closeModal();openTransaction('IN')">입고</button><button class="danger" onclick="closeModal();openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="closeModal();openPurchase()">구매요청</button></div>`)}
-function openTransaction(type,pid=''){
+function openTransaction(type,pid='',prefillCode=''){
  let outward=['USE','DISCARD'].includes(type);
  openModal(type==='IN'?'입고':type==='USE'?'사용':'폐기',`
-  <div class="field"><label>바코드 / QR 코드</label><div class="code-row"><input id="txScanCode" placeholder="스캔 또는 코드 입력 후 Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveTxCode()}"><button class="secondary" onclick="resolveTxCode()">코드 조회</button><button class="secondary" onclick="startCameraScan()">카메라</button></div><div id="txCodeResult" class="tiny muted" style="margin-top:5px"></div><div id="scanArea" class="scanbox hide"></div></div>
-  <div class="field"><label>품목</label><select id="txProduct" onchange="updateTxLots('${type}');applyTxDefaultLocation('${type}')">${optionsProducts(pid)}</select></div>
-  ${outward?`<div class="field"><label>사용할 재고 (유통기한 빠른 순)</label><select id="txLotSelect" onchange="applySelectedTxLot('${type}')"></select><div id="txFefoHint" class="tiny muted"></div></div>`:''}
+  <div class="field"><label>바코드 / QR 코드</label><div class="code-row"><input id="txScanCode" value="${esc(prefillCode)}" placeholder="스캔 또는 코드 입력 후 Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveTxCode('${type}')}"><button class="secondary" onclick="resolveTxCode('${type}')">코드 조회</button><button class="secondary" onclick="startCameraScan('${type}')">카메라</button></div><div id="txCodeResult" class="tiny muted" style="margin-top:5px"></div><div id="scanArea" class="scanbox hide"></div></div>
+  <div class="field"><label>품목</label><select id="txProduct" onchange="updateTxLots('${type}');applyTxDefaultLocation('${type}');applyTxDefaultExpiry('${type}',true)">${optionsProducts(pid)}</select></div>
+  ${outward?`<div class="field"><label>${type==='USE'?'사용할 재고':'처리할 재고'} (QR 유통기한 우선 / 이후 FEFO)</label><select id="txLotSelect" onchange="applySelectedTxLot('${type}')"></select><div id="txFefoHint" class="tiny muted"></div></div>`:''}
   <div class="field"><label>수량</label><input id="txQty" type="number" min="1" step="1" value="1"></div>
-  <div class="field"><label>유통기한</label><input id="txExpiry" type="date" ${outward?'readonly':''}></div>
+  <div class="field"><label>유통기한</label><input id="txExpiry" type="date" ${outward?'readonly':''}><div id="txExpiryHint" class="tiny muted">${type==='IN'?'QR에 유통기한이 있으면 자동입력, 없으면 품목 기본 유통기한을 적용합니다. 언제든 수정 가능합니다.':''}</div></div>
   <div class="field"><label>위치</label><select id="txLocation" ${outward?'disabled':''}><option value="">위치 없음</option>${optionsLocations()}</select></div>
   <div class="field"><label>실제 처리자</label><select id="txActor">${optionsProfiles()}</select></div>
   ${type==='DISCARD'?`<div class="field"><label>폐기 사유</label><select id="txDiscardReason"><option value="">선택</option><option>유통기한 만료</option><option>파손</option><option>오염</option><option>개봉 후 잔량</option><option>시술 후 잔량</option><option>재고조정</option><option>기타</option></select></div><div class="field"><label>폐기 처리자 사번 확인</label><input id="txEmpNo" placeholder="처리자 사번 직접 입력"></div>`:''}
   <div class="field"><label>비고</label><textarea id="txMemo" rows="2"></textarea></div>
-  ${outward?`<div class="notice">${type==='USE'?'만료되지 않은 재고 중 유통기한이 가장 빠른 Lot을 자동 추천합니다. 만료 재고는 일반 사용에서 제외됩니다.':'만료 재고를 포함해 폐기할 Lot을 선택할 수 있습니다.'}</div>`:''}
+  ${outward?`<div class="notice">${type==='USE'?'QR에 유통기한이 있으면 해당 Lot을 최우선으로 찾고, 없으면 FEFO 순서로 추천합니다.':'QR 유통기한 Lot을 우선 표시합니다.'}</div>`:''}
  `,`<button class="secondary" onclick="closeModal()">취소</button><button class="${type==='DISCARD'?'danger':'primary'}" onclick="submitTransaction('${type}')">${type==='DISCARD'?'폐기 처리':'저장'}</button>`);
- if(outward)setTimeout(()=>updateTxLots(type),0);else setTimeout(()=>applyTxDefaultLocation(type),0)
+ if(outward)setTimeout(()=>updateTxLots(type),0);else setTimeout(()=>{applyTxDefaultLocation(type);applyTxDefaultExpiry(type,true)},0);
+ if(prefillCode)setTimeout(()=>resolveTxCode(type),0)
 }
 
+
+
+function applyTxDefaultExpiry(type,force=false){
+ if(type!=='IN'||!$('txExpiry'))return;
+ let p=byId(products,$('txProduct').value);
+ if(force||!$('txExpiry').value)$('txExpiry').value=productDefaultExpiry(p)
+}
+function txLotsTarget(pid,type='USE',targetExpiry=''){
+ let lots=txLots(pid,type);
+ if(!targetExpiry)return lots;
+ return lots.slice().sort((a,b)=>{
+  let am=a.expiry_date===targetExpiry?0:1,bm=b.expiry_date===targetExpiry?0:1;
+  if(am!==bm)return am-bm;
+  return (a.expiry_date||'9999-12-31').localeCompare(b.expiry_date||'9999-12-31')
+ })
+}
 
 function applyTxDefaultLocation(type){
  if(type!=='IN'||!$('txLocation'))return;
@@ -1021,25 +1096,48 @@ function txLots(pid,type='USE'){
  return lotBalances.filter(x=>x.product_id===pid&&Number(x.quantity)>0&&(type==='DISCARD'||!x.expiry_date||daysUntil(x.expiry_date)>=0))
    .sort((a,b)=>(a.expiry_date||'9999-12-31').localeCompare(b.expiry_date||'9999-12-31'))
 }
-function updateTxLots(type){
+function updateTxLots(type,targetExpiry=''){
  if(!['USE','DISCARD'].includes(type)||!$('txLotSelect'))return;
- let pid=$('txProduct').value,lots=txLots(pid);
- $('txLotSelect').innerHTML=lots.map((l,i)=>`<option value="${i}">${i===0?'★ FEFO · ':''}${esc(byId(locations,l.location_id)?.name||'★ 위치 미지정')} · ${esc(l.expiry_date||'유통기한 미확인')} · ${fmt(l.quantity)}개</option>`).join('');
+ let pid=$('txProduct').value,lots=txLotsTarget(pid,type,targetExpiry);
+ $('txLotSelect').dataset.targetExpiry=targetExpiry||'';
+ $('txLotSelect').innerHTML=lots.map((l,i)=>{
+   let matched=targetExpiry&&l.expiry_date===targetExpiry;
+   return `<option value="${i}">${matched?'★ QR 일치 · ':i===0&&!targetExpiry?'★ FEFO · ':''}${esc(byId(locations,l.location_id)?.name||'★ 위치 미지정')} · ${esc(l.expiry_date||'유통기한 미확인')} · ${fmt(l.quantity)}개</option>`
+ }).join('');
  applySelectedTxLot(type)
 }
 function applySelectedTxLot(type){
- if(!$('txLotSelect'))return;let pid=$('txProduct').value,lots=txLots(pid),i=Number($('txLotSelect').value||0),l=lots[i];
- if(!l){$('txExpiry').value='';$('txLocation').value='';if($('txFefoHint'))$('txFefoHint').textContent='사용 가능한 재고가 없습니다.';return}
+ if(!$('txLotSelect'))return;
+ let pid=$('txProduct').value,target=$('txLotSelect').dataset.targetExpiry||'',lots=txLotsTarget(pid,type,target),i=Number($('txLotSelect').value||0),l=lots[i];
+ if(!l){$('txExpiry').value='';$('txLocation').value='';if($('txFefoHint'))$('txFefoHint').textContent=target?`QR 유통기한 ${target}과 일치하는 재고가 없습니다.`:'사용 가능한 재고가 없습니다.';return}
  $('txExpiry').value=l.expiry_date||'';$('txLocation').value=l.location_id||'';
- if($('txFefoHint'))$('txFefoHint').textContent=i===0?'유통기한이 가장 빠른 재고가 자동 선택되었습니다.':'FEFO 권장 Lot이 아닙니다. 저장 시 경고가 표시됩니다.'
+ if($('txFefoHint')){
+  if(target&&l.expiry_date===target)$('txFefoHint').textContent=`QR 유통기한 ${target}과 일치하는 Lot이 자동 선택되었습니다.`;
+  else if(!target&&i===0)$('txFefoHint').textContent='유통기한이 가장 빠른 재고가 자동 선택되었습니다.';
+  else $('txFefoHint').textContent='선택한 Lot으로 처리합니다.'
+ }
 }
 
-function resolveTxCode(){
- let code=$('txScanCode')?.value||'',p=findProductByCode(code);
+function resolveTxCode(type='USE'){
+ let code=$('txScanCode')?.value||'',info=parseGs1Code(code),p=findProductByCode(code);
  if(!p){if($('txCodeResult'))$('txCodeResult').textContent='등록되지 않은 코드입니다.';return false}
- $('txProduct').value=p.id;if($('txCodeResult'))$('txCodeResult').innerHTML=`<b>${esc(p.name)}</b> 선택됨`;if($('txLotSelect'))updateTxLots($('txEmpNo')?'DISCARD':'USE');return true
+ $('txProduct').value=p.id;
+ if($('txCodeResult'))$('txCodeResult').innerHTML=`<b>${esc(p.name)}</b> 선택됨${info.expiry?` · QR 유통기한 <b>${esc(info.expiry)}</b>`:''}${info.lot?` · Lot ${esc(info.lot)}`:''}`;
+ if(['USE','DISCARD'].includes(type)){
+  updateTxLots(type,info.expiry||'')
+ }else if(type==='IN'){
+  if(info.expiry){
+   $('txExpiry').value=info.expiry;
+   if($('txExpiryHint'))$('txExpiryHint').textContent=`QR/2D 코드에서 유통기한 ${info.expiry} 자동 인식 · 필요하면 수정 가능`
+  }else{
+   applyTxDefaultExpiry('IN',true);
+   if($('txExpiryHint'))$('txExpiryHint').textContent=$('txExpiry').value?`QR에 유통기한 없음 · 품목 기본값으로 ${$('txExpiry').value} 자동 계산 · 수정 가능`:'QR에 유통기한 정보 없음 · 품목 기본값도 없어 수동 입력 필요'
+  }
+  applyTxDefaultLocation('IN')
+ }
+ return true
 }
-async function startCameraScan(){
+async function startCameraScan(type='USE'){
  let area=$('scanArea');if(!area)return;
  if(!('BarcodeDetector' in window)){area.classList.remove('hide');area.innerHTML='<div class="notice bad">이 브라우저는 카메라 바코드 스캔을 지원하지 않습니다. 코드 직접 입력을 사용하세요.</div>';return}
  try{
@@ -1047,8 +1145,8 @@ async function startCameraScan(){
   scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
   area.classList.remove('hide');area.innerHTML='<video id="scanVideo" class="scan-video" autoplay playsinline></video><div class="small muted">코드를 카메라 중앙에 맞춰주세요.</div>';
   let v=$('scanVideo');v.srcObject=scanStream;
-  let detector=new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf']});
-  let tries=0;async function tick(){if(!scanStream)return;tries++;try{let codes=await detector.detect(v);if(codes.length){$('txScanCode').value=codes[0].rawValue;resolveTxCode();stopCameraScan();return}}catch(e){}if(tries<300)requestAnimationFrame(tick)}
+  let detector=new BarcodeDetector({formats:['qr_code','data_matrix','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf']});
+  let tries=0;async function tick(){if(!scanStream)return;tries++;try{let codes=await detector.detect(v);if(codes.length){$('txScanCode').value=codes[0].rawValue;resolveTxCode(type);stopCameraScan();return}}catch(e){}if(tries<300)requestAnimationFrame(tick)}
   requestAnimationFrame(tick)
  }catch(e){area.classList.remove('hide');area.innerHTML=`<div class="notice bad">카메라를 열 수 없습니다: ${esc(e.message)}</div>`}
 }
@@ -1146,20 +1244,21 @@ function openScanHub(prefill=''){
 }
 function resolveScanHub(){
  let code=$('hubCode')?.value.trim();if(!code)return;
- let p=findProductByCode(code),box=$('hubResult');
+ let info=parseGs1Code(code),p=findProductByCode(code),box=$('hubResult');
+ window.__lastHubScanCode=code;
  if(!box)return;
  if(p){
-  box.innerHTML=`<div><b style="font-size:16px">${esc(p.name)}</b><div class="tiny muted">코드 등록 완료 품목 · 현재재고 ${fmt(productQty(p.id))}${esc(p.base_unit||'개')}</div></div>
+  box.innerHTML=`<div><b style="font-size:16px">${esc(p.name)}</b><div class="tiny muted">현재재고 ${fmt(productQty(p.id))}${esc(p.base_unit||'개')}${info.expiry?` · QR 유통기한 <b>${esc(info.expiry)}</b>`:''}${info.lot?` · Lot ${esc(info.lot)}`:''}</div></div>
   <div class="actions" style="margin-top:12px;flex-wrap:wrap">
-   <button class="primary" onclick="closeModal();openTransaction('USE','${p.id}')">사용</button>
-   <button class="danger" onclick="closeModal();openTransaction('DISCARD','${p.id}')">폐기</button>
+   <button class="primary" onclick="closeModal();openTransaction('USE','${p.id}',window.__lastHubScanCode||'')">사용</button>
+   <button class="danger" onclick="closeModal();openTransaction('DISCARD','${p.id}',window.__lastHubScanCode||'')">폐기</button>
    <button class="secondary" onclick="closeModal();openMove('${p.id}')">위치이동</button>
-   <button class="secondary" onclick="closeModal();openTransaction('IN','${p.id}')">입고</button>
+   <button class="secondary" onclick="closeModal();openTransaction('IN','${p.id}',window.__lastHubScanCode||'')">입고</button>
    <button class="ghost" onclick="closeModal();openPurchase('${p.id}')">추가구매 요청</button>
   </div>`
  }else{
   let admin=isAdmin();
-  box.innerHTML=`<div class="notice bad"><b>등록되지 않은 코드</b><br><span class="code">${esc(code)}</span></div>
+  box.innerHTML=`<div class="notice bad"><b>등록되지 않은 코드</b><br><span class="code">${esc(code)}</span>${info.gtin?`<br>GTIN ${esc(info.gtin)}`:''}${info.expiry?` · 유통기한 ${esc(info.expiry)}`:''}</div>
   ${admin?`<div class="field"><label>기존 품목에 연결</label><select id="hubLinkProduct">${optionsProducts()}</select></div>
   <div class="actions"><button class="primary" onclick="linkUnknownCode()">기존 품목에 연결</button><button class="secondary" onclick="registerProductFromUnknownCode()">신규 품목 등록 후 연결</button></div>`:
   `<div class="muted small">관리자에게 해당 코드 등록을 요청하세요.</div>`}`
@@ -1199,7 +1298,7 @@ async function startHubCameraScan(){
   scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
   area.classList.remove('hide');area.innerHTML='<video id="hubScanVideo" class="scan-video" autoplay playsinline></video><div class="small muted">바코드/QR을 카메라 중앙에 맞춰주세요.</div>';
   let v=$('hubScanVideo');v.srcObject=scanStream;
-  let detector=new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf']});
+  let detector=new BarcodeDetector({formats:['qr_code','data_matrix','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf']});
   let tries=0;
   async function tick(){
    if(!scanStream)return;tries++;
@@ -1215,10 +1314,10 @@ async function submitTransaction(type){
  if(!pid||!qty||qty<=0)return alert('품목과 수량을 확인하세요.');
  if(!Number.isInteger(qty))return alert('수량은 1개 단위 정수로 입력하세요.');
  if(['USE','DISCARD'].includes(type)){
-  let lots=txLots(pid,type),idx=Number($('txLotSelect')?.value||0),sel=lots[idx];
+  let target=$('txLotSelect')?.dataset.targetExpiry||'',lots=txLotsTarget(pid,type,target),idx=Number($('txLotSelect')?.value||0),sel=lots[idx];
   if(!sel)return alert('사용 가능한 재고가 없습니다.');
   if(qty>Number(sel.quantity))return alert(`선택 Lot 재고는 ${fmt(sel.quantity)}개입니다.`);
-  if(idx>0&&lots[0]){
+  if(!target&&idx>0&&lots[0]){
    let first=lots[0];if(!confirm(`FEFO 경고\n더 빠른 유통기한 재고가 있습니다.\n권장: ${first.expiry_date||'미확인'} / ${byId(locations,first.location_id)?.name||'-'}\n그래도 현재 Lot으로 진행할까요?`))return
   }
  }
@@ -1358,6 +1457,7 @@ function renderProductManagement(){
   <td><b>${esc(p.name)}</b><div class="tiny muted">${esc(p.base_unit||'개')}</div></td>
   <td>${esc(p.category||'미분류')}${p.subcategory?`<div class="tiny muted">${esc(p.subcategory)}</div>`:''}</td>
   <td>${esc(p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B')}</td>
+  <td>${p.default_expiry_days!=null?`${fmt(p.default_expiry_days)}일`:'수동'}</td>
   <td>${esc(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b')}<div class="tiny muted">${esc(stockCriteriaText(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b'))}</div></td>
   <td>${esc(byId(locations,p.default_location_id)?.name||'-')}</td>
   <td><span class="code">${esc(primaryCode(p.id,'BARCODE')||'-')}</span></td>
@@ -1400,6 +1500,7 @@ function openProduct(id=''){
  <div class="field"><label>1포장입수</label><input id="pPackageQty" type="number" min="0" step="1" value="${p?.package_qty??''}" placeholder="예: 10"></div>
  <div class="field"><label>포장단위원문</label><input id="pPackageText" value="${esc(p?.package_unit_text||'')}" placeholder="예: 1박스 10개 / 1팩 4줄"></div>
  <div class="field"><label>개별 저재고 기준 (예외 품목만)</label><input id="pMin" type="number" min="0" step="1" value="${p?.low_stock_override??''}" placeholder="비우면 재고등급 기준 자동 적용"><div id="pStockHint" class="tiny muted"></div></div>
+ <div class="field"><label>기본 유통기한 (등록일 기준)</label><div class="code-row"><input id="pDefaultExpiryDays" type="number" min="0" max="3650" step="1" value="${p?.default_expiry_days??''}" placeholder="예: 365"><span class="muted small">일</span></div><div class="tiny muted">QR/2D 코드에 유통기한이 없을 때 입고일 + 이 일수로 자동 입력합니다. 비워두면 수동 입력.</div></div>
  <div class="field"><label>유통기한 등급</label><select id="pExpirySensitivity"><option value="A" ${expVal==='A'?'selected':''}>A · 1.5년 / 1년 / 6개월</option><option value="B" ${expVal==='B'?'selected':''}>B · 1년 / 6개월</option><option value="C" ${expVal==='C'?'selected':''}>C · 6개월</option></select><div id="pExpiryHint" class="tiny muted">대분류 기본값 적용 · 필요 시 이 품목만 변경</div></div>
  <div class="field"><label>재고등급</label><select id="pStockSensitivity" onchange="updateProductStockHint()"><option value="a" ${stockVal==='a'?'selected':''}>a · 20개 미만</option><option value="b" ${stockVal==='b'?'selected':''}>b · 10개 미만</option><option value="c" ${stockVal==='c'?'selected':''}>c · 5개 미만</option></select></div>
  <div class="field"><label>기본 보관위치</label><select id="pDefaultLocation"><option value="">미설정</option>${locations.map(l=>`<option value="${l.id}" ${p?.default_location_id===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</select></div>
@@ -1424,11 +1525,13 @@ async function saveProduct(id=''){
  if(ov!==null&&(!Number.isInteger(ov)||ov<0))return alert('개별 저재고 기준은 0 이상의 정수로 입력하세요.');
  let packRaw=$('pPackageQty').value.trim(),pack=packRaw===''?null:Number(packRaw);
  if(pack!==null&&(!Number.isFinite(pack)||pack<0))return alert('1포장입수를 확인하세요.');
+ let deRaw=$('pDefaultExpiryDays').value.trim(),defaultExpiryDays=deRaw===''?null:Number(deRaw);
+ if(defaultExpiryDays!==null&&(!Number.isInteger(defaultExpiryDays)||defaultExpiryDays<0||defaultExpiryDays>3650))return alert('기본 유통기한은 0~3650일 정수로 입력하세요.');
  let ss=$('pStockSensitivity').value||null,base=ss==='a'?20:ss==='b'?10:ss==='c'?5:0;
  let payload={name,category:$('pCat').value.trim()||'미분류',subcategory:$('pSubcat').value.trim()||null,
   base_unit:$('pUnit').value.trim()||'개',package_qty:pack,package_unit_text:$('pPackageText').value.trim()||null,
   low_stock_threshold:base,low_stock_override:ov,expiry_sensitivity:$('pExpirySensitivity').value||null,
-  stock_sensitivity:ss,lead_days:lead,default_location_id:$('pDefaultLocation').value||null,master_note:$('pMasterNote').value.trim()||null};
+  stock_sensitivity:ss,lead_days:lead,default_location_id:$('pDefaultLocation').value||null,default_expiry_days:defaultExpiryDays,master_note:$('pMasterNote').value.trim()||null};
  let pid=id;
  if(id){let {error}=await sb.from('products').update(payload).eq('id',id);if(error)return alert('품목 저장 실패: '+error.message)}
  else{let {data,error}=await sb.from('products').insert({...payload,hospital_id:me.hospital_id}).select('id').single();if(error)return alert('품목 등록 실패: '+error.message);pid=data.id}
@@ -1511,7 +1614,7 @@ function downloadProductMasterExcel(){
  let rows=allProducts.map(p=>({
    '품목ID(수정금지)':p.id,'사용상태':p.active?'사용중':'비활성',
    '대분류':p.category||'미분류','소분류':p.subcategory||'','품목명':p.name||'',
-   '유통기한 등급':p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B','유통기한 기준':expiryCriteriaText(p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B'),
+   '유통기한 등급':p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B','기본 유통기한(일)':p.default_expiry_days??'','유통기한 기준':expiryCriteriaText(p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B'),
    '재고등급':p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b','재고등급 기준':stockCriteriaText(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b'),
    '개별 저재고 기준':p.low_stock_override??'','기본 보관위치':byId(locations,p.default_location_id)?.name||'',
    '관리단위':p.base_unit||'개','1포장입수':p.package_qty??'','포장단위원문':p.package_unit_text||'',
@@ -1524,7 +1627,7 @@ function downloadProductMasterExcel(){
   ['사용방법','다운로드한 이 파일을 그대로 수정해서 다시 업로드할 수 있습니다.'],
   ['품목ID','숨김 시스템 식별값입니다. 기존 품목은 삭제/수정하지 마세요.'],
   ['사용상태','사용중 / 비활성 중 하나를 입력합니다. 삭제하려면 비활성으로 변경합니다.'],
-  ['품목 추가','새 행 추가 시 품목ID는 비워두고 품목명부터 입력합니다.'],
+  ['품목 추가','새 행 추가 시 품목ID는 비워두고 품목명부터 입력합니다.'],['기본 유통기한(일)','QR/2D 코드에 유통기한이 없을 때 입고일로부터 자동 계산할 일수입니다. 비워두면 수동입력합니다.'],
   ['바코드/QR','바코드, QR/2D, 박스바코드를 수정할 수 있습니다. 동일 코드는 중복 등록되지 않습니다.'],
   ['중요','품목마스터 업로드는 품목정보만 변경하며 현재 재고/Lot 수량은 변경하지 않습니다.']
  ]);
@@ -1542,11 +1645,12 @@ async function importProductMasterExcel(file){
    if(exp&&!['A','B','C'].includes(exp))errors.push(`${i+2}행 ${name}: 유통기한 등급 확인`);
    if(stock&&!['a','b','c'].includes(stock))errors.push(`${i+2}행 ${name}: 재고등급 확인`);
    if(loc&&!locations.some(x=>x.name===loc))errors.push(`${i+2}행 ${name}: 등록되지 않은 위치 "${loc}"`);
-   let pack=String(r['1포장입수']??'').trim(),override=String(r['개별 저재고 기준']??'').trim();
+   let pack=String(r['1포장입수']??'').trim(),override=String(r['개별 저재고 기준']??'').trim(),defaultExpiry=String(r['기본 유통기한(일)']??'').trim();
+   if(defaultExpiry&&(!Number.isInteger(Number(defaultExpiry))||Number(defaultExpiry)<0||Number(defaultExpiry)>3650))errors.push(`${i+2}행 ${name}: 기본 유통기한(일) 확인`);
    if(pack&&(!Number.isFinite(Number(pack))||Number(pack)<0))errors.push(`${i+2}행 ${name}: 1포장입수 숫자 확인`);
    if(override&&(!Number.isFinite(Number(override))||Number(override)<0))errors.push(`${i+2}행 ${name}: 개별 저재고 기준 확인`);
-   let activeStatus=String(r['사용상태']||'사용중').trim();if(!['사용중','비활성'].includes(activeStatus))errors.push(`${i+2}행 ${name}: 사용상태는 사용중/비활성`);rows.push({product_id:productId,active:activeStatus,name,category:String(r['대분류']||'미분류').trim()||'미분류',subcategory:String(r['소분류']||'').trim(),
-    expiry_sensitivity:exp||categoryDefaultFor(String(r['대분류']||'미분류').trim()||'미분류').expiry_sensitivity||'B',stock_sensitivity:stock||categoryDefaultFor(String(r['대분류']||'미분류').trim()||'미분류').stock_sensitivity||'b',low_stock_override:override,location:loc,unit:String(r['관리단위']||'개').trim()||'개',
+   let activeStatus=String(r['사용상태']||'사용중').trim();if(!['사용중','비활성'].includes(activeStatus))errors.push(`${i+2}행 ${name}: 사용상태는 사용중/비활성`);rows.push({product_id:productId,active:activeStatus,name,default_expiry_days:defaultExpiry,category:String(r['대분류']||'미분류').trim()||'미분류',subcategory:String(r['소분류']||'').trim(),
+    default_expiry_days:defaultExpiry,expiry_sensitivity:exp||categoryDefaultFor(String(r['대분류']||'미분류').trim()||'미분류').expiry_sensitivity||'B',stock_sensitivity:stock||categoryDefaultFor(String(r['대분류']||'미분류').trim()||'미분류').stock_sensitivity||'b',low_stock_override:override,location:loc,unit:String(r['관리단위']||'개').trim()||'개',
     package_qty:pack,package_unit_text:String(r['포장단위원문']||'').trim(),barcode:String(r['바코드']||'').trim(),
     qr:String(r['QR코드']||r['QR']||'').trim(),box_barcode:String(r['박스바코드']||'').trim(),master_note:String(r['원장님 수정 비고']||'').trim()})
   });
