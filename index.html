@@ -82,6 +82,27 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 }
 @media(max-width:760px){.detail-grid{grid-template-columns:1fr}.scan-main-btn{width:150px;height:150px}}
 
+
+.code-stack{display:grid;gap:5px;min-width:180px}
+.code-line{display:grid;grid-template-columns:42px 1fr;gap:6px;align-items:start}
+.code-label{font-size:9px;font-weight:900;color:var(--muted);padding-top:2px}
+.code-value{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;line-height:1.35;word-break:break-all;color:var(--text)}
+.code-empty{color:#aaa}
+.product-main{display:grid;gap:3px}
+.product-submeta{display:flex;gap:6px;flex-wrap:wrap}
+.info-chip{display:inline-flex;padding:3px 7px;border-radius:999px;background:#f4efec;border:1px solid var(--line);font-size:9px;color:var(--muted)}
+.section-title{font-size:12px;font-weight:900;margin:16px 0 8px;color:var(--text)}
+.form-section{border:1px solid var(--line);border-radius:13px;padding:12px;margin:10px 0;background:#fff}
+.form-section-title{font-size:12px;font-weight:900;margin-bottom:8px}
+.inventory-actions{display:flex;gap:5px;flex-wrap:wrap}
+.inventory-actions button{padding:7px 9px}
+@media(max-width:680px){
+ .code-stack{min-width:150px}
+ .code-value{font-size:9px}
+ .inventory-actions{min-width:180px}
+ .inventory-actions button{font-size:10px;padding:7px 8px}
+ #inventoryBody td:nth-child(2),#inventoryBody th:nth-child(2){display:none}
+}
 </style>
 </head>
 <body>
@@ -585,19 +606,19 @@ function renderUsage(){
 }
 function openProductDetail(pid){
  let p=byId(products,pid);if(!p)return;
- let lots=productLots(pid),codes=productCodes.filter(c=>c.product_id===pid),used30=usageQty(pid,30),incoming=pendingIncoming(pid),rec=recommendedOrder(pid,30),recent=transactions.filter(t=>t.product_id===pid).slice(0,10);
+ let lots=productLots(pid),used30=usageQty(pid,30),incoming=pendingIncoming(pid),rec=recommendedOrder(pid,30),recent=transactions.filter(t=>t.product_id===pid).slice(0,10);
  openModal('품목 상세',`
-  <div><b style="font-size:20px">${esc(p.name)}</b><div class="muted small">${esc(p.category||'미분류')} · ${esc(p.base_unit||'개')}</div></div>
+  <div><b style="font-size:20px">${esc(p.name)}</b><div class="muted small">${esc(p.category||'미분류')}${p.subcategory?' · '+esc(p.subcategory):''} · ${esc(p.base_unit||'개')}</div></div>
+  <div class="form-section"><div class="form-section-title">등록 코드</div>${renderCodeStack(pid,true)}${isAdmin()?`<button class="secondary" style="margin-top:10px" onclick="closeModal();openProduct('${pid}')">품목정보 / 코드 수정</button>`:''}</div>
   <div class="detail-grid" style="margin-top:12px">
    <div class="detail-card"><small>현재재고</small><b style="display:block;font-size:22px">${fmt(productQty(pid))}</b></div>
    <div class="detail-card"><small>최근 30일 사용</small><b style="display:block;font-size:22px">${fmt(used30)}</b></div>
    <div class="detail-card"><small>입고예정 / 권장발주</small><b style="display:block;font-size:22px">${fmt(incoming)} / ${fmt(rec)}</b></div>
   </div>
-  <h4>위치 / 유통기한 Lot</h4>
-  <div class="table-wrap"><table><thead><tr><th>위치</th><th>유통기한</th><th>Lot</th><th>수량</th></tr></thead><tbody>${lots.map(l=>`<tr><td>${esc(byId(locations,l.location_id)?.name||'-')}</td><td>${esc(l.expiry_date||'미확인')}</td><td>${esc(l.lot_no||'-')}</td><td>${fmt(l.quantity)}</td></tr>`).join('')||'<tr><td colspan="4">재고 없음</td></tr>'}</tbody></table></div>
-  <h4>등록 코드</h4><div>${codes.map(c=>`<span class="loc-chip">${esc(c.code_type)} · ${esc(c.code_value)}</span>`).join('')||'<span class="muted">등록 코드 없음</span>'}</div>
-  <h4>최근 이력</h4><div class="table-wrap"><table><tbody>${recent.map(t=>`<tr><td>${dstr(t.created_at)}</td><td>${esc(t.tx_type)}</td><td>${fmt(t.quantity)}</td><td>${esc(t.expiry_date||'-')}</td></tr>`).join('')}</tbody></table></div>
- `,`<button class="secondary" onclick="closeModal()">닫기</button><button class="secondary" onclick="closeModal();openMove('${pid}')">위치이동</button><button class="primary" onclick="closeModal();openPurchase('${pid}')">구매요청</button>`)
+  <div class="section-title">위치 / 유통기한 Lot</div>
+  <div class="table-wrap"><table><thead><tr><th>위치</th><th>유통기한</th><th>Lot</th><th>수량</th></tr></thead><tbody>${lots.map(l=>`<tr><td>${esc(byId(locations,l.location_id)?.name||'위치 미지정')}</td><td>${esc(l.expiry_date||'미확인')}</td><td>${esc(l.lot_no||'-')}</td><td><b>${fmt(l.quantity)}</b></td></tr>`).join('')||'<tr><td colspan="4">재고 없음</td></tr>'}</tbody></table></div>
+  <div class="section-title">최근 이력</div><div class="table-wrap"><table><tbody>${recent.map(t=>`<tr><td>${dstr(t.created_at)}</td><td>${esc(t.tx_type)}</td><td>${fmt(t.quantity)}</td><td>${esc(t.expiry_date||'-')}</td></tr>`).join('')}</tbody></table></div>
+ `,`<button class="secondary" onclick="closeModal()">닫기</button>${isAdmin()?`<button class="secondary" onclick="closeModal();openProduct('${pid}')">정보수정</button>`:''}<button class="secondary" onclick="closeModal();openMove('${pid}')">위치이동</button><button class="primary" onclick="closeModal();openPurchase('${pid}')">구매요청</button>`)
 }
 function scanFromHome(){let c=$('scanHomeCode')?.value.trim();if(c)openScanHub(c)}
 
@@ -792,7 +813,8 @@ function renderDashboard(){
 function renderInventory(){
  let q=($('invQ')?.value||'').toLowerCase(),locFilter=$('invLocation')?.value||'all',expFilter=$('invExpiryFilter')?.value||'all',stockFilter=$('invStockFilter')?.value||'all';
  let arr=products.filter(p=>{
-  let searchText=(p.name+' '+(p.category||'')+' '+primaryCode(p.id,'BARCODE')+' '+primaryCode(p.id,'QR')).toLowerCase();
+  let allCodes=productCodesFor(p.id).map(c=>c.code_value).join(' ');
+  let searchText=(p.name+' '+(p.category||'')+' '+(p.subcategory||'')+' '+allCodes).toLowerCase();
   if(q&&!searchText.includes(q))return false;
   let qty=productQty(p.id),lots=productLots(p.id);
   if(locFilter==='__UNASSIGNED__'&&!lots.some(x=>!x.location_id&&Number(x.quantity)>0))return false;
@@ -804,22 +826,31 @@ function renderInventory(){
   if(expFilter==='6m'&&!(ex&&days<=180))return false;
   return true
  });
- let sort=$('invSort')?.value||'name';arr.sort((a,b)=>sort==='qtyAsc'?productQty(a.id)-productQty(b.id):sort==='qtyDesc'?productQty(b.id)-productQty(a.id):a.name.localeCompare(b.name,'ko'));
+ let sort=$('invSort')?.value||'name';
+ arr.sort((a,b)=>sort==='qtyAsc'?productQty(a.id)-productQty(b.id):sort==='qtyDesc'?productQty(b.id)-productQty(a.id):a.name.localeCompare(b.name,'ko'));
  $('inventoryBody').innerHTML=arr.map(p=>{
   let qty=productQty(p.id),threshold=gradeStockThreshold(p),low=qty<threshold,nearest=productNearestExpiry(p.id),nearestText=expiryText(nearest);
   let locs=productLocations(p.id).map(x=>`<span class="loc-chip">${esc(x.id?byId(locations,x.id)?.name||'미등록':'★ 위치 미지정')} <b>${fmt(x.qty)}</b></span>`).join('')||'<span class="muted">재고 없음</span>';
-  let barcode=primaryCode(p.id,'BARCODE'),qr=primaryCode(p.id,'QR'),box=primaryCode(p.id,'BOX_BARCODE');
   return `<tr>
-   <td><button class="ghost" style="padding:0;font-weight:900" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="tiny muted">${esc(p.base_unit||'개')}</div></td>
+   <td><div class="product-main"><button class="ghost" style="padding:0;font-weight:900;text-align:left" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="product-submeta"><span class="info-chip">${esc(p.base_unit||'개')}</span>${p.default_expiry_days!=null?`<span class="info-chip">기본기한 ${fmt(p.default_expiry_days)}일</span>`:''}</div></div></td>
    <td>${esc(p.category||'미분류')}${p.subcategory?`<div class="tiny muted">${esc(p.subcategory)}</div>`:''}</td>
-   <td><div class="tiny"><b>B</b> ${esc(barcode||'-')}</div><div class="tiny muted"><b>QR</b> ${esc(qr||'-')}</div>${box?`<div class="tiny muted"><b>BOX</b> ${esc(box)}</div>`:''}${isAdmin()?`<button class="ghost" style="padding:3px 0;margin-top:3px" onclick="openProduct('${p.id}')">코드 수정</button>`:''}</td>
-   <td>${locs}</td><td><b>${fmt(qty)}</b></td>
-   <td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`민감도 ${p.expiry_sensitivity}`:'기본')}</div></td>
-   <td>${fmt(threshold)} 미만${p.stock_sensitivity?`<div class="tiny muted">${esc(p.stock_sensitivity)}등급${p.low_stock_override!=null?' · 개별예외':''}</div>`:''}</td>
+   <td>${renderCodeStack(p.id,true)}${isAdmin()?`<button class="ghost" style="padding:5px 0;margin-top:4px" onclick="openProduct('${p.id}')">품목정보 수정</button>`:''}</td>
+   <td>${locs}</td>
+   <td><b style="font-size:16px">${fmt(qty)}</b></td>
+   <td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`등급 ${p.expiry_sensitivity}`:'기본')}</div></td>
+   <td>${fmt(threshold)} 미만<div class="tiny muted">${esc(p.stock_sensitivity||'b')}등급${p.low_stock_override!=null?' · 개별예외':''}</div></td>
    <td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td>
-   <td><div class="actions"><button class="secondary" onclick="openTransaction('USE','${p.id}')">사용</button><button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button><button class="secondary" onclick="openMove('${p.id}')">위치 지정/이동</button><button class="ghost" onclick="openProductDetail('${p.id}')">상세</button><button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button><button class="ghost" onclick="openPurchase('${p.id}')">요청</button>${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">설정</button>`:''}</div></td>
+   <td><div class="inventory-actions">
+    <button class="primary" onclick="openTransaction('USE','${p.id}')">사용</button>
+    <button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button>
+    <button class="secondary" onclick="openProductDetail('${p.id}')">상세</button>
+    <button class="secondary" onclick="openMove('${p.id}')">위치이동</button>
+    <button class="ghost" onclick="openPurchase('${p.id}')">구매요청</button>
+    <button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button>
+    ${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">정보수정</button>`:''}
+   </div></td>
   </tr>`
- }).join('')||`<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
+ }).join('')||`<tr><td colspan="9" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
 }
 
 function togglePurchaseDateInputs(){
@@ -1450,24 +1481,21 @@ function renderProductManagement(){
  let arr=allProducts.filter(p=>{
   if(status==='active'&&!p.active)return false;
   if(status==='inactive'&&p.active)return false;
-  let s=(p.name+' '+(p.category||'')+' '+(p.subcategory||'')+' '+primaryCode(p.id,'BARCODE')+' '+primaryCode(p.id,'QR')).toLowerCase();
+  let codes=productCodesFor(p.id).map(c=>c.code_value).join(' ');
+  let s=(p.name+' '+(p.category||'')+' '+(p.subcategory||'')+' '+codes).toLowerCase();
   return !q||s.includes(q)
  }).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
  $('productManageBody').innerHTML=arr.map(p=>`<tr>
-  <td><b>${esc(p.name)}</b><div class="tiny muted">${esc(p.base_unit||'개')}</div></td>
+  <td><div class="product-main"><b>${esc(p.name)}</b><div class="product-submeta"><span class="info-chip">${esc(p.base_unit||'개')}</span>${p.package_qty?`<span class="info-chip">1포장 ${fmt(p.package_qty)}</span>`:''}</div></div></td>
   <td>${esc(p.category||'미분류')}${p.subcategory?`<div class="tiny muted">${esc(p.subcategory)}</div>`:''}</td>
   <td>${esc(p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B')}</td>
   <td>${p.default_expiry_days!=null?`${fmt(p.default_expiry_days)}일`:'수동'}</td>
   <td>${esc(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b')}<div class="tiny muted">${esc(stockCriteriaText(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b'))}</div></td>
   <td>${esc(byId(locations,p.default_location_id)?.name||'-')}</td>
-  <td><span class="code">${esc(primaryCode(p.id,'BARCODE')||'-')}</span></td>
-  <td><span class="code">${esc(primaryCode(p.id,'QR')||'-')}</span></td>
+  <td colspan="2">${renderCodeStack(p.id,true)}</td>
   <td><span class="badge ${p.active?'b-ok':'b-dark'}">${p.active?'사용중':'비활성'}</span></td>
-  <td><div class="actions">
-    <button class="secondary" onclick="openProduct('${p.id}')">수정</button>
-    ${p.active?`<button class="danger" onclick="deactivateProduct('${p.id}')">삭제</button>`:`<button class="primary" onclick="restoreProduct('${p.id}')">다시 활성화</button>`}
-  </div></td>
- </tr>`).join('')||'<tr><td colspan="9" class="muted" style="text-align:center;padding:28px">조건에 맞는 품목이 없습니다.</td></tr>'
+  <td><div class="actions"><button class="primary" onclick="openProduct('${p.id}')">수정</button>${p.active?`<button class="danger" onclick="deactivateProduct('${p.id}')">삭제</button>`:`<button class="secondary" onclick="restoreProduct('${p.id}')">다시 활성화</button>`}</div></td>
+ </tr>`).join('')||'<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 품목이 없습니다.</td></tr>'
 }
 async function deactivateProduct(id){
  let p=byId(allProducts,id);if(!p)return;
@@ -1488,28 +1516,38 @@ async function restoreProduct(id){
 
 function openProduct(id=''){
  let p=id?byId(allProducts,id):null;
- let codes=id?productCodes.filter(c=>c.product_id===id&&c.active):[];
- let code=(type)=>codes.find(c=>c.code_type===type)?.code_value||'';
  let category=p?.category||'미분류',d=categoryDefaultFor(category);
  let expVal=p?.expiry_sensitivity||d.expiry_sensitivity||'B',stockVal=p?.stock_sensitivity||d.stock_sensitivity||'b';
- openModal(p?'품목 설정':'품목 등록',`
- <div class="field"><label>품목명</label><input id="pName" value="${esc(p?.name||'')}"></div>
- <div class="field"><label>대분류</label><input id="pCat" value="${esc(category)}" onchange="applyProductCategoryDefaults(${p?'false':'true'})"></div>
- <div class="field"><label>소분류</label><input id="pSubcat" value="${esc(p?.subcategory||'')}"></div>
- <div class="field"><label>관리단위</label><input id="pUnit" value="${esc(p?.base_unit||'개')}"></div>
- <div class="field"><label>1포장입수</label><input id="pPackageQty" type="number" min="0" step="1" value="${p?.package_qty??''}" placeholder="예: 10"></div>
- <div class="field"><label>포장단위원문</label><input id="pPackageText" value="${esc(p?.package_unit_text||'')}" placeholder="예: 1박스 10개 / 1팩 4줄"></div>
- <div class="field"><label>개별 저재고 기준 (예외 품목만)</label><input id="pMin" type="number" min="0" step="1" value="${p?.low_stock_override??''}" placeholder="비우면 재고등급 기준 자동 적용"><div id="pStockHint" class="tiny muted"></div></div>
- <div class="field"><label>기본 유통기한 (등록일 기준)</label><div class="code-row"><input id="pDefaultExpiryDays" type="number" min="0" max="3650" step="1" value="${p?.default_expiry_days??''}" placeholder="예: 365"><span class="muted small">일</span></div><div class="tiny muted">QR/2D 코드에 유통기한이 없을 때 입고일 + 이 일수로 자동 입력합니다. 비워두면 수동 입력.</div></div>
- <div class="field"><label>유통기한 등급</label><select id="pExpirySensitivity"><option value="A" ${expVal==='A'?'selected':''}>A · 1.5년 / 1년 / 6개월</option><option value="B" ${expVal==='B'?'selected':''}>B · 1년 / 6개월</option><option value="C" ${expVal==='C'?'selected':''}>C · 6개월</option></select><div id="pExpiryHint" class="tiny muted">대분류 기본값 적용 · 필요 시 이 품목만 변경</div></div>
- <div class="field"><label>재고등급</label><select id="pStockSensitivity" onchange="updateProductStockHint()"><option value="a" ${stockVal==='a'?'selected':''}>a · 20개 미만</option><option value="b" ${stockVal==='b'?'selected':''}>b · 10개 미만</option><option value="c" ${stockVal==='c'?'selected':''}>c · 5개 미만</option></select></div>
- <div class="field"><label>기본 보관위치</label><select id="pDefaultLocation"><option value="">미설정</option>${locations.map(l=>`<option value="${l.id}" ${p?.default_location_id===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</select></div>
- <div class="field"><label>바코드</label><input id="pBarcode" value="${esc(code('BARCODE'))}" placeholder="1D 바코드 스캔 또는 직접입력"></div>
- <div class="field"><label>QR / 2D 코드</label><input id="pQr" value="${esc(code('QR'))}" placeholder="QR·DataMatrix 스캔값"></div>
- <div class="field"><label>박스 바코드</label><input id="pBoxBarcode" value="${esc(code('BOX_BARCODE'))}" placeholder="있을 경우 입력"></div>
- <div class="field"><label>원장님 수정 비고</label><textarea id="pMasterNote" rows="2">${esc(p?.master_note||'')}</textarea></div>
- <div class="field"><label>품목별 예상입고 소요일</label><input id="pLeadDays" type="number" min="0" max="365" step="1" value="${p?.lead_days??''}" placeholder="미입력 시 관리자 기본값 사용"></div>
- `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveProduct('${id}')">저장</button>`);setTimeout(()=>{updateProductStockHint();applyProductCategoryDefaults(false)},0)
+ let barcode=id?primaryCode(id,'BARCODE'):'',qr=id?primaryCode(id,'QR'):'',box=id?primaryCode(id,'BOX_BARCODE'):'',extras=id?extraCodes(id):[];
+ openModal(p?'품목정보 수정':'품목 등록',`
+ ${p?`<div class="notice"><b>현재 등록 코드</b><div style="margin-top:8px">${renderCodeStack(id,true)}</div><div class="tiny muted" style="margin-top:6px">아래 입력칸에는 현재 등록값이 자동으로 불러와집니다. 수정 후 저장하세요.</div></div>`:''}
+ <div class="form-section"><div class="form-section-title">기본 정보</div>
+  <div class="field"><label>품목명</label><input id="pName" value="${esc(p?.name||'')}"></div>
+  <div class="field"><label>대분류</label><input id="pCat" value="${esc(category)}" onchange="applyProductCategoryDefaults(${p?'false':'true'})"></div>
+  <div class="field"><label>소분류</label><input id="pSubcat" value="${esc(p?.subcategory||'')}"></div>
+  <div class="field"><label>관리단위</label><input id="pUnit" value="${esc(p?.base_unit||'개')}"></div>
+ </div>
+ <div class="form-section"><div class="form-section-title">바코드 / QR</div>
+  <div class="field"><label>1D 바코드</label><input id="pBarcode" value="${esc(barcode)}" placeholder="바코드 스캔 또는 직접입력"></div>
+  <div class="field"><label>QR / 2D 코드</label><input id="pQr" value="${esc(qr)}" placeholder="QR·DataMatrix 스캔값"></div>
+  <div class="field"><label>박스 바코드</label><input id="pBoxBarcode" value="${esc(box)}" placeholder="있을 경우 입력"></div>
+  ${extras.length?`<div class="tiny muted">기타 기존 코드: ${extras.map(c=>`${esc(c.code_type)} · ${esc(c.code_value)}`).join(' / ')}</div>`:''}
+ </div>
+ <div class="form-section"><div class="form-section-title">재고 / 유통기한 설정</div>
+  <div class="field"><label>1포장입수</label><input id="pPackageQty" type="number" min="0" step="1" value="${p?.package_qty??''}" placeholder="예: 10"></div>
+  <div class="field"><label>포장단위원문</label><input id="pPackageText" value="${esc(p?.package_unit_text||'')}" placeholder="예: 1박스 10개 / 1팩 4줄"></div>
+  <div class="field"><label>기본 유통기한 (등록일 기준)</label><div class="code-row"><input id="pDefaultExpiryDays" type="number" min="0" max="3650" step="1" value="${p?.default_expiry_days??''}" placeholder="예: 365"><span class="muted small">일</span></div><div class="tiny muted">QR에 유통기한이 없을 때 자동 계산. 비우면 입고 시 수동입력.</div></div>
+  <div class="field"><label>유통기한 등급</label><select id="pExpirySensitivity"><option value="A" ${expVal==='A'?'selected':''}>A · 1.5년 / 1년 / 6개월</option><option value="B" ${expVal==='B'?'selected':''}>B · 1년 / 6개월</option><option value="C" ${expVal==='C'?'selected':''}>C · 6개월</option></select><div id="pExpiryHint" class="tiny muted"></div></div>
+  <div class="field"><label>재고등급</label><select id="pStockSensitivity" onchange="updateProductStockHint()"><option value="a" ${stockVal==='a'?'selected':''}>a · 20개 미만</option><option value="b" ${stockVal==='b'?'selected':''}>b · 10개 미만</option><option value="c" ${stockVal==='c'?'selected':''}>c · 5개 미만</option></select></div>
+  <div class="field"><label>개별 저재고 기준</label><input id="pMin" type="number" min="0" step="1" value="${p?.low_stock_override??''}" placeholder="비우면 재고등급 기준"><div id="pStockHint" class="tiny muted"></div></div>
+  <div class="field"><label>기본 보관위치</label><select id="pDefaultLocation"><option value="">미설정</option>${locations.map(l=>`<option value="${l.id}" ${p?.default_location_id===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</select></div>
+ </div>
+ <div class="form-section"><div class="form-section-title">구매 / 기타</div>
+  <div class="field"><label>품목별 예상입고 소요일</label><input id="pLeadDays" type="number" min="0" max="365" step="1" value="${p?.lead_days??''}" placeholder="미입력 시 관리자 기본값 사용"></div>
+  <div class="field"><label>원장님 수정 비고</label><textarea id="pMasterNote" rows="2">${esc(p?.master_note||'')}</textarea></div>
+ </div>
+ `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveProduct('${id}')">${p?'수정 저장':'품목 등록'}</button>`);
+ setTimeout(()=>{updateProductStockHint();applyProductCategoryDefaults(false)},0)
 }
 function updateProductStockHint(){
  if(!$('pStockSensitivity')||!$('pStockHint'))return;
@@ -1607,7 +1645,38 @@ function normDate(v){
  return `${y}-${String(mm[2]).padStart(2,'0')}-${String(mm[3]).padStart(2,'0')}`
 }
 
-function primaryCode(pid,type){return productCodes.find(c=>c.product_id===pid&&c.code_type===type&&c.active)?.code_value||''}
+function productCodesFor(pid){return productCodes.filter(c=>c.product_id===pid&&c.active)}
+function codeLooks1D(v){return /^\d{8,18}$/.test(String(v||'').trim())}
+function codeLooks2D(v){
+ let s=String(v||'').trim();
+ return s.length>18||/^\(01\)/.test(s)||/^01\d{14}/.test(s)||/\(17\)|\(10\)|\(21\)/.test(s)
+}
+function primaryCode(pid,type){
+ let cs=productCodesFor(pid),exact=cs.find(c=>c.code_type===type);
+ if(exact)return exact.code_value||'';
+ // legacy BARCODE_OR_QR / OTHER fallback
+ let legacy=cs.filter(c=>['BARCODE_OR_QR','OTHER'].includes(c.code_type));
+ if(type==='BARCODE'){
+  let c=legacy.find(x=>codeLooks1D(x.code_value));if(c)return c.code_value||''
+ }
+ if(type==='QR'){
+  let c=legacy.find(x=>codeLooks2D(x.code_value));if(c)return c.code_value||''
+ }
+ return ''
+}
+function extraCodes(pid){
+ let main=new Set([primaryCode(pid,'BARCODE'),primaryCode(pid,'QR'),primaryCode(pid,'BOX_BARCODE')].filter(Boolean));
+ return productCodesFor(pid).filter(c=>!main.has(c.code_value))
+}
+function renderCodeStack(pid,showExtra=true){
+ let b=primaryCode(pid,'BARCODE'),q=primaryCode(pid,'QR'),box=primaryCode(pid,'BOX_BARCODE'),extras=showExtra?extraCodes(pid):[];
+ return `<div class="code-stack">
+  <div class="code-line"><span class="code-label">BAR</span><span class="code-value ${b?'':'code-empty'}">${esc(b||'미등록')}</span></div>
+  <div class="code-line"><span class="code-label">QR</span><span class="code-value ${q?'':'code-empty'}">${esc(q||'미등록')}</span></div>
+  ${box?`<div class="code-line"><span class="code-label">BOX</span><span class="code-value">${esc(box)}</span></div>`:''}
+  ${extras.slice(0,2).map(c=>`<div class="code-line"><span class="code-label">${esc(c.code_type||'기타')}</span><span class="code-value">${esc(c.code_value)}</span></div>`).join('')}
+ </div>`
+}
 function expiryCriteriaText(g){g=String(g||'').toUpperCase();return g==='A'?'1년 6개월 / 1년 / 6개월':g==='B'?'1년 / 6개월':g==='C'?'6개월':''}
 function stockCriteriaText(g){g=String(g||'').toLowerCase();return g==='a'?'20개 미만':g==='b'?'10개 미만':g==='c'?'5개 미만':''}
 function downloadProductMasterExcel(){
