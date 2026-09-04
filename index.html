@@ -109,6 +109,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
  #page-import .panel-head>.actions input[type=file]{width:100%}
  #page-import .panel-head>.actions .danger{width:100%}
 }
+
+@media(max-width:680px){
+ input,select,textarea{font-size:16px!important}
+ .mobile-logout{width:100%;margin-top:8px}
+}
 </style>
 </head>
 <body>
@@ -125,9 +130,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 
 <div id="loginView" class="center hide">
  <div class="auth-card">
-  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management</span></div></div>
-  <div class="field"><label>로그인 ID</label><input id="loginId" autocomplete="username" value="kmk"></div>
-  <div class="field"><label>비밀번호</label><input id="loginPw" type="password" autocomplete="current-password"></div>
+  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management · V17.17</span></div></div>
+  <div class="field"><label>로그인 ID</label><input id="loginId" autocomplete="username" autocapitalize="off" spellcheck="false" enterkeyhint="next" value="kmk" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPw').focus()}"></div>
+  <div class="field"><label>비밀번호</label><input id="loginPw" type="password" autocomplete="current-password" enterkeyhint="go" onkeydown="if(event.key==='Enter'){event.preventDefault();login()}"></div>
   <button class="primary full" onclick="login()">로그인</button>
   <button class="ghost full" onclick="showSetup()">최초 설정 화면</button>
   <div id="loginMsg"></div>
@@ -833,7 +838,11 @@ async function login(){
   await afterSession();
  }catch(e){msg($('loginMsg'),e.message,'bad')}
 }
-async function logout(){await sb.auth.signOut();location.reload()}
+async function logout(skipConfirm=false){
+ if(!skipConfirm && !confirm('로그아웃하시겠습니까?'))return;
+ await sb.auth.signOut();
+ location.reload()
+}
 async function afterSession(){
  const {data:{user}}=await sb.auth.getUser(); if(!user)return logout();
  const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).single(); if(error||!data)return logout();
@@ -884,6 +893,7 @@ function openMobileMore(){
    <button class="secondary" onclick="closeModal();showPage('audit')">감사로그</button>
    <button class="secondary" onclick="closeModal();showPage('admin')">관리자 설정</button>`:''}
   </div>
+  <button class="danger mobile-logout" onclick="closeModal();setTimeout(()=>logout(),80)">로그아웃</button>
  `,`<button class="secondary" onclick="closeModal()">닫기</button>`)
 }
 function syncMobileImportFile(input){
@@ -1045,7 +1055,7 @@ function renderHistory(){
  $('historyBody').innerHTML=arr.map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id),loc=byId(locations,t.location_id),reversed=transactions.some(x=>x.related_tx_id===t.id&&x.tx_type==='REVERSAL');return `<tr class="${historySelected.has(t.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${historySelected.has(t.id)?'checked':''} onchange="setHistorySelected('${t.id}',this.checked)"></td>
  <td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
- <td><b>${esc(p?.name||'-')}</b></td><td>${esc(t.expiry_date||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc(loc?.name||'-')}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td><td>${t.discard_reason?`<b>${esc(t.discard_reason)}</b><br>`:''}${esc(t.memo||'')}</td>
+ <td><b>${esc(p?.name||'-')}</b></td><td>${esc(t.expiry_date||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc(loc?.name||'-')}</td><td>${esc((t.operator_emp_no||u?.emp_no||'')+' '+(t.operator_name||u?.name||''))}</td><td>${t.discard_reason?`<b>${esc(t.discard_reason)}</b><br>`:''}${esc(t.memo||'')}</td>
  <td>${isAdmin()&&t.tx_type!=='REVERSAL'&&!reversed&&['IN','USE','DISCARD','INITIAL_STOCK','IMPORT_ADJUST'].includes(t.tx_type)?`<button class="danger" onclick="reverseTransaction('${t.id}')">되돌리기</button>`:reversed?'<span class="badge b-ok">되돌림 완료</span>':'-'}</td>
  </tr>`}).join('')||`<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 이력이 없습니다.</td></tr>`;
  updateHistorySelectionUi()
@@ -1115,7 +1125,7 @@ async function approveCount(id){
 
 
 function staffRoleLabel(role){
- return role==='HOSPITAL_ADMIN'?'관리자':role==='MANAGER'?'매니저':role==='STAFF'?'직원':role||'-'
+ return role==='SUPER_ADMIN'?'시스템 관리자':role==='HOSPITAL_ADMIN'?'Doctor / 원장':role==='MANAGER'?'Manager':role==='STAFF'?'직원':role||'-'
 }
 async function staffApi(payload){
  let {data:{session}}=await sb.auth.getSession();
@@ -1136,9 +1146,9 @@ function openStaffModal(id=''){
   <div class="field"><label>로그인 ID</label><input id="staffLoginId" value="${esc(u?.login_id||'')}" placeholder="예: nurse01"></div>
   <div class="field"><label>${u?'새 비밀번호':'초기 비밀번호'}</label><input id="staffPassword" type="password" placeholder="${u?'변경할 때만 입력':'초기 로그인 비밀번호'}"><div class="tiny muted">${u?'비워두면 기존 비밀번호 유지':'직원은 최초 로그인 후 비밀번호 변경 대상으로 등록됩니다.'}</div></div>
   <div class="field"><label>권한</label><select id="staffRole">
-    <option value="STAFF" ${u?.role==='STAFF'||!u?'selected':''}>직원</option>
-    <option value="MANAGER" ${u?.role==='MANAGER'?'selected':''}>매니저</option>
-    <option value="HOSPITAL_ADMIN" ${u?.role==='HOSPITAL_ADMIN'?'selected':''}>관리자</option>
+    <option value="STAFF" ${u?.role==='STAFF'||!u?'selected':''}>직원 · 입고/사용/폐기</option>
+    <option value="MANAGER" ${u?.role==='MANAGER'?'selected':''}>Manager · 운영관리</option>
+    <option value="HOSPITAL_ADMIN" ${u?.role==='HOSPITAL_ADMIN'?'selected':''}>Doctor / 원장 · 전체관리</option>
   </select></div>
   <div class="field"><label style="display:flex;gap:9px;align-items:center"><input id="staffPurchaseApprover" type="checkbox" ${u?.purchase_approver?'checked':''}> 구매요청 검토/승인 권한 부여</label>
   <div class="tiny muted">체크하면 승인대기 구매요청을 승인/반려하고 발주처리할 수 있습니다.</div></div>
@@ -1166,6 +1176,24 @@ async function restoreStaff(id){
  try{await staffApi({action:'restore',id});toast('직원 계정 다시 활성화');await reloadAll();renderAdmin()}catch(e){alert(e.message)}
 }
 
+async function deleteStaffHard(id){
+ let u=allProfiles.find(x=>x.id===id);if(!u)return;
+ if(id===me.id)return alert('현재 로그인 중인 본인 계정은 삭제할 수 없습니다.');
+ let text=prompt(`${u.name} 직원 계정을 영구 삭제합니다.\n\n로그인 계정과 직원 목록에서 완전히 제거됩니다.\n기존 재고 거래이력의 사번/이름 기록은 보존됩니다.\n\n계속하려면 "삭제"를 입력하세요.`);
+ if(text!=='삭제')return;
+ if(!confirm(`${u.name} (${u.emp_no||'사번 없음'}) 계정을 정말 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`))return;
+ try{
+  let {data,error}=await sb.rpc('admin_delete_staff_hard',{p_target_id:id});
+  if(error)throw error;
+  toast(`${u.name} 직원 계정 삭제 완료`);
+  await reloadAll();
+  renderAdmin()
+ }catch(e){
+  alert('직원 삭제 실패: '+(e?.message||String(e)))
+ }
+}
+
+
 function renderAdmin(){
  $('adminLoginId').value=me.login_id||''; if($('adminDefaultLeadDays'))$('adminDefaultLeadDays').value=Number(hospitalSettings?.default_lead_days??3);
  let sf=$('staffStatusFilter')?.value||'active';
@@ -1179,7 +1207,8 @@ function renderAdmin(){
   <td><span class="badge ${u.active?'b-ok':'b-dark'}">${u.active?'사용중':'사용중지'}</span></td>
   <td><div class="actions">
    <button class="secondary" onclick="openStaffModal('${u.id}')">수정</button>
-   ${u.active?`<button class="danger" onclick="deactivateStaff('${u.id}')" ${u.id===me.id?'disabled':''}>제거</button>`:`<button class="primary" onclick="restoreStaff('${u.id}')">다시 활성화</button>`}
+   ${u.active?`<button class="secondary" onclick="deactivateStaff('${u.id}')" ${u.id===me.id?'disabled':''}>사용중지</button>`:`<button class="primary" onclick="restoreStaff('${u.id}')">다시 활성화</button>`}
+   <button class="danger" onclick="deleteStaffHard('${u.id}')" ${u.id===me.id?'disabled':''}>삭제</button>
   </div></td>
  </tr>`).join('')||'<tr><td colspan="7" class="muted" style="text-align:center;padding:28px">해당 상태의 직원이 없습니다.</td></tr>';
  if($('locationAdminBody'))$('locationAdminBody').innerHTML=locations.map(l=>`<tr><td><b>${esc(l.name)}</b></td><td>${l.active?'사용중':'중지'}</td><td><div class="actions"><button class="secondary" onclick="openLocationModal('${l.id}')">이름변경</button><button class="danger" onclick="deactivateLocation('${l.id}')">사용중지</button></div></td></tr>`).join('');
@@ -1239,23 +1268,62 @@ function filterTxProducts(type){
  updateTxLots(type);applyTxDefaultLocation(type);applyTxDefaultExpiry(type,false)
 }
 
+
+function findProfileByEmpCode(raw){
+ let code=String(raw||'').trim().replace(/\s+/g,'');
+ if(!code)return null;
+ return allProfiles.find(u=>u.active && !u.is_emergency_admin && (
+   String(u.emp_no||'').trim().replace(/\s+/g,'').toLowerCase()===code.toLowerCase() ||
+   String(u.login_id||'').trim().replace(/\s+/g,'').toLowerCase()===code.toLowerCase()
+ ))||null
+}
+function resolveOperatorCode(){
+ let input=$('txOperatorCode'),result=$('txOperatorResult'),sel=$('txActor');
+ if(!input||!sel)return false;
+ let u=findProfileByEmpCode(input.value);
+ if(!u){
+   if(result)result.innerHTML='<span style="color:#b84c4c">등록된 사번/직원코드를 찾지 못했습니다.</span>';
+   return false
+ }
+ sel.value=u.id;
+ if(result)result.innerHTML=`<b>${esc(u.emp_no||'-')} · ${esc(u.name||'-')}</b> 처리자로 확인됨`;
+ return true
+}
+function syncOperatorFromSelect(){
+ let sel=$('txActor'),input=$('txOperatorCode'),result=$('txOperatorResult');
+ if(!sel||!input)return;
+ let u=byId(allProfiles,sel.value)||byId(profiles,sel.value);
+ input.value=u?.emp_no||'';
+ if(result)result.innerHTML=u?`<b>${esc(u.emp_no||'-')} · ${esc(u.name||'-')}</b> 처리자 선택`:''
+}
+
 function openTransaction(type,pid='',prefillCode=''){
  let outward=['USE','DISCARD'].includes(type);
+ let defaultActor=allProfiles.find(u=>u.id===me?.id)||me;
  openModal(type==='IN'?'입고':type==='USE'?'사용':'폐기',`
-  <div class="field"><label>바코드 / QR 코드</label><div class="code-row"><input id="txScanCode" value="${esc(prefillCode)}" placeholder="스캔 또는 코드 입력 후 Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveTxCode('${type}')}"><button class="secondary" onclick="resolveTxCode('${type}')">코드 조회</button><button class="secondary" onclick="startCameraScan('${type}')">카메라</button></div><div id="txCodeResult" class="tiny muted" style="margin-top:5px"></div><div id="scanArea" class="scanbox hide"></div></div>
-  <div class="field"><label>품목명 검색</label><input id="txProductSearch" placeholder="바코드/QR이 없으면 품목명 입력" oninput="filterTxProducts('${type}')"></div>
+  <div class="field"><label>바코드 / QR 코드</label><div class="code-row"><input id="txScanCode" value="${esc(prefillCode)}" placeholder="스캔 또는 코드 입력 후 Enter" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveTxCode('${type}');setTimeout(()=>this.focus({preventScroll:true}),40)}"><button class="secondary" onclick="resolveTxCode('${type}')">코드 조회</button><button class="secondary" onclick="startCameraScan('${type}')">카메라</button></div><div id="txCodeResult" class="tiny muted" style="margin-top:5px"></div><div id="scanArea" class="scanbox hide"></div></div>
+  <div class="field"><label>품목명 검색</label><input id="txProductSearch" placeholder="바코드/QR이 없으면 품목명 입력" autocomplete="off" oninput="filterTxProducts('${type}')"></div>
   <div class="field"><label>품목 선택</label><select id="txProduct" onchange="updateTxLots('${type}');applyTxDefaultLocation('${type}');applyTxDefaultExpiry('${type}',true)">${optionsProducts(pid)}</select></div>
   ${outward?`<div class="field"><label>${type==='USE'?'사용할 재고':'처리할 재고'} (QR 유통기한 우선 / 이후 FEFO)</label><select id="txLotSelect" onchange="applySelectedTxLot('${type}')"></select><div id="txFefoHint" class="tiny muted"></div></div>`:''}
-  <div class="field"><label>수량</label><input id="txQty" type="number" min="1" step="1" value="1"></div>
+  <div class="field"><label>수량</label><input id="txQty" type="number" min="1" step="1" value="1" inputmode="numeric"></div>
   <div class="field"><label>유통기한</label><input id="txExpiry" type="date" ${outward?'readonly':''}><div id="txExpiryHint" class="tiny muted">${type==='IN'?'QR에 유통기한이 있으면 자동입력, 없으면 품목 기본 유통기한을 적용합니다. 언제든 수정 가능합니다.':''}</div></div>
   <div class="field"><label>위치</label><select id="txLocation" ${outward?'disabled':''}><option value="">위치 없음</option>${optionsLocations()}</select></div>
-  <div class="field"><label>실제 처리자</label><select id="txActor">${optionsProfiles()}</select></div>
-  ${type==='DISCARD'?`<div class="field"><label>폐기 사유</label><select id="txDiscardReason"><option value="">선택</option><option>유통기한 만료</option><option>파손</option><option>오염</option><option>개봉 후 잔량</option><option>시술 후 잔량</option><option>재고조정</option><option>기타</option></select></div><div class="field"><label>폐기 처리자 사번 확인</label><input id="txEmpNo" placeholder="처리자 사번 직접 입력"></div>`:''}
+
+  <div class="notice" style="margin-top:8px"><b>처리자 사번 확인</b><br>작업대/유니폼의 사번 바코드를 스캔하거나 사번을 직접 입력하세요.</div>
+  <div class="field"><label>사번 바코드 / 사번</label><div class="code-row"><input id="txOperatorCode" value="${esc(defaultActor?.emp_no||'')}" placeholder="사번 스캔 또는 입력" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveOperatorCode();setTimeout(()=>this.focus({preventScroll:true}),40)}"><button class="secondary" onclick="resolveOperatorCode()">처리자 확인</button></div><div id="txOperatorResult" class="tiny muted" style="margin-top:5px"></div></div>
+  <div class="field"><label>실제 처리자</label><select id="txActor" onchange="syncOperatorFromSelect()">${optionsProfiles()}</select></div>
+
+  ${type==='DISCARD'?`<div class="field"><label>폐기 사유</label><select id="txDiscardReason"><option value="">선택</option><option>유통기한 만료</option><option>파손</option><option>오염</option><option>개봉 후 잔량</option><option>시술 후 잔량</option><option>재고조정</option><option>기타</option></select></div>`:''}
   <div class="field"><label>비고</label><textarea id="txMemo" rows="2"></textarea></div>
   ${outward?`<div class="notice">${type==='USE'?'QR에 유통기한이 있으면 해당 Lot을 최우선으로 찾고, 없으면 FEFO 순서로 추천합니다.':'QR 유통기한 Lot을 우선 표시합니다.'}</div>`:''}
  `,`<button class="secondary" onclick="closeModal()">취소</button><button class="${type==='DISCARD'?'danger':'primary'}" onclick="submitTransaction('${type}')">${type==='DISCARD'?'폐기 처리':'저장'}</button>`);
- if(outward)setTimeout(()=>updateTxLots(type),0);else setTimeout(()=>{applyTxDefaultLocation(type);applyTxDefaultExpiry(type,true)},0);
- if(prefillCode)setTimeout(()=>resolveTxCode(type),0)
+
+ setTimeout(()=>{
+   if($('txActor')&&defaultActor?.id)$('txActor').value=defaultActor.id;
+   syncOperatorFromSelect();
+   if(outward)updateTxLots(type);else{applyTxDefaultLocation(type);applyTxDefaultExpiry(type,true)}
+   if(prefillCode)resolveTxCode(type)
+ },0)
 }
 
 
@@ -1528,6 +1596,18 @@ async function submitTransaction(type){
  const pid=$('txProduct').value,qty=Number($('txQty').value),exp=$('txExpiry').value||null,loc=$('txLocation').value||null,actor=$('txActor').value,memo=$('txMemo').value.trim();
  if(!pid||!qty||qty<=0)return alert('품목과 수량을 확인하세요.');
  if(!Number.isInteger(qty))return alert('수량은 1개 단위 정수로 입력하세요.');
+
+ const operator=byId(allProfiles,actor)||byId(profiles,actor);
+ const enteredEmp=String($('txOperatorCode')?.value||'').trim();
+ if(!enteredEmp)return alert('처리자 사번을 스캔하거나 입력하세요.');
+ if(!operator)return alert('실제 처리자를 확인하세요.');
+ if(enteredEmp.toLowerCase()!==String(operator.emp_no||'').trim().toLowerCase()){
+   if(!resolveOperatorCode())return alert('등록된 사번과 처리자가 일치하지 않습니다.');
+ }
+ const verifiedOperator=byId(allProfiles,$('txActor').value)||byId(profiles,$('txActor').value);
+ const verifiedEmp=String($('txOperatorCode')?.value||'').trim();
+ if(!verifiedOperator||verifiedEmp.toLowerCase()!==String(verifiedOperator.emp_no||'').trim().toLowerCase())return alert('처리자 사번 확인이 필요합니다.');
+
  if(['USE','DISCARD'].includes(type)){
   let target=$('txLotSelect')?.dataset.targetExpiry||'',lots=txLotsTarget(pid,type,target),idx=Number($('txLotSelect')?.value||0),sel=lots[idx];
   if(!sel)return alert('사용 가능한 재고가 없습니다.');
@@ -1539,14 +1619,16 @@ async function submitTransaction(type){
  let discardReason=null;
  if(type==='DISCARD'){
   discardReason=$('txDiscardReason').value;if(!discardReason)return alert('폐기 사유를 선택하세요.');
-  const u=byId(profiles,actor),entered=$('txEmpNo').value.trim();
-  if(!entered||entered.toLowerCase()!==String(u?.emp_no||'').toLowerCase())return alert('선택한 처리자의 사번을 정확히 입력하세요.');
   if(!confirm(`${byId(products,pid)?.name} ${qty}개를 폐기 처리할까요?`))return
  }
  const signed=type==='IN'?qty:-qty;
- const {error}=await sb.rpc('record_inventory_transaction_v17',{p_product_id:pid,p_tx_type:type,p_quantity:signed,p_expiry_date:exp,p_location_id:loc,p_lot_no:null,p_actor_profile_id:actor,p_memo:memo||null,p_discard_reason:discardReason,p_idempotency_key:crypto.randomUUID()});
+ const {error}=await sb.rpc('record_inventory_transaction_v18',{
+   p_product_id:pid,p_tx_type:type,p_quantity:signed,p_expiry_date:exp,p_location_id:loc,p_lot_no:null,
+   p_actor_profile_id:$('txActor').value,p_operator_emp_no:verifiedEmp,p_memo:memo||null,
+   p_discard_reason:discardReason,p_idempotency_key:crypto.randomUUID()
+ });
  if(error)return alert('저장 실패: '+error.message);
- closeModal();toast('서버 저장 완료');await reloadAll()
+ closeModal();toast(`${type==='IN'?'입고':type==='USE'?'사용':'폐기'} 저장 완료 · 처리자 ${verifiedEmp}`);await reloadAll()
 }
 function openPurchase(pid=''){
  openModal('구매요청',`
