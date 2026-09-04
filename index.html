@@ -130,7 +130,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 
 <div id="loginView" class="center hide">
  <div class="auth-card">
-  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management · V17.17</span></div></div>
+  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management · V17.18</span></div></div>
   <div class="field"><label>로그인 ID</label><input id="loginId" autocomplete="username" autocapitalize="off" spellcheck="false" enterkeyhint="next" value="kmk" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPw').focus()}"></div>
   <div class="field"><label>비밀번호</label><input id="loginPw" type="password" autocomplete="current-password" enterkeyhint="go" onkeydown="if(event.key==='Enter'){event.preventDefault();login()}"></div>
   <button class="primary full" onclick="login()">로그인</button>
@@ -802,6 +802,18 @@ function findProductByCode(code){
 }
 
 
+
+function formatKSTDateTime(value){
+ if(!value)return '-';
+ const d=new Date(value);
+ if(Number.isNaN(d.getTime()))return String(value).replace('T',' ').slice(0,16);
+ return new Intl.DateTimeFormat('ko-KR',{
+   timeZone:'Asia/Seoul',
+   year:'numeric',month:'2-digit',day:'2-digit',
+   hour:'2-digit',minute:'2-digit',hour12:false
+ }).format(d);
+}
+
 async function startup(){
  $('purchaseMonth').value=monthNow(); $('auditMonth').value=monthNow(); if($('histMonth'))$('histMonth').value=monthNow();
  let today=new Date().toISOString().slice(0,10);
@@ -956,7 +968,7 @@ function renderDashboard(){
  $('kExp6').textContent=purchases.filter(r=>r.due_date&&r.due_date<localTodayISO()&&!['DONE','REJECTED','CANCELLED'].includes(r.status)).length;
  $('kLow').textContent=products.filter(p=>productQty(p.id)<gradeStockThreshold(p)).length;
  $('kPurchase').textContent=purchases.filter(x=>x.status==='PENDING_APPROVAL').length;
- $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
+ $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc(formatKSTDateTime(t.created_at))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
  renderDashboardAlerts()
 }
 function renderInventory(){
@@ -1054,7 +1066,7 @@ function renderHistory(){
  let arr=historyVisibleRows();
  $('historyBody').innerHTML=arr.map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id),loc=byId(locations,t.location_id),reversed=transactions.some(x=>x.related_tx_id===t.id&&x.tx_type==='REVERSAL');return `<tr class="${historySelected.has(t.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${historySelected.has(t.id)?'checked':''} onchange="setHistorySelected('${t.id}',this.checked)"></td>
- <td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
+ <td>${esc(formatKSTDateTime(t.created_at))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
  <td><b>${esc(p?.name||'-')}</b></td><td>${esc(t.expiry_date||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc(loc?.name||'-')}</td><td>${esc((t.operator_emp_no||u?.emp_no||'')+' '+(t.operator_name||u?.name||''))}</td><td>${t.discard_reason?`<b>${esc(t.discard_reason)}</b><br>`:''}${esc(t.memo||'')}</td>
  <td>${isAdmin()&&t.tx_type!=='REVERSAL'&&!reversed&&['IN','USE','DISCARD','INITIAL_STOCK','IMPORT_ADJUST'].includes(t.tx_type)?`<button class="danger" onclick="reverseTransaction('${t.id}')">되돌리기</button>`:reversed?'<span class="badge b-ok">되돌림 완료</span>':'-'}</td>
  </tr>`}).join('')||`<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 이력이 없습니다.</td></tr>`;
@@ -1086,7 +1098,7 @@ function renderAudit(){
  let arr=auditVisibleRows();
  $('auditBody').innerHTML=arr.map(a=>{let u=byId(profiles,a.actor_profile_id);return `<tr class="${auditSelected.has(a.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${auditSelected.has(a.id)?'checked':''} onchange="setAuditSelected('${a.id}',this.checked)"></td>
- <td>${esc((a.created_at||'').replace('T',' ').slice(0,16))}</td><td><b>${esc(a.action)}</b></td><td><span class="tiny">${esc(JSON.stringify(a.detail||{}))}</span></td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td>
+ <td>${esc(formatKSTDateTime(a.created_at))}</td><td><b>${esc(a.action)}</b></td><td><span class="tiny">${esc(JSON.stringify(a.detail||{}))}</span></td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td>
  <td><label><input class="checkbox" type="checkbox" ${a.review_status==='REVIEWED'?'checked':''} onchange="reviewAudit('${a.id}',this.checked)"> 확인</label></td>
  </tr>`}).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:28px">조건에 맞는 감사로그가 없습니다.</td></tr>`;
  updateAuditSelectionUi()
