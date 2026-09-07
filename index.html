@@ -74,49 +74,116 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 .alert-list{display:grid;gap:10px}.alert-item{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:#fff}
 .alert-item strong{display:block;margin-bottom:3px}.alert-dot{width:10px;height:10px;border-radius:50%;background:#c8877a;margin-top:5px;flex:none}
 .detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.detail-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
-.mobile-admin-shortcuts{display:none}
-@media(max-width:680px){
- .mobile-admin-shortcuts{display:block}
- .mobile-file-box{display:block;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:12px}
- .mobile-file-box input[type=file]{display:block;width:100%;padding:12px;border:1px dashed var(--line);border-radius:10px;background:#faf8f6}
-}
 @media(max-width:760px){.detail-grid{grid-template-columns:1fr}.scan-main-btn{width:150px;height:150px}}
 
 
-.code-stack{display:grid;gap:5px;min-width:180px}
-.code-line{display:grid;grid-template-columns:42px 1fr;gap:6px;align-items:start}
-.code-label{font-size:9px;font-weight:900;color:var(--muted);padding-top:2px}
-.code-value{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;line-height:1.35;word-break:break-all;color:var(--text)}
-.code-empty{color:#aaa}
-.product-main{display:grid;gap:3px}
-.product-submeta{display:flex;gap:6px;flex-wrap:wrap}
-.info-chip{display:inline-flex;padding:3px 7px;border-radius:999px;background:#f4efec;border:1px solid var(--line);font-size:9px;color:var(--muted)}
-.section-title{font-size:12px;font-weight:900;margin:16px 0 8px;color:var(--text)}
-.form-section{border:1px solid var(--line);border-radius:13px;padding:12px;margin:10px 0;background:#fff}
-.form-section-title{font-size:12px;font-weight:900;margin-bottom:8px}
-.inventory-actions{display:flex;gap:5px;flex-wrap:wrap}
-.inventory-actions button{padding:7px 9px}
-@media(max-width:680px){
- .code-stack{min-width:150px}
- .code-value{font-size:9px}
- .inventory-actions{min-width:180px}
- .inventory-actions button{font-size:10px;padding:7px 8px}
- #inventoryBody td:nth-child(2),#inventoryBody th:nth-child(2){display:none}
-}
+.use-lot-grid{display:grid;gap:9px;margin-top:8px}
+.use-lot-card{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+.use-lot-card:hover{background:#fffaf7}
+.use-lot-card.active{border:2px solid var(--accent);background:var(--accent-soft)}
+.use-lot-main{flex:1;min-width:0}
+.use-lot-title{font-weight:900}
+.use-lot-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.use-lot-qty{font-size:18px;font-weight:900;white-space:nowrap}
+.use-flow-head{padding:12px 14px;border-radius:12px;background:#fbf5f1;border:1px solid var(--line);margin-bottom:12px}
+.use-flow-head strong{font-size:16px}
+
 
 @media(max-width:680px){
- #page-import .panel-head>.actions{width:100%;display:grid;grid-template-columns:1fr;gap:8px}
- #page-import .panel-head>.actions input[type=file]{width:100%}
- #page-import .panel-head>.actions .danger{width:100%}
+ .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .table-wrap table{min-width:720px}
+ .sheet{width:min(100%,640px);max-height:92vh}
+ .sheet-body{overflow-y:auto}
+ .detail-card{min-height:74px}
+ .mobile-nav{z-index:40}
+ .toast{bottom:76px!important}
 }
 
-@media(max-width:680px){
- input,select,textarea{font-size:16px!important}
- .mobile-logout{width:100%;margin-top:8px}
+
+/* iPhone / iOS Safari keyboard & form focus stability */
+input,textarea,select{
+  -webkit-user-select:text;
+  user-select:text;
+  pointer-events:auto;
 }
+@media(max-width:680px){
+  input,textarea,select{
+    font-size:16px !important; /* iOS Safari input zoom/focus 방지 */
+    min-height:44px;
+  }
+  textarea{min-height:88px}
+  button{touch-action:manipulation}
+  .modal{
+    height:100dvh;
+    min-height:100vh;
+    align-items:flex-start;
+    overflow:hidden;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  }
+  .sheet{
+    width:100%;
+    max-width:640px;
+    max-height:calc(var(--vvh, 100dvh) - 16px);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    margin:0 auto;
+  }
+  .sheet-head,.sheet-foot{flex:0 0 auto}
+  .sheet-body{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  .sheet-foot{
+    position:sticky;
+    bottom:0;
+    background:#fff;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom));
+  }
+  .auth-card input,.auth-card textarea,.auth-card select{font-size:16px !important}
+}
+
+
+/* V18 cross-platform stability */
+button:disabled{opacity:.55;cursor:not-allowed}
+.network-banner{
+ position:fixed;left:50%;top:10px;transform:translateX(-50%);
+ z-index:9999;background:#8b3d35;color:#fff;border-radius:999px;
+ padding:8px 13px;font-size:12px;font-weight:900;box-shadow:0 8px 24px #0002
+}
+input[type="number"]{font-variant-numeric:tabular-nums}
+@media(max-width:680px){
+ input[type="number"]{appearance:textfield;-moz-appearance:textfield}
+ input[type="number"]::-webkit-inner-spin-button,
+ input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+ .modal input,.modal textarea,.modal select{max-width:100%}
+ .code-row{flex-wrap:wrap}
+ .code-row input{min-width:0;flex:1 1 180px}
+ .code-row button{flex:0 0 auto}
+}
+
+
+/* V18 operational hardening */
+.sync-state{font-size:10px;color:var(--muted);white-space:nowrap}
+.sync-state.bad{color:#a94f45;font-weight:900}
+.sync-state.good{color:#53605a}
+.inline-warning{padding:9px 11px;border-radius:10px;background:#fff6e8;color:#7c5a18;font-size:11px;margin-top:7px}
+.mobile-card-list{display:none}
+.staff-manage-actions{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:680px){
+ .topbar .sync-state{font-size:9px;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+ .sheet-foot button{min-height:44px}
+ .use-lot-card{min-height:62px}
+ .mobile-card-list{display:grid;gap:8px}
+}
+
 </style>
 </head>
 <body>
+<div id="networkBanner" class="network-banner hide">인터넷 연결 없음 · 저장 작업은 연결 후 다시 시도해주세요.</div>
 <div id="setupView" class="center hide">
  <div class="auth-card">
   <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory · 최초 1회 설정</span></div></div>
@@ -130,8 +197,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 
 <div id="loginView" class="center hide">
  <div class="auth-card">
-  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management · V17.18</span></div></div>
-  <div class="field"><label>로그인 ID</label><input id="loginId" autocomplete="username" autocapitalize="off" spellcheck="false" enterkeyhint="next" value="kmk" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPw').focus()}"></div>
+  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management</span></div></div>
+  <div class="field"><label>로그인 ID</label><input id="loginId" autocomplete="username" enterkeyhint="next" onkeydown="if(event.key==='Enter'){event.preventDefault();$('loginPw').focus()}"></div>
   <div class="field"><label>비밀번호</label><input id="loginPw" type="password" autocomplete="current-password" enterkeyhint="go" onkeydown="if(event.key==='Enter'){event.preventDefault();login()}"></div>
   <button class="primary full" onclick="login()">로그인</button>
   <button class="ghost full" onclick="showSetup()">최초 설정 화면</button>
@@ -151,8 +218,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
    <button data-page="purchase" onclick="showPage('purchase')">◫ <span class="label">구매요청</span></button>
    <button data-page="history" onclick="showPage('history')">◷ <span class="label">이력</span></button>
    <button class="admin-only" data-page="audit" onclick="showPage('audit')">✓ <span class="label">감사로그</span></button>
-   <button class="admin-only" data-page="products" onclick="showPage('products')">▦ <span class="label">품목정보 관리</span></button>
    <button class="admin-only" data-page="import" onclick="showPage('import')">⇧ <span class="label">Excel Import</span></button>
+   <button class="admin-only" data-page="count" onclick="showPage('count')">≋ <span class="label">재고실사</span></button>
    <button class="admin-only" data-page="admin" onclick="showPage('admin')">⚙ <span class="label">관리자</span></button>
   </div>
   <div class="side-user"><b id="sideUser"></b><div class="detail" id="sideRole"></div><button class="ghost" style="color:#fff;padding-left:0" onclick="logout()">로그아웃</button></div>
@@ -175,11 +242,6 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
     </div>
     <div class="panel"><div class="panel-head"><div class="panel-title">빠른 작업</div></div><div class="panel-body actions">
       <button class="primary" onclick="showPage('scan')">바코드 / QR 스캔</button><button class="secondary" onclick="openTransaction('USE')">사용</button><button class="secondary" onclick="openTransaction('IN')">입고</button><button class="secondary" onclick="openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="openPurchase()">구매요청</button>
-    </div></div>
-    <div class="panel admin-only mobile-admin-shortcuts"><div class="panel-head"><div class="panel-title">관리자 빠른메뉴</div></div><div class="panel-body actions">
-      <button class="secondary" onclick="showPage('products')">품목정보 관리</button>
-      <button class="primary" onclick="showPage('import')">재고 Excel Import</button>
-      <button class="secondary" onclick="showPage('admin')">직원/관리자 설정</button>
     </div></div>
     <div class="panel"><div class="panel-head"><div class="panel-title">알림센터</div><button class="ghost" onclick="showPage('alerts')">전체보기</button></div><div class="panel-body"><div id="dashboardAlerts" class="alert-list"></div></div></div>
     <div class="panel"><div class="panel-head"><div class="panel-title">최근 재고 작업</div></div><div class="panel-body table-wrap"><table><thead><tr><th>일시</th><th>구분</th><th>품목</th><th>수량</th><th>처리자</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
@@ -222,11 +284,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 <select id="invExpiryFilter" onchange="renderInventory()"><option value="all">전체 유통기한</option><option value="3m">3개월 이하</option><option value="6m">6개월 이하</option></select>
 <select id="invStockFilter" onchange="renderInventory()"><option value="all">전체 재고</option><option value="positive">재고 보유</option><option value="low">저재고</option></select>
 <select id="invSort" onchange="renderInventory()"><option value="name">이름순</option><option value="qtyAsc">수량 적은순</option><option value="qtyDesc">수량 많은순</option></select>
-<button class="secondary" onclick="openScanHub()">바코드 / QR 작업</button><button class="admin-only secondary" onclick="downloadProductMasterExcel()">품목마스터 Excel 다운로드</button>
-<button class="admin-only secondary" onclick="document.getElementById('productMasterFile').click()">품목마스터 Excel 업로드</button>
-<input id="productMasterFile" type="file" accept=".xlsx,.xls" class="hide" onchange="importProductMasterExcel(this.files[0]);this.value=''">
-<button class="admin-only secondary" onclick="openBulkLocationAssign()">위치 미지정 일괄지정</button><button class="admin-only secondary" onclick="openProduct()">+ 품목등록</button>
-</div></div><div class="panel-body table-wrap"><table><thead><tr><th>품목</th><th>분류</th><th>바코드 / QR</th><th>위치별 재고</th><th>총재고</th><th>가장 빠른 유통기한</th><th>저재고 기준</th><th>상태</th><th>작업</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
+<button class="secondary" onclick="openScanHub()">바코드 / QR 작업</button><button class="admin-only secondary" onclick="openBulkLocationAssign()">위치 미지정 일괄지정</button><button class="admin-only secondary" onclick="openProduct()">+ 품목등록</button>
+</div></div><div class="panel-body table-wrap"><table><thead><tr><th>품목</th><th>분류</th><th>위치별 재고</th><th>총재고</th><th>가장 빠른 유통기한</th><th>저재고 기준</th><th>상태</th><th>작업</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
    </section>
 
    <section id="page-purchase" class="page hide">
@@ -287,48 +346,17 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 </div></div>
 </section>
 
-   <section id="page-products" class="page hide admin-only">
- <div class="panel">
-  <div class="panel-head">
-   <div><div class="panel-title">품목정보 관리</div><div class="muted small">품목 등록 · 수정 · 삭제(비활성) · 바코드/QR 관리 · Excel 일괄관리</div></div>
-   <div class="toolbar">
-    <input id="pmQ" placeholder="품목명 / 분류 / 바코드 / QR 검색" oninput="renderProductManagement()">
-    <select id="pmStatus" onchange="renderProductManagement()"><option value="active">사용중</option><option value="inactive">비활성</option><option value="all">전체</option></select>
-    <button class="secondary" onclick="downloadProductMasterExcel()">Excel 다운로드</button>
-    <button class="secondary" onclick="document.getElementById('pmExcelFile').click()">Excel 업로드</button>
-    <input id="pmExcelFile" class="hide" type="file" accept=".xlsx,.xls" onchange="importProductMasterExcel(this.files[0]);this.value=''">
-    <button class="primary" onclick="openProduct()">+ 품목 등록</button>
-   </div>
-  </div>
-  <div class="panel-body">
-   <div class="notice">삭제는 과거 입고/사용/폐기 이력을 보존하기 위해 <b>비활성 처리</b>로 동작합니다. 필요하면 다시 활성화할 수 있습니다.</div>
-   <div class="table-wrap" style="margin-top:12px"><table>
-    <thead><tr><th>품목명</th><th>분류</th><th>유통기한등급</th><th>기본 유통기한</th><th>재고등급</th><th>기본위치</th><th>바코드</th><th>QR / 2D</th><th>상태</th><th>관리</th></tr></thead>
-    <tbody id="productManageBody"></tbody>
-   </table></div>
-  </div>
- </div>
-</section>
-<section id="page-import" class="page hide admin-only">
+   <section id="page-import" class="page hide admin-only">
     <div class="panel">
       <div class="panel-head">
         <div>
           <div class="panel-title">Excel 초기재고 등록</div>
           <div class="muted small">통합재고 파일의 <b>데이터종류 = 현재재고</b> 행만 반영</div>
         </div>
-        <div class="actions">
-          <input id="excelFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="parseExcel(this.files[0])">
-          <button class="danger admin-only" onclick="openInventoryDataReset()">데이터 초기화</button>
-        </div>
+        <input id="excelFile" type="file" accept=".xlsx,.xls" onchange="parseExcel(this.files[0])">
       </div>
       <div class="panel-body">
-        <div class="mobile-file-box">
-          <b>재고 Excel 파일 선택</b>
-          <div class="tiny muted" style="margin:5px 0 9px">휴대폰에서는 아래 파일선택 버튼을 직접 눌러주세요.</div>
-          <input id="excelFileMobile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="syncMobileImportFile(this)">
-        </div>
-        <div id="importInfo" class="notice hide"></div>
-        <div class="tiny muted admin-only" style="margin:8px 0 4px">※ 데이터 초기화는 품목·코드·재고·거래·구매·알림·Import 기록만 삭제하며 직원계정·병원설정·보관위치는 유지합니다.</div>
+        <div class="notice" style="margin-bottom:12px"><b>처음 셋업/전체 최신조사 반영</b>은 ‘현재재고 재설정’을 권장합니다.<br><b>나중에 신규 Lot 몇 건 추가</b>할 때만 ‘추가 반영’을 사용하세요.</div><div id="importInfo" class="notice hide"></div>
 
         <div id="importSummary" class="import-summary hide">
           <div class="box"><small>전체 대상</small><b id="impAllCount">0</b></div>
@@ -338,7 +366,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
           <div class="box"><small>선택됨</small><b id="impSelectedCount">0</b></div>
         </div>
 
-        <div id="importActions" class="hide">
+        <div id="importActions" class="hide"><label class="small" style="display:flex;gap:7px;align-items:center;margin:8px 0 12px"><input id="deactivateMissingProducts" type="checkbox"> 전체 재설정 시 Excel에 없는 기존 품목은 사용중지 처리</label>
           <div class="import-tools">
             <div class="import-filter">
               <button id="impFilterIssues" class="active" onclick="setImportFilter('issues')">검토대상</button>
@@ -378,7 +406,6 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
                 <th>품목</th>
                 <th>유통기한</th>
                 <th>수량</th>
-                <th>바코드 / 2D</th>
                 <th>위치</th>
                 <th>원본</th>
               </tr>
@@ -391,7 +418,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
    </section>
 
    
-   <section id="page-admin" class="page hide admin-only">
+   <section id="page-count" class="page hide admin-only"><div class="panel">
+    <div class="panel-head"><div><div class="panel-title">재고실사</div><div class="muted small">시스템수량과 실제수량 비교 · 승인 시 차이만 조정</div></div><button class="primary" onclick="createInventoryCount()">+ 새 실사 시작</button></div>
+    <div class="panel-body table-wrap"><table><thead><tr><th>생성일</th><th>실사명</th><th>상태</th><th>항목수</th><th>관리</th></tr></thead><tbody id="countBody"></tbody></table></div>
+   </div></section>
+<section id="page-admin" class="page hide admin-only">
     <div class="panel"><div class="panel-head"><div class="panel-title">계정 보안</div></div><div class="panel-body">
       <div class="field"><label>현재 로그인 ID</label><input id="adminLoginId"></div>
       <button class="secondary" onclick="changeLoginId()">로그인 ID 변경</button>
@@ -402,29 +433,14 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
       <button class="primary" onclick="changePassword()">비밀번호 변경</button>
       <div class="notice">운영용으로는 8자 이상 + 영문/숫자/특수문자 사용을 권장합니다. 복구용 Emergency Admin 계정은 일반 직원 목록에 표시하지 않습니다.</div>
     </div></div>
-    <div class="panel">
- <div class="panel-head">
-  <div><div class="panel-title">직원 관리</div><div class="muted small">계정 추가 · 수정 · 사용중지 · 구매검토권한 관리</div></div>
-  <div class="toolbar">
-   <select id="staffStatusFilter" onchange="renderAdmin()"><option value="active">사용중</option><option value="inactive">사용중지</option><option value="all">전체</option></select>
-   <button class="primary" onclick="openStaffModal()">+ 직원 추가</button>
-  </div>
- </div>
- <div class="panel-body">
-  <div class="notice">직원을 제거하면 계정은 삭제하지 않고 <b>사용중지</b> 처리합니다. 과거 사용/입고/구매 승인 이력은 그대로 보존됩니다.</div>
-  <div class="table-wrap" style="margin-top:12px"><table>
-   <thead><tr><th>사번</th><th>이름</th><th>로그인 ID</th><th>권한</th><th>구매검토</th><th>상태</th><th>관리</th></tr></thead>
-   <tbody id="staffBody"></tbody>
-  </table></div>
- </div>
-</div>
+    <div class="panel"><div class="panel-head"><div class="panel-title">직원 / 구매 검토자 설정</div><button class="primary" onclick="openStaffModal()">+ 직원 추가</button></div><div class="panel-body"><div class="notice">구매 검토자로 지정된 직원은 구매요청 승인/반려가 가능합니다. 원장/관리자는 항상 승인 가능합니다.</div><div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>사번</th><th>이름</th><th>권한</th><th>구매 검토자</th><th>상태</th><th>관리</th></tr></thead><tbody id="staffBody"></tbody></table></div></div></div>
     <div class="panel">
       <div class="panel-head"><div class="panel-title">구매 / 예상입고 설정</div></div>
       <div class="panel-body">
         <div class="field">
           <label>기본 예상입고 소요일</label>
           <div class="code-row">
-            <input id="adminDefaultLeadDays" type="number" min="0" max="365" step="1" style="max-width:160px">
+            <input id="adminDefaultLeadDays" type="number" inputmode="numeric" min="0" max="365" step="1" style="max-width:160px">
             <span class="muted small">일 · 구매요청일 기준</span>
             <button class="primary" onclick="saveDefaultLeadDays()">저장</button>
           </div>
@@ -433,19 +449,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
       </div>
     </div>
    
-        <div class="panel"><div class="panel-head"><div><div class="panel-title">대분류별 기본 관리등급</div><div class="muted small">대부분은 자동으로 채우고 예외 품목만 수정하는 방식</div></div></div>
-<div class="panel-body">
- <div class="notice">대분류별 기본값을 지정하면 신규 품목/Excel 재고등록 시 등급이 비어있는 품목에 자동 적용됩니다. 별도 설정이 없으면 기본값은 <b>유통기한 B / 재고 b</b>로 사용합니다.</div>
- <div class="toolbar" style="margin-top:12px">
-  <select id="gradeDefaultCategory" onchange="refreshCategoryGradeDefaults()"></select>
-  <select id="gradeDefaultExpiry"><option value="A">유통기한 A</option><option value="B" selected>유통기한 B</option><option value="C">유통기한 C</option></select>
-  <select id="gradeDefaultStock"><option value="a">재고 a · 20개 미만</option><option value="b" selected>재고 b · 10개 미만</option><option value="c">재고 c · 5개 미만</option></select>
-  <button class="primary" onclick="saveCategoryGradeDefault()">기본값 저장</button>
-  <button class="secondary" onclick="applyCategoryGradeDefault()">미설정 품목에 적용</button>
- </div>
- <div id="gradeDefaultSummary" class="tiny muted" style="margin-top:10px"></div>
-</div></div>
-<div class="panel"><div class="panel-head"><div class="panel-title">대분류별 기본 보관위치</div></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title">대분류별 기본 보관위치</div></div>
       <div class="panel-body">
        <div class="notice">예: 필러 → 냉장고1. 대분류의 모든 품목 기본위치를 한 번에 설정합니다. 이후 입고할 때 자동 선택됩니다.</div>
        <div class="toolbar" style="margin-top:12px"><select id="bulkCategory"></select><select id="bulkCategoryLocation"></select><button class="primary" onclick="bulkSetCategoryLocation()">대분류 전체 적용</button></div>
@@ -463,11 +467,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 </div>
 
 <nav class="mobile-nav hide" id="mobileNav">
- <button onclick="showPage('dashboard')"><b>⌂</b>홈</button>
- <button onclick="showPage('inventory')"><b>▤</b>재고</button>
- <button onclick="openQuick()"><b>＋</b>작업</button>
- <button onclick="showPage('purchase')"><b>◫</b>구매</button>
- <button onclick="openMobileMore()"><b>☰</b>더보기</button>
+ <button onclick="showPage('dashboard')"><b>⌂</b>홈</button><button onclick="showPage('inventory')"><b>▤</b>재고</button><button onclick="openQuick()"><b>＋</b>작업</button><button onclick="showPage('purchase')"><b>◫</b>구매</button><button onclick="openMobileMore()"><b>☰</b>더보기</button>
 </nav>
 
 <div id="modal" class="modal hide" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><b id="modalTitle"></b><button class="ghost" onclick="closeModal()">Esc ✕</button></div><div class="sheet-body" id="modalBody"></div><div class="sheet-foot" id="modalFoot"></div></div></div>
@@ -476,11 +476,61 @@ table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;colo
 const SB_URL = "https://wjzadmeshuxgsidjlgui.supabase.co";
 const SB_KEY = "sb_publishable_9S_S00tlN42u3tFkwBY7ZQ_pO1G44vP";
 const sb = supabase.createClient(SB_URL, SB_KEY);
-let me=null, hospitalSettings=null, products=[], allProducts=[], balances=[], lotBalances=[], productCodes=[], transactions=[], purchases=[], profiles=[], allProfiles=[], locations=[], audits=[], counts=[], countItems=[], alertEvents=[], categoryDefaults=[], importRows=[], importFilter='all',historySelected=new Set(),auditSelected=new Set(),scanStream=null;
+let me=null, hospitalSettings=null, products=[], balances=[], lotBalances=[], productCodes=[], transactions=[], purchases=[], profiles=[], locations=[], audits=[], counts=[], countItems=[], alertEvents=[], importRows=[], importFilter='all',historySelected=new Set(),auditSelected=new Set(),scanStream=null;
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR',{maximumFractionDigits:3});
 const dstr=v=>String(v||'').slice(0,10);
-const monthNow=()=>new Date().toISOString().slice(0,7);
+const actionLocks=new Set(), actionButtons=new Map();
+function uid(){
+ try{if(globalThis.crypto?.randomUUID)return uid()}catch(_){}
+ try{
+  let a=new Uint8Array(16);crypto.getRandomValues(a);
+  a[6]=(a[6]&15)|64;a[8]=(a[8]&63)|128;
+  let h=[...a].map(x=>x.toString(16).padStart(2,'0')).join('');
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`
+ }catch(_){return `${Date.now()}-${Math.random().toString(36).slice(2)}`}
+}
+function beginAction(key,label='처리 중...'){
+ if(actionLocks.has(key))return false;
+ if(!navigator.onLine){alert('인터넷 연결이 없습니다. 연결 후 다시 시도해주세요.');return false}
+ actionLocks.add(key);
+ let b=document.activeElement;
+ if(b?.tagName==='BUTTON'){
+  actionButtons.set(key,{b,text:b.textContent});
+  b.disabled=true;b.textContent=label;b.setAttribute('aria-busy','true')
+ }
+ return true
+}
+function endAction(key){
+ actionLocks.delete(key);
+ let x=actionButtons.get(key);
+ if(x?.b?.isConnected){x.b.disabled=false;x.b.textContent=x.text;x.b.removeAttribute('aria-busy')}
+ actionButtons.delete(key)
+}
+
+let lastSyncAt=null,lastReloadStarted=0;
+function setSyncState(text,state=''){
+ let e=$('syncState');if(!e)return;
+ e.textContent=text;e.className='sync-state '+state
+}
+function formatClock(d=new Date()){return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+function safeErrorMessage(e){
+ let s=String(e?.message||e||'알 수 없는 오류');
+ if(/jwt|token|session/i.test(s))return '로그인 세션이 만료되었거나 유효하지 않습니다.';
+ if(/network|fetch|failed to fetch/i.test(s))return '네트워크 연결을 확인해주세요.';
+ return s
+}
+function isTouchDevice(){return matchMedia?.('(pointer:coarse)').matches||navigator.maxTouchPoints>0}
+function productNeedsExpiry(pid){let p=byId(products,pid);return p?.expiry_managed!==false}
+
+function updateNetworkState(){
+ let off=!navigator.onLine;
+ $('networkBanner')?.classList.toggle('hide',!off)
+}
+window.addEventListener('online',()=>{updateNetworkState();toast('인터넷 연결 복구')});
+window.addEventListener('offline',updateNetworkState);
+
+const monthNow=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`};
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function msg(el,text,type=''){el.className='notice '+type;el.textContent=text}
 function toast(text){console.log(text); let old=document.querySelector('.toast'); if(old)old.remove(); let e=document.createElement('div');e.className='toast';e.style='position:fixed;right:16px;bottom:18px;background:#2d2825;color:#fff;padding:11px 14px;border-radius:11px;z-index:99;font-size:12px;box-shadow:0 10px 30px #0002';e.textContent=text;document.body.appendChild(e);setTimeout(()=>e.remove(),2500)}
@@ -560,20 +610,12 @@ async function openBulkLocationAssign(){let lots=unassignedLots();if(!lots.lengt
 async function submitBulkLocationAssign(){let loc=$('bulkAssignLoc').value;if(!loc)return alert('위치를 선택하세요.');let lots=unassignedLots(),idxs=[...document.querySelectorAll('.bulk-unloc:checked')].map(x=>Number(x.value)),chosen=idxs.map(i=>lots[i]).filter(Boolean);if(!chosen.length)return alert('대상을 선택하세요.');let items=chosen.map(x=>({product_id:x.product_id,quantity:Number(x.quantity),expiry_date:x.expiry_date||'',lot_no:x.lot_no||'',memo:'관리자 일괄 위치 지정'}));let {data,error}=await sb.rpc('assign_unlocated_inventory_bulk',{p_items:items,p_to_location_id:loc,p_actor_profile_id:me.id});if(error)return alert('일괄 위치 지정 실패: '+error.message);closeModal();toast(`${data||chosen.length}건 위치 지정 완료`);await reloadAll()}
 function refreshBulkAdminOptions(){let c=$('bulkCategory'),l=$('bulkCategoryLocation');if(!c||!l)return;let cats=[...new Set(products.map(p=>p.category||'미분류'))].sort((a,b)=>a.localeCompare(b,'ko'));c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');l.innerHTML='<option value="">위치 선택</option>'+locations.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}
 async function bulkSetCategoryLocation(){let category=$('bulkCategory').value,loc=$('bulkCategoryLocation').value;if(!category||!loc)return alert('대분류와 위치를 선택하세요.');if(!confirm(`${category} 품목 전체의 기본 보관위치를 ${byId(locations,loc)?.name||''}(으)로 설정할까요?`))return;let {data,error}=await sb.rpc('bulk_set_default_location_by_category',{p_category:category,p_location_id:loc});if(error)return alert('적용 실패: '+error.message);toast(`${data||0}개 품목 기본위치 적용`);await reloadAll()}
-async function reverseTransaction(id){let t=byId(transactions,id),p=byId(products,t?.product_id);if(!t)return;if(!confirm(`${p?.name||'-'} ${fmt(Math.abs(Number(t.quantity)))}개 거래를 되돌릴까요?\n원 거래는 삭제되지 않고 REVERSAL 이력이 추가됩니다.`))return;let reason=prompt('되돌리기 사유를 입력하세요.','입력 실수')||'입력 실수';let {error}=await sb.rpc('reverse_inventory_transaction',{p_tx_id:id,p_actor_profile_id:me.id,p_reason:reason});if(error)return alert('되돌리기 실패: '+error.message);toast('거래 되돌리기 완료');await reloadAll()}
-function showImportResult(rows,excluded,mode){
- let exp=rows.filter(r=>r.expiry).length,loc=rows.filter(r=>r.location).length,unique=new Set(rows.map(r=>r.name)).size;
- let actualPositive=products.filter(p=>productQty(p.id)>0).length;
- openModal(mode==='replace'?'현재재고 재설정 결과':'Excel 추가 반영 결과',`
-  <div class="grid4">
-   <div class="kpi"><small>Excel 반영 Lot</small><b>${rows.length}</b></div>
-   <div class="kpi"><small>Excel 고유 품목</small><b>${unique}</b></div>
-   <div class="kpi"><small>현재 재고보유 품목</small><b>${actualPositive}</b></div>
-   <div class="kpi"><small>유통기한 등록</small><b>${exp}</b></div>
-  </div>
-  <div class="notice" style="margin-top:12px">${mode==='replace'?'<b>전체 재고를 먼저 0으로 조정한 후 선택한 Excel 기준으로 다시 생성했습니다.</b><br>':''}제외 ${excluded}건 · 위치 미지정 ${rows.length-loc}건<br>같은 품목의 여러 유통기한 행은 Lot으로 각각 반영되고, 품목 총재고에서는 자동 합산됩니다.</div>`,
-  `<button class="primary" onclick="closeModal()">확인</button>`)
-}
+async function reverseTransaction(id){let t=byId(transactions,id),p=byId(products,t?.product_id);if(!t)return;if(!confirm(`${p?.name||'-'} ${fmt(Math.abs(Number(t.quantity)))}개 거래를 되돌릴까요?\n원 거래는 삭제되지 않고 REVERSAL 이력이 추가됩니다.`))return;let reason=prompt('되돌리기 사유를 입력하세요.','입력 실수')||'입력 실수';let {error}=await sb.rpc('reverse_inventory_transaction',{p_tx_id:id,p_actor_profile_id:me.id,p_reason:reason});if(error){
+ let msg=error.message||'';
+ if(msg.includes('remaining lot stock'))return alert('되돌릴 수 없습니다.\n이미 사용/이동된 재고가 있어 원 입고수량을 되돌리면 재고가 음수가 됩니다.');
+ return alert('되돌리기 실패: '+msg)
+}toast('거래 되돌리기 완료');await reloadAll()}
+function showImportResult(rows,excluded,mode){let exp=rows.filter(r=>r.expiry).length,loc=rows.filter(r=>r.location).length,unique=new Set(rows.map(r=>r.name)).size;openModal(mode==='replace'?'현재재고 재설정 결과':'Excel 추가 반영 결과',`<div class="grid4"><div class="kpi"><small>반영 행</small><b>${rows.length}</b></div><div class="kpi"><small>고유 품목</small><b>${unique}</b></div><div class="kpi"><small>유통기한 등록</small><b>${exp}</b></div><div class="kpi"><small>위치 등록</small><b>${loc}</b></div></div><div class="notice" style="margin-top:12px">제외 ${excluded}건 · 위치 미지정 ${rows.length-loc}건${rows.length-loc?`<br><b>재고 → 위치 미지정</b> 또는 일괄 위치지정에서 바로 정리할 수 있습니다.`:''}</div>`,`<button class="primary" onclick="closeModal()">확인</button>`)}
 
 function usageQty(pid,days=30){
  let cutoff=Date.now()-Number(days)*86400000;
@@ -584,7 +626,8 @@ function pendingIncoming(pid){
 }
 function recommendedOrder(pid,days=30){
  let used=usageQty(pid,days),avg=used/Math.max(1,days),lead=effectiveLeadDays(pid),stock=productQty(pid),incoming=pendingIncoming(pid),safetyDays=7;
- return Math.max(0,Math.ceil(avg*(lead+safetyDays)-stock-incoming))
+ let need=Math.max(0,Math.ceil(avg*(lead+safetyDays)-stock-incoming)),p=byId(products,pid),pack=Number(p?.package_qty||0);
+ return need>0&&pack>1?Math.ceil(need/pack)*pack:need
 }
 function alertsData(){
  let kind=$('alertKind')?.value||'all';
@@ -621,21 +664,98 @@ function renderUsage(){
 }
 function openProductDetail(pid){
  let p=byId(products,pid);if(!p)return;
- let lots=productLots(pid),used30=usageQty(pid,30),incoming=pendingIncoming(pid),rec=recommendedOrder(pid,30),recent=transactions.filter(t=>t.product_id===pid).slice(0,10);
+ let lots=productLots(pid),codes=productCodes.filter(c=>c.product_id===pid),used30=usageQty(pid,30),incoming=pendingIncoming(pid),rec=recommendedOrder(pid,30),recent=transactions.filter(t=>t.product_id===pid).slice(0,10);
  openModal('품목 상세',`
-  <div><b style="font-size:20px">${esc(p.name)}</b><div class="muted small">${esc(p.category||'미분류')}${p.subcategory?' · '+esc(p.subcategory):''} · ${esc(p.base_unit||'개')}</div></div>
-  <div class="form-section"><div class="form-section-title">등록 코드</div>${renderCodeStack(pid,true)}${isAdmin()?`<button class="secondary" style="margin-top:10px" onclick="closeModal();openProduct('${pid}')">품목정보 / 코드 수정</button>`:''}</div>
+  <div><b style="font-size:20px">${esc(p.name)}</b><div class="muted small">${esc(p.category||'미분류')} · ${esc(p.base_unit||'개')}</div></div>
   <div class="detail-grid" style="margin-top:12px">
    <div class="detail-card"><small>현재재고</small><b style="display:block;font-size:22px">${fmt(productQty(pid))}</b></div>
    <div class="detail-card"><small>최근 30일 사용</small><b style="display:block;font-size:22px">${fmt(used30)}</b></div>
    <div class="detail-card"><small>입고예정 / 권장발주</small><b style="display:block;font-size:22px">${fmt(incoming)} / ${fmt(rec)}</b></div>
   </div>
-  <div class="section-title">위치 / 유통기한 Lot</div>
-  <div class="table-wrap"><table><thead><tr><th>위치</th><th>유통기한</th><th>Lot</th><th>수량</th></tr></thead><tbody>${lots.map(l=>`<tr><td>${esc(byId(locations,l.location_id)?.name||'위치 미지정')}</td><td>${esc(l.expiry_date||'미확인')}</td><td>${esc(l.lot_no||'-')}</td><td><b>${fmt(l.quantity)}</b></td></tr>`).join('')||'<tr><td colspan="4">재고 없음</td></tr>'}</tbody></table></div>
-  <div class="section-title">최근 이력</div><div class="table-wrap"><table><tbody>${recent.map(t=>`<tr><td>${dstr(t.created_at)}</td><td>${esc(t.tx_type)}</td><td>${fmt(t.quantity)}</td><td>${esc(t.expiry_date||'-')}</td></tr>`).join('')}</tbody></table></div>
- `,`<button class="secondary" onclick="closeModal()">닫기</button>${isAdmin()?`<button class="secondary" onclick="closeModal();openProduct('${pid}')">정보수정</button>`:''}<button class="secondary" onclick="closeModal();openMove('${pid}')">위치이동</button><button class="primary" onclick="closeModal();openPurchase('${pid}')">구매요청</button>`)
+  <h4>위치 / 유통기한 Lot</h4>
+  <div class="table-wrap"><table><thead><tr><th>위치</th><th>유통기한</th><th>Lot</th><th>수량</th></tr></thead><tbody>${lots.map(l=>`<tr><td>${esc(byId(locations,l.location_id)?.name||'-')}</td><td>${esc(l.expiry_date||'미확인')}</td><td>${esc(l.lot_no||'-')}</td><td>${fmt(l.quantity)}</td></tr>`).join('')||'<tr><td colspan="4">재고 없음</td></tr>'}</tbody></table></div>
+  <h4>등록 코드</h4><div>${codes.map(c=>`<span class="loc-chip">${esc(c.code_type)} · ${esc(c.code_value)}</span>`).join('')||'<span class="muted">등록 코드 없음</span>'}</div>
+  <h4>최근 이력</h4><div class="table-wrap"><table><tbody>${recent.map(t=>`<tr><td>${dstr(t.created_at)}</td><td>${esc(t.tx_type)}</td><td>${fmt(t.quantity)}</td><td>${esc(t.expiry_date||'-')}</td></tr>`).join('')}</tbody></table></div>
+ `,`<button class="secondary" onclick="closeModal()">닫기</button><button class="secondary" onclick="closeModal();openMove('${pid}')">위치이동</button><button class="primary" onclick="closeModal();openPurchase('${pid}')">구매요청</button>`)
 }
 function scanFromHome(){let c=$('scanHomeCode')?.value.trim();if(c)openScanHub(c)}
+
+
+function gs1Date(v){
+ let s=String(v||'').replace(/\D/g,'');
+ if(s.length!==6)return null;
+ let yy=Number(s.slice(0,2)),mm=Number(s.slice(2,4)),dd=Number(s.slice(4,6));
+ if(mm<1||mm>12||dd<1||dd>31)return null;
+ return `20${String(yy).padStart(2,'0')}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`
+}
+function parseGs1(raw){
+ let source=String(raw||'').trim(),out={raw:source,gtin:null,expiry:null,mfg:null,lot:null,serial:null,isGs1:false};
+ if(!source)return out;
+ // 사람이 볼 수 있는 (01)/(17)/(10)/(21) 형식
+ let re=/\((01|10|11|17|21)\)\s*([^()]+)/g,m;
+ while((m=re.exec(source))){
+  let ai=m[1],v=m[2].trim().replace(/\s+$/,'');
+  out.isGs1=true;
+  if(ai==='01')out.gtin=v.replace(/\D/g,'').slice(0,14);
+  if(ai==='17')out.expiry=gs1Date(v.slice(0,6));
+  if(ai==='11')out.mfg=gs1Date(v.slice(0,6));
+  if(ai==='10')out.lot=v;
+  if(ai==='21')out.serial=v;
+ }
+ if(out.isGs1)return out;
+
+ // USB/2D 리더기가 출력하는 GS1 원문: ]d2 + AI + 값 + ASCII GS(29)
+ let s=source.replace(/^\](?:d2|Q3)/i,'');
+ let i=0,seen=false;
+ while(i<s.length-1){
+  if(s.charCodeAt(i)===29){i++;continue}
+  let ai=s.slice(i,i+2);
+  if(ai==='01' && /^\d{14}/.test(s.slice(i+2))){
+   out.gtin=s.slice(i+2,i+16);i+=16;seen=true;continue
+  }
+  if((ai==='17'||ai==='11') && /^\d{6}/.test(s.slice(i+2))){
+   let v=s.slice(i+2,i+8);if(ai==='17')out.expiry=gs1Date(v);else out.mfg=gs1Date(v);
+   i+=8;seen=true;continue
+  }
+  if(ai==='10'||ai==='21'){
+   let j=s.indexOf(String.fromCharCode(29),i+2);
+   let v=(j<0?s.slice(i+2):s.slice(i+2,j)).trim();
+   if(ai==='10')out.lot=v;else out.serial=v;
+   seen=true;i=j<0?s.length:j+1;continue
+  }
+  i++
+ }
+ out.isGs1=seen;
+ return out
+}
+function resolveProductCode(raw){
+ let code=String(raw||'').trim(),meta=parseGs1(code);
+ let exact=productCodes.find(x=>String(x.code_value||'').trim()===code);
+ if(exact)return {product:byId(products,exact.product_id),meta,matched:code};
+ if(meta.gtin){
+  let candidates=[meta.gtin,meta.gtin.replace(/^0/,'')];
+  let pc=productCodes.find(x=>candidates.includes(String(x.code_value||'').trim()));
+  if(pc)return {product:byId(products,pc.product_id),meta,matched:String(pc.code_value)};
+ }
+ return {product:null,meta,matched:null}
+}
+function gs1Summary(meta){
+ if(!meta?.isGs1)return '';
+ let a=[];
+ if(meta.gtin)a.push(`제품코드 ${meta.gtin}`);
+ if(meta.expiry)a.push(`유통기한 ${meta.expiry}`);
+ if(meta.lot)a.push(`Lot ${meta.lot}`);
+ if(meta.mfg)a.push(`제조일 ${meta.mfg}`);
+ if(meta.serial)a.push(`Serial ${meta.serial}`);
+ return a.join(' · ')
+}
+async function makeBarcodeDetector(){
+ let wanted=['data_matrix','qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf'];
+ let supported=wanted;
+ try{if(BarcodeDetector.getSupportedFormats)supported=await BarcodeDetector.getSupportedFormats()}catch(e){}
+ let formats=wanted.filter(x=>supported.includes(x));
+ return new BarcodeDetector(formats.length?{formats}:{})
+}
 
 function dashboardDrill(type){
  if(type==='pending'){showPage('purchase');$('purchaseStatus').value='PENDING_APPROVAL';$('purchaseDateMode').value='all';togglePurchaseDateInputs();renderPurchases();return}
@@ -643,185 +763,23 @@ function dashboardDrill(type){
  $('invQ').value='';$('invLocation').value='all';$('invExpiryFilter').value='all';$('invStockFilter').value='all';
  if(type==='stock')$('invStockFilter').value='positive';
  if(type==='low')$('invStockFilter').value='low';
+ if(type==='unassigned')$('invLocation').value='__UNASSIGNED__';
  if(type==='exp3')$('invExpiryFilter').value='3m';
  if(type==='exp6')$('invExpiryFilter').value='6m';
  renderInventory()
 }
+function findProductByCode(code){return resolveProductCode(code).product}
 
-
-const KOR_2SET_TO_ENG={
- 'ㅂ':'q','ㅈ':'w','ㄷ':'e','ㄱ':'r','ㅅ':'t','ㅛ':'y','ㅕ':'u','ㅑ':'i','ㅐ':'o','ㅔ':'p',
- 'ㅁ':'a','ㄴ':'s','ㅇ':'d','ㄹ':'f','ㅎ':'g','ㅗ':'h','ㅓ':'j','ㅏ':'k','ㅣ':'l',
- 'ㅋ':'z','ㅌ':'x','ㅊ':'c','ㅍ':'v','ㅠ':'b','ㅜ':'n','ㅡ':'m',
- 'ㅃ':'Q','ㅉ':'W','ㄸ':'E','ㄲ':'R','ㅆ':'T','ㅒ':'O','ㅖ':'P'
-};
-const ENG_TO_KOR_2SET={
- 'q':'ㅂ','w':'ㅈ','e':'ㄷ','r':'ㄱ','t':'ㅅ','y':'ㅛ','u':'ㅕ','i':'ㅑ','o':'ㅐ','p':'ㅔ',
- 'a':'ㅁ','s':'ㄴ','d':'ㅇ','f':'ㄹ','g':'ㅎ','h':'ㅗ','j':'ㅓ','k':'ㅏ','l':'ㅣ',
- 'z':'ㅋ','x':'ㅌ','c':'ㅊ','v':'ㅍ','b':'ㅠ','n':'ㅜ','m':'ㅡ',
- 'Q':'ㅃ','W':'ㅉ','E':'ㄸ','R':'ㄲ','T':'ㅆ','O':'ㅒ','P':'ㅖ'
-};
-function koreanJamoToEnglishKeys(raw){
- return String(raw||'').split('').map(ch=>KOR_2SET_TO_ENG[ch]||ch).join('')
-}
-function englishKeysToKoreanJamo(raw){
- return String(raw||'').split('').map(ch=>ENG_TO_KOR_2SET[ch]||ch).join('')
-}
-function scanCodeCandidates(raw){
- let original=String(raw||'').trim();
- if(!original)return [];
- let cands=[original];
- let koToEn=koreanJamoToEnglishKeys(original);
- let enToKo=englishKeysToKoreanJamo(original);
- if(koToEn&&koToEn!==original)cands.push(koToEn);
- if(enToKo&&enToKo!==original)cands.push(enToKo);
- // whitespace/control cleanup candidate
- let compact=original.replace(/[\u0000-\u001f\u007f]/g,'').trim();
- if(compact&&compact!==original)cands.push(compact);
- let compactEn=koreanJamoToEnglishKeys(compact);
- if(compactEn&&compactEn!==compact)cands.push(compactEn);
- return [...new Set(cands)]
-}
-function normalizedStoredCodeCandidates(value){
- return scanCodeCandidates(String(value||'').trim())
-}
-
-function normalizeGtin(v){
- let d=String(v||'').replace(/\D/g,'');
- if(d.length===13)return '0'+d;
- if(d.length===14)return d;
- return d
-}
-function gs1DateYYMMDD(s){
- if(!/^\d{6}$/.test(s||''))return '';
- let yy=Number(s.slice(0,2)),mm=Number(s.slice(2,4)),dd=Number(s.slice(4,6));
- let y=2000+yy;
- if(mm<1||mm>12||dd<1||dd>31)return '';
- let dt=new Date(y,mm-1,dd);
- if(dt.getFullYear()!==y||dt.getMonth()!==mm-1||dt.getDate()!==dd)return '';
- return `${y}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`
-}
-
-function normalizeClinicLocation(raw){
- let s=String(raw||'').trim();
- if(!s)return '';
- let first=s.split(/[\/,|]/)[0].trim();
- const map={'데':'데스크','데스크':'데스크','냉':'냉장고실','냉장고실':'냉장고실','주':'주사실','주사실':'주사실','필':'필러방','필러방':'필러방'};
- return map[first]||first
-}
-function secondaryClinicLocation(raw){
- let s=String(raw||'').trim();if(!s)return '';
- let parts=s.split(/[\/,|]/).map(x=>x.trim()).filter(Boolean);
- if(parts.length<2)return '';
- const map={'데':'데스크','냉':'냉장고실','주':'주사실','필':'필러방'};
- return map[parts[1]]||parts[1]
-}
-
-function parseGs1Code(raw){
- let s=String(raw||'').trim(),compact=s.replace(/\s/g,'');
- let gtin='',expiry='',lot='',serial='';
- let m=compact.match(/\(01\)(\d{14})/i);if(m)gtin=m[1];
- m=compact.match(/\(17\)(\d{6})/i);if(m)expiry=gs1DateYYMMDD(m[1]);
- m=compact.match(/\(10\)(.*?)(?=\(21\)|\(17\)|$)/i);if(m)lot=m[1];
- m=compact.match(/\(21\)(.*?)(?=\(10\)|\(17\)|$)/i);if(m)serial=m[1];
- if(!gtin){
-  m=compact.match(/^01(\d{14})/);if(m)gtin=m[1]
- }
- if(!expiry){
-  // 일반적인 GS1: 01 + GTIN14 다음에 17 + YYMMDD
-  m=compact.match(/^01\d{14}17(\d{6})/);if(m)expiry=gs1DateYYMMDD(m[1])
- }
- if(!lot){
-  m=compact.match(/^01\d{14}(?:17\d{6})?10(.+?)(?=21|$)/);if(m)lot=m[1]
- }
- if(!serial){
-  m=compact.match(/21(.+)$/);if(m&&compact.length>20)serial=m[1]
- }
- return {raw:s,gtin,expiry,lot,serial}
-}
-function scanInfo(code){return parseGs1Code(code)}
-function addDaysISO(days){
- let d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+Number(days||0));
- return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-}
-function productDefaultExpiry(p){return p?.default_expiry_days!=null?addDaysISO(p.default_expiry_days):''}
-function productFromGtin(gtin){
- let g=normalizeGtin(gtin);if(!g)return null;
- for(let c of productCodes){
-  // 1D BARCODE가 GTIN 자체인 경우
-  let cv=normalizeGtin(c.code_value);
-  if(cv&&cv===g){let p=products.find(x=>x.id===c.product_id);if(p)return p}
-
-  // 저장된 QR/GS1 원문 안의 AI(01) GTIN으로도 매칭한다.
-  // 따라서 패키지마다 LOT/Serial이 달라도 같은 제품을 찾을 수 있다.
-  for(let candidate of normalizedStoredCodeCandidates(c.code_value)){
-   let info=parseGs1Code(candidate);
-   let cg=normalizeGtin(info.gtin);
-   if(cg&&cg===g){let p=products.find(x=>x.id===c.product_id);if(p)return p}
-  }
- }
- return null
-}
-
-function findProductByCode(code){
- let inputCandidates=scanCodeCandidates(code);
- if(!inputCandidates.length)return null;
-
- // 1) exact/raw and 한영보정 문자열 비교
- for(let pc of productCodes){
-  let storedCandidates=normalizedStoredCodeCandidates(pc.code_value);
-  if(inputCandidates.some(x=>storedCandidates.includes(x))){
-   let p=products.find(p=>p.id===pc.product_id);
-   if(p)return p
-  }
- }
-
- // 2) GS1/GTIN 보조매칭
- for(let cand of inputCandidates){
-  let info=parseGs1Code(cand);
-  if(info.gtin){
-   let p=productFromGtin(info.gtin);
-   if(p)return p
-  }
- }
-
- // 3) 13/14자리 숫자 GTIN 정규화 보조매칭
- for(let cand of inputCandidates){
-  let norm=normalizeGtin(cand);
-  if(norm&&norm.length>=13){
-   for(let pc of productCodes){
-    let cv=normalizeGtin(pc.code_value);
-    if(cv&&cv===norm){
-     let p=products.find(p=>p.id===pc.product_id);
-     if(p)return p
-    }
-   }
-  }
- }
- return null
-}
-
-
-
-function formatKSTDateTime(value){
- if(!value)return '-';
- const d=new Date(value);
- if(Number.isNaN(d.getTime()))return String(value).replace('T',' ').slice(0,16);
- return new Intl.DateTimeFormat('ko-KR',{
-   timeZone:'Asia/Seoul',
-   year:'numeric',month:'2-digit',day:'2-digit',
-   hour:'2-digit',minute:'2-digit',hour12:false
- }).format(d);
-}
 
 async function startup(){
- $('purchaseMonth').value=monthNow(); $('auditMonth').value=monthNow(); if($('histMonth'))$('histMonth').value=monthNow();
- let today=new Date().toISOString().slice(0,10);
+ updateNetworkState();
+ $('purchaseMonth').value=monthNow();$('auditMonth').value=monthNow();if($('histMonth'))$('histMonth').value=monthNow();
+ let today=localTodayISO();
  ['histDay','histFrom','histTo','auditDay','auditFrom','auditTo','purchaseDay','purchaseFrom','purchaseTo'].forEach(id=>{if($(id))$(id).value=today});
  let week=isoWeekInput(new Date());
  ['histWeek','auditWeek','purchaseWeek'].forEach(id=>{if($(id))$(id).value=week});
  const {data:{session}}=await sb.auth.getSession();
- if(session){ await afterSession(); } else { $('loginView').classList.remove('hide'); }
+ if(session){await afterSession()}else{$('loginView').classList.remove('hide')}
 }
 function showSetup(){$('loginView').classList.add('hide');$('setupView').classList.remove('hide')}
 function randomId(){let a=new Uint8Array(5);crypto.getRandomValues(a);return 'arb_master_'+[...a].map(x=>x.toString(36)).join('').slice(0,8)}
@@ -850,11 +808,7 @@ async function login(){
   await afterSession();
  }catch(e){msg($('loginMsg'),e.message,'bad')}
 }
-async function logout(skipConfirm=false){
- if(!skipConfirm && !confirm('로그아웃하시겠습니까?'))return;
- await sb.auth.signOut();
- location.reload()
-}
+async function logout(){await sb.auth.signOut();location.reload()}
 async function afterSession(){
  const {data:{user}}=await sb.auth.getUser(); if(!user)return logout();
  const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).single(); if(error||!data)return logout();
@@ -866,100 +820,45 @@ async function afterSession(){
 }
 async function reloadAll(){
  if(!me)return;
+ lastReloadStarted=Date.now();setSyncState('동기화 중...');
  try{await sb.rpc('refresh_alert_events')}catch(e){console.warn('alert refresh',e)}
  const reqs=[
-  sb.from('products').select('*').order('name'),
+  sb.from('products').select('*').eq('active',true).order('name'),
   sb.from('inventory_product_balances').select('*'),
   sb.from('inventory_lot_balances').select('*'),
   sb.from('product_codes').select('*').eq('active',true),
   sb.from('inventory_transactions').select('*').order('created_at',{ascending:false}).limit(1500),
   sb.from('purchase_requests').select('*').order('created_at',{ascending:false}).limit(1000),
-  sb.from('profiles').select('*'),
+  isAdmin()?sb.from('profiles').select('*').order('name'):sb.from('profiles').select('*').eq('active',true).order('name'),
   sb.from('locations').select('*').eq('active',true),
   sb.from('hospitals').select('id,name,default_lead_days').eq('id',me.hospital_id).single(),
   sb.from('inventory_counts').select('*').order('created_at',{ascending:false}).limit(50),
   sb.from('inventory_count_items').select('*').limit(5000),
-  sb.from('alert_events').select('*').order('first_seen_at',{ascending:false}).limit(3000),
-  sb.from('category_inventory_defaults').select('*').order('category')
+  sb.from('alert_events').select('*').order('first_seen_at',{ascending:false}).limit(3000)
  ];
- if(isAdmin()) reqs.push(sb.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(1000));
- const rs=await Promise.all(reqs);
- allProducts=rs[0]?.data||[];products=allProducts.filter(p=>p.active);
- balances=rs[1]?.data||[];lotBalances=rs[2]?.data||[];productCodes=rs[3]?.data||[];transactions=rs[4]?.data||[];purchases=rs[5]?.data||[];allProfiles=rs[6]?.data||[];profiles=allProfiles.filter(x=>x.active);locations=rs[7]?.data||[];
- hospitalSettings=rs[8]?.data||null;counts=rs[9]?.data||[];countItems=rs[10]?.data||[];alertEvents=rs[11]?.data||[];categoryDefaults=rs[12]?.data||[];
- audits=isAdmin()?(rs[13]?.data||[]):[];
- renderLocationFilter();refreshBulkAdminOptions();refreshCategoryGradeDefaults();renderAll()
-}
-function renderAll(){renderDashboard();renderInventory();renderPurchases();renderHistory();if(isAdmin()){renderAudit();renderAdmin();renderProductManagement()}}
-const titles={dashboard:'대시보드',inventory:'재고',purchase:'구매요청',history:'이력',audit:'감사로그',import:'Excel Import',admin:'관리자',scan:'스캔',usage:'사용량 분석',alerts:'알림센터',products:'품목정보 관리'};
-
-function openMobileMore(){
- let admin=isAdmin();
- openModal('더보기',`
-  <div class="actions" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-   <button class="secondary" onclick="closeModal();showPage('alerts')">알림센터</button>
-   <button class="secondary" onclick="closeModal();showPage('history')">이력</button>
-   ${admin?`<button class="secondary" onclick="closeModal();showPage('products')">품목정보 관리</button>
-   <button class="primary" onclick="closeModal();showPage('import')">재고 Excel Import</button>
-   <button class="secondary" onclick="closeModal();showPage('usage')">사용량 분석</button>
-   <button class="secondary" onclick="closeModal();showPage('audit')">감사로그</button>
-   <button class="secondary" onclick="closeModal();showPage('admin')">관리자 설정</button>`:''}
-  </div>
-  <button class="danger mobile-logout" onclick="closeModal();setTimeout(()=>logout(),80)">로그아웃</button>
- `,`<button class="secondary" onclick="closeModal()">닫기</button>`)
-}
-function syncMobileImportFile(input){
- let file=input?.files?.[0];if(!file)return;
- // parse directly; replacement routine also gets filename from mobile input if needed
- parseExcel(file)
-}
-function selectedImportFilename(){
- return $('excelFile')?.files?.[0]?.name||$('excelFileMobile')?.files?.[0]?.name||'replacement_import.xlsx'
-}
-
-
-function openInventoryDataReset(){
- if(!isAdmin())return alert('관리자만 사용할 수 있습니다.');
- openModal('재고 데이터 초기화',`
-  <div class="notice bad">
-   <b>주의: 되돌릴 수 없습니다.</b><br>
-   품목, 바코드/QR, 현재재고, 거래이력, 구매요청, 알림, Import 기록이 삭제됩니다.<br><br>
-   직원계정, 병원설정, 보관위치는 유지됩니다.
-  </div>
-  <div class="field" style="margin-top:14px">
-   <label>계속하려면 아래에 <b>초기화</b>를 입력하세요.</label>
-   <input id="resetConfirmText" autocomplete="off" placeholder="초기화">
-  </div>
- `,`<button class="secondary" onclick="closeModal()">취소</button><button class="danger" onclick="confirmInventoryDataReset()">데이터 초기화 실행</button>`)
-}
-async function confirmInventoryDataReset(){
- if(!isAdmin())return alert('관리자만 사용할 수 있습니다.');
- if(($('resetConfirmText')?.value||'').trim()!=='초기화')return alert('"초기화"를 정확히 입력해주세요.');
- if(!confirm('품목/코드/재고/거래 데이터를 모두 삭제합니다.\n정말 초기화할까요?'))return;
- closeModal();
- if($('importInfo')){
-  $('importInfo').classList.remove('hide');
-  $('importInfo').textContent='데이터 초기화 중...';
+ if(isAdmin())reqs.push(sb.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(1000));
+ const rs=await Promise.all(reqs),errors=rs.map((x,i)=>x.error?{i,error:x.error}:null).filter(Boolean);
+ const keep=(i,current)=>rs[i]&&!rs[i].error?(rs[i].data||[]):current;
+ products=keep(0,products);balances=keep(1,balances);lotBalances=keep(2,lotBalances);productCodes=keep(3,productCodes);
+ transactions=keep(4,transactions);purchases=keep(5,purchases);profiles=keep(6,profiles);locations=keep(7,locations);
+ if(rs[8]&&!rs[8].error)hospitalSettings=rs[8].data||hospitalSettings;
+ counts=keep(9,counts);countItems=keep(10,countItems);alertEvents=keep(11,alertEvents);
+ if(isAdmin())audits=keep(12,audits);else audits=[];
+ if(errors.length){
+  console.error('reload errors',errors);setSyncState(`일부 오류 · ${formatClock()}`,'bad');
+  let authErr=errors.some(x=>/jwt|token/i.test(String(x.error?.message||'')));
+  if(authErr)toast('로그인 세션을 확인해주세요.');else toast(`일부 데이터 불러오기 실패 (${errors.length}건) · 기존 화면은 유지합니다.`)
+ }else{
+  lastSyncAt=new Date();setSyncState(`동기화 ${formatClock(lastSyncAt)}`,'good')
  }
- const {data,error}=await sb.rpc('admin_reset_inventory_data');
- if(error){
-  if($('importInfo'))$('importInfo').textContent='초기화 실패 · '+error.message;
-  return alert('데이터 초기화 실패: '+error.message)
- }
- importRows=[];
- await reloadAll();
- if($('importInfo')){
-  $('importInfo').classList.remove('hide');
-  $('importInfo').textContent=`초기화 완료 · 품목 ${data?.products??0} · 코드 ${data?.codes??0} · 거래 ${data?.transactions??0}건 삭제`;
- }
- toast('재고 운영데이터 초기화 완료');
- renderImport();
+ renderLocationFilter();refreshBulkAdminOptions();renderAll()
 }
-
+function renderAll(){renderDashboard();renderInventory();renderPurchases();renderHistory();if(isAdmin()){renderAudit();renderAdmin()}}
+const titles={dashboard:'대시보드',inventory:'재고',purchase:'구매요청',history:'이력',audit:'감사로그',import:'Excel Import',admin:'관리자',scan:'스캔',usage:'사용량 분석',alerts:'알림센터',count:'재고실사'};
 function showPage(p){
  document.querySelectorAll('.page').forEach(x=>x.classList.add('hide'));let e=$('page-'+p);if(!e)return;e.classList.remove('hide');$('pageTitle').textContent=titles[p]||p;
  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
- if(p==='inventory')renderInventory();if(p==='purchase')renderPurchases();if(p==='history')renderHistory();if(p==='audit')renderAudit();if(p==='admin')renderAdmin();if(p==='usage')renderUsage();if(p==='alerts')renderAlerts();if(p==='products')renderProductManagement()
+ if(p==='inventory')renderInventory();if(p==='purchase')renderPurchases();if(p==='history')renderHistory();if(p==='audit')renderAudit();if(p==='admin')renderAdmin();if(p==='usage')renderUsage();if(p==='alerts')renderAlerts();if(p==='count')renderCounts()
 }
 function renderDashboard(){
  $('kProducts').textContent=products.length;
@@ -968,15 +867,13 @@ function renderDashboard(){
  $('kExp6').textContent=purchases.filter(r=>r.due_date&&r.due_date<localTodayISO()&&!['DONE','REJECTED','CANCELLED'].includes(r.status)).length;
  $('kLow').textContent=products.filter(p=>productQty(p.id)<gradeStockThreshold(p)).length;
  $('kPurchase').textContent=purchases.filter(x=>x.status==='PENDING_APPROVAL').length;
- $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc(formatKSTDateTime(t.created_at))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
+ $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
  renderDashboardAlerts()
 }
 function renderInventory(){
  let q=($('invQ')?.value||'').toLowerCase(),locFilter=$('invLocation')?.value||'all',expFilter=$('invExpiryFilter')?.value||'all',stockFilter=$('invStockFilter')?.value||'all';
  let arr=products.filter(p=>{
-  let allCodes=productCodesFor(p.id).map(c=>c.code_value).join(' ');
-  let searchText=(p.name+' '+(p.category||'')+' '+(p.subcategory||'')+' '+allCodes).toLowerCase();
-  if(q&&!searchText.includes(q))return false;
+  if(!p.name.toLowerCase().includes(q))return false;
   let qty=productQty(p.id),lots=productLots(p.id);
   if(locFilter==='__UNASSIGNED__'&&!lots.some(x=>!x.location_id&&Number(x.quantity)>0))return false;
   if(locFilter!=='all'&&locFilter!=='__UNASSIGNED__'&&!lots.some(x=>x.location_id===locFilter&&Number(x.quantity)>0))return false;
@@ -987,31 +884,12 @@ function renderInventory(){
   if(expFilter==='6m'&&!(ex&&days<=180))return false;
   return true
  });
- let sort=$('invSort')?.value||'name';
- arr.sort((a,b)=>sort==='qtyAsc'?productQty(a.id)-productQty(b.id):sort==='qtyDesc'?productQty(b.id)-productQty(a.id):a.name.localeCompare(b.name,'ko'));
+ let sort=$('invSort')?.value||'name';arr.sort((a,b)=>sort==='qtyAsc'?productQty(a.id)-productQty(b.id):sort==='qtyDesc'?productQty(b.id)-productQty(a.id):a.name.localeCompare(b.name,'ko'));
  $('inventoryBody').innerHTML=arr.map(p=>{
   let qty=productQty(p.id),threshold=gradeStockThreshold(p),low=qty<threshold,nearest=productNearestExpiry(p.id),nearestText=expiryText(nearest);
   let locs=productLocations(p.id).map(x=>`<span class="loc-chip">${esc(x.id?byId(locations,x.id)?.name||'미등록':'★ 위치 미지정')} <b>${fmt(x.qty)}</b></span>`).join('')||'<span class="muted">재고 없음</span>';
-  return `<tr>
-   <td><div class="product-main"><button class="ghost" style="padding:0;font-weight:900;text-align:left" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="product-submeta"><span class="info-chip">${esc(p.base_unit||'개')}</span>${p.default_expiry_days!=null?`<span class="info-chip">기본기한 ${fmt(p.default_expiry_days)}일</span>`:''}</div></div></td>
-   <td>${esc(p.category||'미분류')}${p.subcategory?`<div class="tiny muted">${esc(p.subcategory)}</div>`:''}</td>
-   <td>${renderCodeStack(p.id,true)}${isAdmin()?`<button class="ghost" style="padding:5px 0;margin-top:4px" onclick="openProduct('${p.id}')">품목정보 수정</button>`:''}</td>
-   <td>${locs}</td>
-   <td><b style="font-size:16px">${fmt(qty)}</b></td>
-   <td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`등급 ${p.expiry_sensitivity}`:'기본')}</div></td>
-   <td>${fmt(threshold)} 미만<div class="tiny muted">${esc(p.stock_sensitivity||'b')}등급${p.low_stock_override!=null?' · 개별예외':''}</div></td>
-   <td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td>
-   <td><div class="inventory-actions">
-    <button class="primary" onclick="openTransaction('USE','${p.id}')">사용</button>
-    <button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button>
-    <button class="secondary" onclick="openProductDetail('${p.id}')">상세</button>
-    <button class="secondary" onclick="openMove('${p.id}')">위치이동</button>
-    <button class="ghost" onclick="openPurchase('${p.id}')">구매요청</button>
-    <button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button>
-    ${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">정보수정</button>`:''}
-   </div></td>
-  </tr>`
- }).join('')||`<tr><td colspan="9" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
+  return `<tr><td><button class="ghost" style="padding:0;font-weight:900" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="tiny muted">${esc(p.base_unit||'개')}</div></td><td>${esc(p.category||'미분류')}</td><td>${locs}</td><td><b>${fmt(qty)}</b></td><td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`민감도 ${p.expiry_sensitivity}`:'기본')}</div></td><td>${fmt(threshold)} 미만${p.stock_sensitivity?`<div class="tiny muted">${esc(p.stock_sensitivity)}등급${p.low_stock_override!=null?' · 개별예외':''}</div>`:''}</td><td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td><td><div class="actions"><button class="secondary" onclick="openTransaction('USE','${p.id}')">사용</button><button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button><button class="secondary" onclick="openMove('${p.id}')">위치 지정/이동</button><button class="ghost" onclick="openProductDetail('${p.id}')">상세</button><button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button><button class="ghost" onclick="openPurchase('${p.id}')">요청</button>${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">설정</button>`:''}</div></td></tr>`
+ }).join('')||`<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
 }
 
 function togglePurchaseDateInputs(){
@@ -1033,7 +911,7 @@ function renderPurchases(){
   if(r.status==='APPROVED'&&canApprove)acts+=`<button class="secondary" onclick="markOrdered('${r.id}')">발주처리</button>`;
   if(['APPROVED','ORDERED','PARTIAL_RECEIVED'].includes(r.status))acts+=`<button class="primary" onclick="openReceivePurchase('${r.id}')">입고 ${remain?`(${fmt(remain)} 남음)`:''}</button>`;
   return `<tr><td>${dstr(r.created_at)}</td><td><b>${esc(p?.name||'-')}</b></td><td>${fmt(r.requested_qty)} / 입고 ${fmt(r.received_qty)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td><td>${esc(r.due_date||'-')}</td><td><span class="badge b-dark">${purchaseLabel(r.status)}</span></td><td><div class="actions">${acts}</div></td></tr>`
- }).join('')||`<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">조건에 맞는 구매요청이 없습니다.</td></tr>`
+ }).join('')||`<tr><td colspan="7" class="muted" style="text-align:center;padding:28px">조건에 맞는 구매요청이 없습니다.</td></tr>`
 }
 function toggleHistDateInput(){
  let mode=$('histDateMode')?.value||'month';
@@ -1066,8 +944,8 @@ function renderHistory(){
  let arr=historyVisibleRows();
  $('historyBody').innerHTML=arr.map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id),loc=byId(locations,t.location_id),reversed=transactions.some(x=>x.related_tx_id===t.id&&x.tx_type==='REVERSAL');return `<tr class="${historySelected.has(t.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${historySelected.has(t.id)?'checked':''} onchange="setHistorySelected('${t.id}',this.checked)"></td>
- <td>${esc(formatKSTDateTime(t.created_at))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
- <td><b>${esc(p?.name||'-')}</b></td><td>${esc(t.expiry_date||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc(loc?.name||'-')}</td><td>${esc((t.operator_emp_no||u?.emp_no||'')+' '+(t.operator_name||u?.name||''))}</td><td>${t.discard_reason?`<b>${esc(t.discard_reason)}</b><br>`:''}${esc(t.memo||'')}</td>
+ <td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
+ <td><b>${esc(p?.name||'-')}</b></td><td>${esc(t.expiry_date||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc(loc?.name||'-')}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td><td>${t.discard_reason?`<b>${esc(t.discard_reason)}</b><br>`:''}${esc(t.memo||'')}</td>
  <td>${isAdmin()&&t.tx_type!=='REVERSAL'&&!reversed&&['IN','USE','DISCARD','INITIAL_STOCK','IMPORT_ADJUST'].includes(t.tx_type)?`<button class="danger" onclick="reverseTransaction('${t.id}')">되돌리기</button>`:reversed?'<span class="badge b-ok">되돌림 완료</span>':'-'}</td>
  </tr>`}).join('')||`<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 이력이 없습니다.</td></tr>`;
  updateHistorySelectionUi()
@@ -1098,7 +976,7 @@ function renderAudit(){
  let arr=auditVisibleRows();
  $('auditBody').innerHTML=arr.map(a=>{let u=byId(profiles,a.actor_profile_id);return `<tr class="${auditSelected.has(a.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${auditSelected.has(a.id)?'checked':''} onchange="setAuditSelected('${a.id}',this.checked)"></td>
- <td>${esc(formatKSTDateTime(a.created_at))}</td><td><b>${esc(a.action)}</b></td><td><span class="tiny">${esc(JSON.stringify(a.detail||{}))}</span></td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td>
+ <td>${esc((a.created_at||'').replace('T',' ').slice(0,16))}</td><td><b>${esc(a.action)}</b></td><td><span class="tiny">${esc(JSON.stringify(a.detail||{}))}</span></td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td>
  <td><label><input class="checkbox" type="checkbox" ${a.review_status==='REVIEWED'?'checked':''} onchange="reviewAudit('${a.id}',this.checked)"> 확인</label></td>
  </tr>`}).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:28px">조건에 맞는 감사로그가 없습니다.</td></tr>`;
  updateAuditSelectionUi()
@@ -1119,7 +997,7 @@ function openCount(id){
  let c=counts.find(x=>x.id===id),items=countItems.filter(x=>x.count_id===id);if(!c)return;
  openModal('재고실사 · '+c.name,`
  <div class="notice">시스템수량을 확인하고 실제 수량을 입력하세요. 승인 시 차이만 COUNT_ADJUST 이력으로 반영됩니다.</div>
- <div class="table-wrap"><table><thead><tr><th>품목</th><th>위치</th><th>유통기한</th><th>시스템</th><th>실제</th><th>차이</th></tr></thead><tbody>${items.map(i=>`<tr><td>${esc(byId(products,i.product_id)?.name||'-')}</td><td>${esc(byId(locations,i.location_id)?.name||'-')}</td><td>${esc(i.expiry_date||'-')}</td><td>${fmt(i.system_qty)}</td><td><input id="cnt_${i.id}" type="number" step="1" value="${i.actual_qty??i.system_qty}" style="width:90px" oninput="updateCountDiff('${i.id}',${Number(i.system_qty)})"></td><td id="diff_${i.id}">${fmt((i.actual_qty??i.system_qty)-Number(i.system_qty))}</td></tr>`).join('')}</tbody></table></div>
+ <div class="table-wrap"><table><thead><tr><th>품목</th><th>위치</th><th>유통기한</th><th>시스템</th><th>실제</th><th>차이</th></tr></thead><tbody>${items.map(i=>`<tr><td>${esc(byId(products,i.product_id)?.name||'-')}</td><td>${esc(byId(locations,i.location_id)?.name||'-')}</td><td>${esc(i.expiry_date||'-')}</td><td>${fmt(i.system_qty)}</td><td><input id="cnt_${i.id}" type="number" inputmode="numeric" step="1" value="${i.actual_qty??i.system_qty}" style="width:90px" oninput="updateCountDiff('${i.id}',${Number(i.system_qty)})"></td><td id="diff_${i.id}">${fmt((i.actual_qty??i.system_qty)-Number(i.system_qty))}</td></tr>`).join('')}</tbody></table></div>
  `,`<button class="secondary" onclick="closeModal()">닫기</button><button class="primary" onclick="saveCount('${id}')">실사 저장</button>`)
 }
 function updateCountDiff(id,system){let v=Number($('cnt_'+id).value||0);$('diff_'+id).textContent=fmt(v-system)}
@@ -1136,95 +1014,61 @@ async function approveCount(id){
 }
 
 
-function staffRoleLabel(role){
- return role==='SUPER_ADMIN'?'시스템 관리자':role==='HOSPITAL_ADMIN'?'Doctor / 원장':role==='MANAGER'?'Manager':role==='STAFF'?'직원':role||'-'
-}
 async function staffApi(payload){
- let {data:{session}}=await sb.auth.getSession();
- if(!session?.access_token)throw new Error('로그인이 만료되었습니다. 다시 로그인해주세요.');
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session?.access_token)throw new Error('로그인 세션이 없습니다.');
  let res=await fetch(`${SB_URL}/functions/v1/manage-inventory-staff`,{
-  method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${session.access_token}`},
-  body:JSON.stringify(payload)
+  method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${session.access_token}`},body:JSON.stringify(payload)
  });
- let j=await res.json().catch(()=>({}));
- if(!res.ok)throw new Error(j.error||'직원 계정 처리 실패');
+ let j={};try{j=await res.json()}catch(_){}
+ if(!res.ok)throw new Error(j.error||`직원관리 실패 (${res.status})`);
  return j
 }
 function openStaffModal(id=''){
- let u=id?allProfiles.find(x=>x.id===id):null;
- openModal(u?'직원 정보 수정':'직원 추가',`
-  <div class="field"><label>이름</label><input id="staffName" value="${esc(u?.name||'')}" placeholder="직원 이름"></div>
-  <div class="field"><label>사번</label><input id="staffEmpNo" value="${esc(u?.emp_no||'')}" placeholder="선택 입력"></div>
-  <div class="field"><label>로그인 ID</label><input id="staffLoginId" value="${esc(u?.login_id||'')}" placeholder="예: nurse01"></div>
-  <div class="field"><label>${u?'새 비밀번호':'초기 비밀번호'}</label><input id="staffPassword" type="password" placeholder="${u?'변경할 때만 입력':'초기 로그인 비밀번호'}"><div class="tiny muted">${u?'비워두면 기존 비밀번호 유지':'직원은 최초 로그인 후 비밀번호 변경 대상으로 등록됩니다.'}</div></div>
+ let u=id?byId(profiles,id):null;
+ openModal(u?'직원 계정 수정':'직원 계정 추가',`
+  <div class="field"><label>로그인 ID</label><input id="staffLoginId" autocomplete="off" value="${esc(u?.login_id||'')}" ${u?'':'placeholder="예: rn04"'}></div>
+  <div class="field"><label>이름</label><input id="staffName" value="${esc(u?.name||'')}"></div>
+  <div class="field"><label>사번</label><input id="staffEmpNo" value="${esc(u?.emp_no||'')}"></div>
   <div class="field"><label>권한</label><select id="staffRole">
-    <option value="STAFF" ${u?.role==='STAFF'||!u?'selected':''}>직원 · 입고/사용/폐기</option>
-    <option value="MANAGER" ${u?.role==='MANAGER'?'selected':''}>Manager · 운영관리</option>
-    <option value="HOSPITAL_ADMIN" ${u?.role==='HOSPITAL_ADMIN'?'selected':''}>Doctor / 원장 · 전체관리</option>
+    <option value="STAFF" ${u?.role==='STAFF'?'selected':''}>직원</option>
+    <option value="MANAGER" ${u?.role==='MANAGER'?'selected':''}>매니저</option>
+    <option value="HOSPITAL_ADMIN" ${u?.role==='HOSPITAL_ADMIN'?'selected':''}>관리자</option>
   </select></div>
-  <div class="field"><label style="display:flex;gap:9px;align-items:center"><input id="staffPurchaseApprover" type="checkbox" ${u?.purchase_approver?'checked':''}> 구매요청 검토/승인 권한 부여</label>
-  <div class="tiny muted">체크하면 승인대기 구매요청을 승인/반려하고 발주처리할 수 있습니다.</div></div>
+  <div class="field"><label>${u?'새 비밀번호 (변경할 때만)':'초기 비밀번호'}</label><input id="staffPw" type="password" autocomplete="new-password" placeholder="${u?'비우면 유지':'필수 입력'}"></div>
+  <label class="small" style="display:flex;gap:7px;align-items:center"><input id="staffApprover" type="checkbox" ${u?.purchase_approver?'checked':''}> 구매 검토자</label>
  `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveStaff('${id}')">${u?'수정 저장':'직원 추가'}</button>`)
 }
 async function saveStaff(id=''){
- let name=$('staffName').value.trim(),login_id=$('staffLoginId').value.trim(),password=$('staffPassword').value;
- if(!name)return alert('직원 이름을 입력하세요.');
- if(!login_id)return alert('로그인 ID를 입력하세요.');
+ let login_id=$('staffLoginId').value.trim().toLowerCase(),name=$('staffName').value.trim(),emp_no=$('staffEmpNo').value.trim(),role=$('staffRole').value,password=$('staffPw').value,purchase_approver=$('staffApprover').checked;
+ if(!login_id||!name)return alert('로그인 ID와 이름을 입력하세요.');
  if(!id&&!password)return alert('초기 비밀번호를 입력하세요.');
- let payload={action:id?'update':'create',id:id||undefined,name,emp_no:$('staffEmpNo').value.trim(),login_id,password:password||undefined,role:$('staffRole').value,purchase_approver:$('staffPurchaseApprover').checked};
+ let key=`staff-save-${id||'new'}`;if(!beginAction(key,'저장 중...'))return;
  try{
-  await staffApi(payload);closeModal();toast(id?'직원 정보 수정 완료':'직원 추가 완료');await reloadAll();renderAdmin()
- }catch(e){alert(e.message)}
+  let payload=id?{action:'update',id,login_id,name,emp_no,role,purchase_approver}:{action:'create',login_id,password,name,emp_no,role,purchase_approver};
+  if(id&&password)payload.password=password;
+  await staffApi(payload);closeModal();toast(id?'직원 정보 수정 완료':'직원 계정 추가 완료');await reloadAll()
+ }catch(e){alert(safeErrorMessage(e))}finally{endAction(key)}
 }
-async function deactivateStaff(id){
- let u=allProfiles.find(x=>x.id===id);if(!u)return;
- if(id===me.id)return alert('현재 로그인 중인 본인 계정은 사용중지할 수 없습니다.');
- if(!confirm(`${u.name} 계정을 사용중지할까요?\n\n로그인이 차단되고 직원 목록의 사용중지 탭으로 이동합니다.\n과거 업무 이력은 유지됩니다.`))return;
- try{await staffApi({action:'deactivate',id});toast('직원 계정 사용중지');await reloadAll();renderAdmin()}catch(e){alert(e.message)}
+async function toggleStaffActive(id,active){
+ let u=byId(profiles,id);if(!u)return;
+ if(!confirm(`${u.name} 계정을 ${active?'복구':'사용중지'}할까요?`))return;
+ try{await staffApi({action:active?'restore':'deactivate',id});toast(active?'직원 계정 복구':'직원 계정 사용중지');await reloadAll()}catch(e){alert(safeErrorMessage(e))}
 }
-async function restoreStaff(id){
- let u=allProfiles.find(x=>x.id===id);if(!u)return;
- if(!confirm(`${u.name} 계정을 다시 사용 가능 상태로 전환할까요?`))return;
- try{await staffApi({action:'restore',id});toast('직원 계정 다시 활성화');await reloadAll();renderAdmin()}catch(e){alert(e.message)}
-}
-
-async function deleteStaffHard(id){
- let u=allProfiles.find(x=>x.id===id);if(!u)return;
- if(id===me.id)return alert('현재 로그인 중인 본인 계정은 삭제할 수 없습니다.');
- let text=prompt(`${u.name} 직원 계정을 영구 삭제합니다.\n\n로그인 계정과 직원 목록에서 완전히 제거됩니다.\n기존 재고 거래이력의 사번/이름 기록은 보존됩니다.\n\n계속하려면 "삭제"를 입력하세요.`);
- if(text!=='삭제')return;
- if(!confirm(`${u.name} (${u.emp_no||'사번 없음'}) 계정을 정말 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`))return;
- try{
-  let {data,error}=await sb.rpc('admin_delete_staff_hard',{p_target_id:id});
-  if(error)throw error;
-  toast(`${u.name} 직원 계정 삭제 완료`);
-  await reloadAll();
-  renderAdmin()
- }catch(e){
-  alert('직원 삭제 실패: '+(e?.message||String(e)))
- }
-}
-
 
 function renderAdmin(){
- $('adminLoginId').value=me.login_id||''; if($('adminDefaultLeadDays'))$('adminDefaultLeadDays').value=Number(hospitalSettings?.default_lead_days??3);
- let sf=$('staffStatusFilter')?.value||'active';
- let staff=allProfiles.filter(x=>!x.is_emergency_admin).filter(x=>sf==='all'||(sf==='active'?x.active:!x.active));
- $('staffBody').innerHTML=staff.map(u=>`<tr>
-  <td>${esc(u.emp_no||'-')}</td>
-  <td><b>${esc(u.name||'-')}</b>${u.id===me.id?'<div class="tiny muted">현재 로그인</div>':''}</td>
-  <td><span class="code">${esc(u.login_id||'-')}</span></td>
-  <td>${esc(staffRoleLabel(u.role))}</td>
-  <td><span class="badge ${u.purchase_approver?'b-ok':'b-dark'}">${u.purchase_approver?'검토 가능':'권한 없음'}</span></td>
-  <td><span class="badge ${u.active?'b-ok':'b-dark'}">${u.active?'사용중':'사용중지'}</span></td>
-  <td><div class="actions">
-   <button class="secondary" onclick="openStaffModal('${u.id}')">수정</button>
-   ${u.active?`<button class="secondary" onclick="deactivateStaff('${u.id}')" ${u.id===me.id?'disabled':''}>사용중지</button>`:`<button class="primary" onclick="restoreStaff('${u.id}')">다시 활성화</button>`}
-   <button class="danger" onclick="deleteStaffHard('${u.id}')" ${u.id===me.id?'disabled':''}>삭제</button>
-  </div></td>
- </tr>`).join('')||'<tr><td colspan="7" class="muted" style="text-align:center;padding:28px">해당 상태의 직원이 없습니다.</td></tr>';
+ $('adminLoginId').value=me.login_id||'';if($('adminDefaultLeadDays'))$('adminDefaultLeadDays').value=Number(hospitalSettings?.default_lead_days??3);
+ $('staffBody').innerHTML=profiles.filter(x=>!x.is_emergency_admin).map(u=>`<tr><td>${esc(u.emp_no||'')}</td><td><b>${esc(u.name||'')}</b><div class="tiny muted">${esc(u.login_id||'')}</div></td><td>${esc(u.role)}</td><td><span class="badge ${u.purchase_approver?'b-ok':'b-dark'}">${u.purchase_approver?'검토자':'일반'}</span></td><td>${u.active?'활성':'중지'}</td><td><div class="staff-manage-actions"><button class="secondary" onclick="openStaffModal('${u.id}')">수정</button><button class="${u.purchase_approver?'danger':'secondary'}" onclick="setPurchaseApprover('${u.id}',${!u.purchase_approver})">${u.purchase_approver?'검토자 해제':'검토자 지정'}</button>${u.id!==me.id?`<button class="${u.active?'danger':'secondary'}" onclick="toggleStaffActive('${u.id}',${!u.active})">${u.active?'사용중지':'복구'}</button>`:''}</div></td></tr>`).join('');
  if($('locationAdminBody'))$('locationAdminBody').innerHTML=locations.map(l=>`<tr><td><b>${esc(l.name)}</b></td><td>${l.active?'사용중':'중지'}</td><td><div class="actions"><button class="secondary" onclick="openLocationModal('${l.id}')">이름변경</button><button class="danger" onclick="deactivateLocation('${l.id}')">사용중지</button></div></td></tr>`).join('');
  if($('codeAdminBody'))$('codeAdminBody').innerHTML=productCodes.map(c=>`<tr><td>${esc(byId(products,c.product_id)?.name||'-')}</td><td>${esc(c.code_type)}</td><td><span class="code">${esc(c.code_value)}</span></td><td>${c.active?'사용중':'중지'}</td><td><button class="danger" onclick="deactivateCode('${c.id}')">사용중지</button></td></tr>`).join('')
+}
+
+async function setPurchaseApprover(profileId,enabled){
+ let u=byId(profiles,profileId);if(!u)return;
+ if(!confirm(`${u.name}님을 구매 검토자에서 ${enabled?'지정':'해제'}할까요?`))return;
+ let {error}=await sb.rpc('set_purchase_approver',{p_profile_id:profileId,p_enabled:enabled});
+ if(error)return alert('검토자 설정 실패: '+error.message);
+ toast(enabled?'구매 검토자 지정 완료':'구매 검토자 해제 완료');await reloadAll()
 }
 
 async function saveDefaultLeadDays(){
@@ -1261,99 +1105,48 @@ function updatePurchaseDueByProduct(){
 function openModal(title,body,foot=''){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalFoot').innerHTML=foot;$('modal').classList.remove('hide')}
 function closeModal(){stopCameraScan();$('modal').classList.add('hide')}
 function optionsProducts(selected=''){return products.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}
-function optionsProfiles(){return profiles.filter(x=>!x.is_emergency_admin).map(u=>`<option value="${u.id}" ${u.id===me.id?'selected':''}>${esc(u.emp_no||'')} · ${esc(u.name||'')}</option>`).join('')}
+function optionsProfiles(){
+ return profiles.filter(x=>x.active!==false&&!x.is_emergency_admin).map(u=>`<option value="${u.id}" ${u.id===me.id?'selected':''}>${esc(u.emp_no||'')} · ${esc(u.name||'')}</option>`).join('')
+}
 function optionsLocations(){return locations.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}
-function openQuick(){openModal('빠른 작업',`<div class="actions"><button class="primary" onclick="closeModal();openTransaction('USE')">사용</button><button class="secondary" onclick="closeModal();openTransaction('IN')">입고</button><button class="danger" onclick="closeModal();openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="closeModal();openPurchase()">구매요청</button></div>`)}
-
-function filterTxProducts(type){
- let q=($('txProductSearch')?.value||'').trim().toLowerCase(),sel=$('txProduct');
- if(!sel)return;
- let current=sel.value;
- let arr=products.filter(p=>{
-  if(!q)return true;
-  let codes=productCodesFor(p.id).map(c=>c.code_value).join(' ');
-  return (p.name+' '+(p.category||'')+' '+codes).toLowerCase().includes(q)
- }).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
- sel.innerHTML=arr.map(p=>`<option value="${p.id}">${esc(p.name)} · 재고 ${fmt(productQty(p.id))}</option>`).join('');
- if(arr.some(p=>p.id===current))sel.value=current;
- else if(arr.length)sel.value=arr[0].id;
- updateTxLots(type);applyTxDefaultLocation(type);applyTxDefaultExpiry(type,false)
-}
-
-
-function findProfileByEmpCode(raw){
- let code=String(raw||'').trim().replace(/\s+/g,'');
- if(!code)return null;
- return allProfiles.find(u=>u.active && !u.is_emergency_admin && (
-   String(u.emp_no||'').trim().replace(/\s+/g,'').toLowerCase()===code.toLowerCase() ||
-   String(u.login_id||'').trim().replace(/\s+/g,'').toLowerCase()===code.toLowerCase()
- ))||null
-}
-function resolveOperatorCode(){
- let input=$('txOperatorCode'),result=$('txOperatorResult'),sel=$('txActor');
- if(!input||!sel)return false;
- let u=findProfileByEmpCode(input.value);
- if(!u){
-   if(result)result.innerHTML='<span style="color:#b84c4c">등록된 사번/직원코드를 찾지 못했습니다.</span>';
-   return false
+function openMobileMore(){
+ let items=[
+  ['이력','◷',()=>showPage('history')],
+  ['알림센터','!',()=>showPage('alerts')],
+  ['사용량 분석','▥',()=>showPage('usage')],
+  ['스캔','⌁',()=>showPage('scan')]
+ ];
+ if(isAdmin()){
+  items.push(['재고실사','✓',()=>showPage('count')],['Excel Import','⇧',()=>showPage('import')],['감사로그','◎',()=>showPage('audit')],['관리자','⚙',()=>showPage('admin')])
  }
- sel.value=u.id;
- if(result)result.innerHTML=`<b>${esc(u.emp_no||'-')} · ${esc(u.name||'-')}</b> 처리자로 확인됨`;
- return true
+ openModal('전체 메뉴',`<div class="detail-grid">${items.map((x,i)=>`<button class="detail-card" style="text-align:left;cursor:pointer" onclick="closeModal();mobileMoreGo(${i})"><b style="font-size:20px">${x[1]}</b><div style="font-weight:900;margin-top:5px">${x[0]}</div></button>`).join('')}</div><button class="danger" style="width:100%;margin-top:14px" onclick="logout()">로그아웃</button>`,`<button class="secondary" onclick="closeModal()">닫기</button>`);
+ window.__mobileMoreItems=items
 }
-function syncOperatorFromSelect(){
- let sel=$('txActor'),input=$('txOperatorCode'),result=$('txOperatorResult');
- if(!sel||!input)return;
- let u=byId(allProfiles,sel.value)||byId(profiles,sel.value);
- input.value=u?.emp_no||'';
- if(result)result.innerHTML=u?`<b>${esc(u.emp_no||'-')} · ${esc(u.name||'-')}</b> 처리자 선택`:''
-}
+function mobileMoreGo(i){let fn=window.__mobileMoreItems?.[i]?.[2];if(fn)fn()}
 
-function openTransaction(type,pid='',prefillCode=''){
+function openQuick(){openModal('빠른 작업',`<div class="actions"><button class="primary" onclick="closeModal();openTransaction('USE')">사용</button><button class="secondary" onclick="closeModal();openTransaction('IN')">입고</button><button class="danger" onclick="closeModal();openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="closeModal();openPurchase()">구매요청</button></div>`)}
+function openTransaction(type,pid=''){
  let outward=['USE','DISCARD'].includes(type);
- let defaultActor=allProfiles.find(u=>u.id===me?.id)||me;
  openModal(type==='IN'?'입고':type==='USE'?'사용':'폐기',`
-  <div class="field"><label>바코드 / QR 코드</label><div class="code-row"><input id="txScanCode" value="${esc(prefillCode)}" placeholder="스캔 또는 코드 입력 후 Enter" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveTxCode('${type}');setTimeout(()=>this.focus({preventScroll:true}),40)}"><button class="secondary" onclick="resolveTxCode('${type}')">코드 조회</button><button class="secondary" onclick="startCameraScan('${type}')">카메라</button></div><div id="txCodeResult" class="tiny muted" style="margin-top:5px"></div><div id="scanArea" class="scanbox hide"></div></div>
-  <div class="field"><label>품목명 검색</label><input id="txProductSearch" placeholder="바코드/QR이 없으면 품목명 입력" autocomplete="off" oninput="filterTxProducts('${type}')"></div>
-  <div class="field"><label>품목 선택</label><select id="txProduct" onchange="updateTxLots('${type}');applyTxDefaultLocation('${type}');applyTxDefaultExpiry('${type}',true)">${optionsProducts(pid)}</select></div>
-  ${outward?`<div class="field"><label>${type==='USE'?'사용할 재고':'처리할 재고'} (QR 유통기한 우선 / 이후 FEFO)</label><select id="txLotSelect" onchange="applySelectedTxLot('${type}')"></select><div id="txFefoHint" class="tiny muted"></div></div>`:''}
-  <div class="field"><label>수량</label><input id="txQty" type="number" min="1" step="1" value="1" inputmode="numeric"></div>
-  <div class="field"><label>유통기한</label><input id="txExpiry" type="date" ${outward?'readonly':''}><div id="txExpiryHint" class="tiny muted">${type==='IN'?'QR에 유통기한이 있으면 자동입력, 없으면 품목 기본 유통기한을 적용합니다. 언제든 수정 가능합니다.':''}</div></div>
+  <input id="txType" type="hidden" value="${type}">
+  <div class="field"><label>바코드 / QR / DataMatrix</label><div class="code-row"><input id="txScanCode" placeholder="스캔 또는 코드 입력 후 Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveTxCode()}"><button class="secondary" onclick="resolveTxCode()">코드 조회</button><button class="secondary" onclick="startCameraScan()">카메라</button></div><div id="txCodeResult" class="tiny muted" style="margin-top:5px"></div><div id="scanArea" class="scanbox hide"></div></div>
+  <div class="field"><label>품목</label><select id="txProduct" onchange="updateTxLots('${type}');applyTxDefaultLocation('${type}');renderUseLotCards('${type}')">${optionsProducts(pid)}</select></div>
+  ${outward?`
+    <div id="useProductSummary" class="use-flow-head"></div>
+    <div class="field"><label>${type==='USE'?'사용할 재고 선택':'폐기할 재고 선택'}</label><div id="useLotCards" class="use-lot-grid"></div><select id="txLotSelect" class="hide" onchange="applySelectedTxLot('${type}');renderUseLotCards('${type}')"></select><div id="txFefoHint" class="tiny muted" style="margin-top:7px"></div></div>`:''}
+  <div class="field"><label>수량</label><input id="txQty" type="number" inputmode="numeric" min="1" step="1" value="1"></div>
+  <div class="field"><label>유통기한</label><input id="txExpiry" type="date" ${outward?'readonly':''}><div class="tiny muted">${outward?'선택한 재고 기준으로 자동 적용됩니다.':'코드에 유통기한 정보가 있으면 자동입력, 없으면 직접 입력합니다.'}</div></div>
+  <div class="field"><label>Lot / 제조번호</label><input id="txLotNo" ${outward?'readonly':''} placeholder="${outward?'선택한 재고 기준':'코드에 있으면 자동입력 · 없으면 선택 입력'}"></div>
   <div class="field"><label>위치</label><select id="txLocation" ${outward?'disabled':''}><option value="">위치 없음</option>${optionsLocations()}</select></div>
-
-  <div class="notice" style="margin-top:8px"><b>처리자 사번 확인</b><br>작업대/유니폼의 사번 바코드를 스캔하거나 사번을 직접 입력하세요.</div>
-  <div class="field"><label>사번 바코드 / 사번</label><div class="code-row"><input id="txOperatorCode" value="${esc(defaultActor?.emp_no||'')}" placeholder="사번 스캔 또는 입력" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();resolveOperatorCode();setTimeout(()=>this.focus({preventScroll:true}),40)}"><button class="secondary" onclick="resolveOperatorCode()">처리자 확인</button></div><div id="txOperatorResult" class="tiny muted" style="margin-top:5px"></div></div>
-  <div class="field"><label>실제 처리자</label><select id="txActor" onchange="syncOperatorFromSelect()">${optionsProfiles()}</select></div>
-
-  ${type==='DISCARD'?`<div class="field"><label>폐기 사유</label><select id="txDiscardReason"><option value="">선택</option><option>유통기한 만료</option><option>파손</option><option>오염</option><option>개봉 후 잔량</option><option>시술 후 잔량</option><option>재고조정</option><option>기타</option></select></div>`:''}
+  <div class="field"><label>실제 처리자</label><select id="txActor">${optionsProfiles()}</select></div>
+  ${type==='DISCARD'?`<div class="field"><label>폐기 사유</label><select id="txDiscardReason"><option value="">선택</option><option>유통기한 만료</option><option>파손</option><option>오염</option><option>개봉 후 잔량</option><option>시술 후 잔량</option><option>재고조정</option><option>기타</option></select></div><div class="field"><label>폐기 처리자 사번 확인</label><input id="txEmpNo" placeholder="처리자 사번 직접 입력"></div>`:''}
   <div class="field"><label>비고</label><textarea id="txMemo" rows="2"></textarea></div>
-  ${outward?`<div class="notice">${type==='USE'?'QR에 유통기한이 있으면 해당 Lot을 최우선으로 찾고, 없으면 FEFO 순서로 추천합니다.':'QR 유통기한 Lot을 우선 표시합니다.'}</div>`:''}
- `,`<button class="secondary" onclick="closeModal()">취소</button><button class="${type==='DISCARD'?'danger':'primary'}" onclick="submitTransaction('${type}')">${type==='DISCARD'?'폐기 처리':'저장'}</button>`);
-
- setTimeout(()=>{
-   if($('txActor')&&defaultActor?.id)$('txActor').value=defaultActor.id;
-   syncOperatorFromSelect();
-   if(outward)updateTxLots(type);else{applyTxDefaultLocation(type);applyTxDefaultExpiry(type,true)}
-   if(prefillCode)resolveTxCode(type)
- },0)
+  ${outward?`<div class="notice">${type==='USE'?'가장 빠른 유통기한의 정상 재고를 자동 선택합니다. 만료 재고는 사용 목록에서 제외됩니다.':'폐기할 위치/유통기한 재고를 선택해주세요.'}</div>`:''}
+ `,`<button class="secondary" onclick="closeModal()">취소</button><button class="${type==='DISCARD'?'danger':'primary'}" onclick="submitTransaction('${type}')">${type==='DISCARD'?'폐기 처리':type==='USE'?'사용 완료':'저장'}</button>`);
+ if(outward)setTimeout(()=>{updateTxLots(type);renderUseLotCards(type)},0);else setTimeout(()=>applyTxDefaultLocation(type),0);
+ if(window.matchMedia&&matchMedia('(pointer:fine)').matches)setTimeout(()=>$('txScanCode')?.focus(),80)
 }
 
-
-
-function applyTxDefaultExpiry(type,force=false){
- if(type!=='IN'||!$('txExpiry'))return;
- let p=byId(products,$('txProduct').value);
- if(force||!$('txExpiry').value)$('txExpiry').value=productDefaultExpiry(p)
-}
-function txLotsTarget(pid,type='USE',targetExpiry=''){
- let lots=txLots(pid,type);
- if(!targetExpiry)return lots;
- return lots.slice().sort((a,b)=>{
-  let am=a.expiry_date===targetExpiry?0:1,bm=b.expiry_date===targetExpiry?0:1;
-  if(am!==bm)return am-bm;
-  return (a.expiry_date||'9999-12-31').localeCompare(b.expiry_date||'9999-12-31')
- })
-}
 
 function applyTxDefaultLocation(type){
  if(type!=='IN'||!$('txLocation'))return;
@@ -1363,78 +1156,89 @@ function txLots(pid,type='USE'){
  return lotBalances.filter(x=>x.product_id===pid&&Number(x.quantity)>0&&(type==='DISCARD'||!x.expiry_date||daysUntil(x.expiry_date)>=0))
    .sort((a,b)=>(a.expiry_date||'9999-12-31').localeCompare(b.expiry_date||'9999-12-31'))
 }
-function updateTxLots(type,targetExpiry=''){
- if(!['USE','DISCARD'].includes(type)||!$('txLotSelect'))return;
- let pid=$('txProduct').value,lots=txLotsTarget(pid,type,targetExpiry);
- $('txLotSelect').dataset.targetExpiry=targetExpiry||'';
- $('txLotSelect').innerHTML=lots.map((l,i)=>{
-   let matched=targetExpiry&&l.expiry_date===targetExpiry;
-   return `<option value="${i}">${matched?'★ QR 일치 · ':i===0&&!targetExpiry?'★ FEFO · ':''}${esc(byId(locations,l.location_id)?.name||'★ 위치 미지정')} · ${esc(l.expiry_date||'유통기한 미확인')} · ${fmt(l.quantity)}개</option>`
- }).join('');
- applySelectedTxLot(type)
+function renderUseLotCards(type){
+ let pid=$('txProduct')?.value;
+ if(!pid||!$('useLotCards'))return;
+ let p=byId(products,pid),lots=txLots(pid,type),selIdx=Number($('txLotSelect')?.value||0);
+ if($('useProductSummary')){
+  let total=productQty(pid),validUse=txLots(pid,'USE').reduce((s,x)=>s+Number(x.quantity||0),0);
+  $('useProductSummary').innerHTML=`<strong>${esc(p?.name||'-')}</strong><div class="small muted" style="margin-top:4px">총재고 ${fmt(total)}개${type==='USE'?` · 사용가능 ${fmt(validUse)}개`:''}</div>`
+ }
+ $('useLotCards').innerHTML=lots.map((x,i)=>{
+  let loc=byId(locations,x.location_id)?.name||'위치 미지정',exp=x.expiry_date?expiryText(x.expiry_date):'유통기한 미확인';
+  let recommended=type==='USE'&&i===0;
+  return `<div class="use-lot-card ${i===selIdx?'active':''}" onclick="selectUseLot(${i},'${type}')">
+    <div class="use-lot-main"><div class="use-lot-title">${esc(loc)} ${recommended?'<span class="badge b-ok">추천</span>':''}</div><div class="use-lot-meta">${esc(exp)}${x.lot_no?` · Lot ${esc(x.lot_no)}`:''}</div></div>
+    <div class="use-lot-qty">${fmt(x.quantity)}개</div>
+  </div>`
+ }).join('')||`<div class="notice">${type==='USE'?'사용 가능한 재고가 없습니다. 만료 재고는 사용 대상에서 제외됩니다.':'폐기 가능한 재고가 없습니다.'}</div>`
+}
+function selectUseLot(idx,type){
+ if(!$('txLotSelect'))return;
+ $('txLotSelect').value=String(idx);
+ applySelectedTxLot(type);
+ renderUseLotCards(type);
+ $('txQty')?.focus()
+}
+
+function updateTxLots(type){
+ if(!$('txLotSelect'))return;
+ let pid=$('txProduct').value,lots=txLots(pid,type);
+ $('txLotSelect').innerHTML=lots.map((x,i)=>`<option value="${i}">${x.expiry_date||'미확인'} / ${byId(locations,x.location_id)?.name||'위치 미지정'} / ${fmt(x.quantity)}개</option>`).join('');
+ if(lots.length){$('txLotSelect').value='0';applySelectedTxLot(type)}
+ else{
+  if($('txExpiry'))$('txExpiry').value='';
+  if($('txLocation'))$('txLocation').value='';
+ }
+ renderUseLotCards(type)
 }
 function applySelectedTxLot(type){
- if(!$('txLotSelect'))return;
- let pid=$('txProduct').value,target=$('txLotSelect').dataset.targetExpiry||'',lots=txLotsTarget(pid,type,target),i=Number($('txLotSelect').value||0),l=lots[i];
- if(!l){$('txExpiry').value='';$('txLocation').value='';if($('txFefoHint'))$('txFefoHint').textContent=target?`QR 유통기한 ${target}과 일치하는 재고가 없습니다.`:'사용 가능한 재고가 없습니다.';return}
- $('txExpiry').value=l.expiry_date||'';$('txLocation').value=l.location_id||'';
+ let pid=$('txProduct').value,lots=txLots(pid,type),idx=Number($('txLotSelect')?.value||0),sel=lots[idx];
+ if(!sel)return;
+ $('txExpiry').value=sel.expiry_date||'';
+ $('txLocation').value=sel.location_id||'';
+ if($('txLotNo'))$('txLotNo').value=sel.lot_no||'';
+ let first=lots[0];
  if($('txFefoHint')){
-  if(target&&l.expiry_date===target)$('txFefoHint').textContent=`QR 유통기한 ${target}과 일치하는 Lot이 자동 선택되었습니다.`;
-  else if(!target&&i===0)$('txFefoHint').textContent='유통기한이 가장 빠른 재고가 자동 선택되었습니다.';
-  else $('txFefoHint').textContent='선택한 Lot으로 처리합니다.'
+  if(type==='USE'){
+   $('txFefoHint').innerHTML=idx===0
+    ? `<b>추천 재고 선택됨</b> · ${esc(byId(locations,sel.location_id)?.name||'위치 미지정')} · ${esc(expiryText(sel.expiry_date))}`
+    : `<b>다른 재고 선택됨</b> · 권장: ${esc(byId(locations,first?.location_id)?.name||'위치 미지정')} / ${esc(expiryText(first?.expiry_date))}`
+  }else $('txFefoHint').textContent=`선택 재고 ${fmt(sel.quantity)}개`
  }
 }
 
-function resolveTxCode(type='USE'){
- let code=$('txScanCode')?.value||'';
- let candidates=scanCodeCandidates(code);
- let info=null;
- for(let c of candidates){
-  let parsed=parseGs1Code(c);
-  if(parsed.gtin||parsed.expiry||parsed.lot||parsed.serial){info=parsed;break}
- }
- if(!info)info=parseGs1Code(code);
-
- let p=findProductByCode(code);
+function resolveTxCode(){
+ let code=$('txScanCode')?.value||'',res=resolveProductCode(code),p=res.product,meta=res.meta,type=$('txType')?.value||'USE';
  if(!p){
-  if($('txCodeResult'))$('txCodeResult').textContent='등록되지 않은 코드입니다. 품목명 검색으로 선택할 수 있습니다.';
+  if($('txCodeResult'))$('txCodeResult').innerHTML=meta.isGs1?`제품코드 <b>${esc(meta.gtin||'-')}</b>는 아직 품목에 등록되지 않았습니다.<div class="tiny muted">${esc(gs1Summary(meta))}</div>`:'등록되지 않은 코드입니다.';
   return false
  }
  $('txProduct').value=p.id;
-
- let corrected=candidates.find(c=>c!==String(code).trim() && productCodes.some(pc=>pc.product_id===p.id && normalizedStoredCodeCandidates(pc.code_value).includes(c)));
- if($('txCodeResult')){
-  $('txCodeResult').innerHTML=`<b>${esc(p.name)}</b> 선택됨${corrected?` · 한/영 자동보정` : ''}${info.expiry?` · QR 유통기한 <b>${esc(info.expiry)}</b>`:''}${info.lot?` · Lot ${esc(info.lot)}`:''}`;
- }
-
- if(['USE','DISCARD'].includes(type)){
-  updateTxLots(type,info.expiry||'')
- }else if(type==='IN'){
-  if(info.expiry){
-   $('txExpiry').value=info.expiry;
-   if($('txExpiryHint'))$('txExpiryHint').textContent=`QR/2D 코드에서 유통기한 ${info.expiry} 자동 인식 · 필요하면 수정 가능`
-  }else{
-   applyTxDefaultExpiry('IN',true);
-   if($('txExpiryHint'))$('txExpiryHint').textContent=$('txExpiry').value?`QR에 유통기한 없음 · 품목 기본값으로 ${$('txExpiry').value} 자동 계산 · 수정 가능`:'QR에 유통기한 정보 없음 · 품목 기본값도 없어 수동 입력 필요'
-  }
-  applyTxDefaultLocation('IN')
- }
+ if(type==='IN'){
+  applyTxDefaultLocation('IN');
+  if(meta.expiry)$('txExpiry').value=meta.expiry;
+  if(meta.lot)$('txLotNo').value=meta.lot;
+ }else updateTxLots(type);
+ if($('txCodeResult'))$('txCodeResult').innerHTML=`<b>${esc(p.name)}</b> 선택됨${meta.isGs1?`<div class="tiny muted">${esc(gs1Summary(meta))}</div>`:''}`;
  return true
 }
-async function startCameraScan(type='USE'){
+async function startCameraScan(){
  let area=$('scanArea');if(!area)return;
- if(!('BarcodeDetector' in window)){area.classList.remove('hide');area.innerHTML='<div class="notice bad">이 브라우저는 카메라 바코드 스캔을 지원하지 않습니다. 코드 직접 입력을 사용하세요.</div>';return}
+ if(!('BarcodeDetector' in window)){area.classList.remove('hide');area.innerHTML='<div class="notice bad">이 브라우저는 카메라 코드 스캔을 지원하지 않습니다. USB 리더기 또는 코드 직접 입력을 사용하세요.</div>';return}
  try{
   if(scanStream)scanStream.getTracks().forEach(t=>t.stop());
   scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
-  area.classList.remove('hide');area.innerHTML='<video id="scanVideo" class="scan-video" autoplay playsinline></video><div class="small muted">코드를 카메라 중앙에 맞춰주세요.</div>';
-  let v=$('scanVideo');v.srcObject=scanStream;
-  let detector=new BarcodeDetector({formats:['qr_code','data_matrix','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf']});
-  let tries=0;async function tick(){if(!scanStream)return;tries++;try{let codes=await detector.detect(v);if(codes.length){$('txScanCode').value=codes[0].rawValue;resolveTxCode(type);stopCameraScan();return}}catch(e){}if(tries<300)requestAnimationFrame(tick)}
+  area.classList.remove('hide');area.innerHTML='<video id="scanVideo" class="scan-video" autoplay playsinline></video><div class="small muted">바코드 / QR / DataMatrix를 카메라 중앙에 맞춰주세요.</div>';
+  let v=$('scanVideo');v.srcObject=scanStream,detector=await makeBarcodeDetector(),tries=0;
+  async function tick(){if(!scanStream)return;tries++;try{let codes=await detector.detect(v);if(codes.length){$('txScanCode').value=codes[0].rawValue;resolveTxCode();stopCameraScan();return}}catch(e){}if(tries<300)requestAnimationFrame(tick)}
   requestAnimationFrame(tick)
  }catch(e){area.classList.remove('hide');area.innerHTML=`<div class="notice bad">카메라를 열 수 없습니다: ${esc(e.message)}</div>`}
 }
-function stopCameraScan(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}let area=$('scanArea');if(area){area.classList.add('hide');area.innerHTML=''}}
+function stopCameraScan(){
+ if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}
+ ['scanArea','hubCamera'].forEach(id=>{let area=$(id);if(area){area.classList.add('hide');area.innerHTML=''}})
+}
 async function openLocationModal(id=''){
  let l=id?byId(locations,id):null;
  openModal(l?'위치 이름변경':'위치 추가',`<div class="field"><label>위치명</label><input id="locName" value="${esc(l?.name||'')}"></div>`,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveLocation('${id}')">저장</button>`)
@@ -1452,8 +1256,17 @@ function openCodeModal(){
  openModal('바코드 / QR 코드 등록',`<div class="field"><label>품목</label><select id="codeProduct">${optionsProducts()}</select></div><div class="field"><label>구분</label><select id="codeType"><option value="BARCODE">BARCODE</option><option value="QR">QR</option><option value="BOX_BARCODE">BOX BARCODE</option><option value="OTHER">OTHER</option></select></div><div class="field"><label>코드값</label><input id="codeValue" placeholder="스캔값 또는 문자 입력"></div>`,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveCode()">등록</button>`)
 }
 async function saveCode(){
- let product_id=$('codeProduct').value,code_type=$('codeType').value,code_value=$('codeValue').value.trim();if(!code_value)return alert('코드값 입력');
- let {error}=await sb.from('product_codes').insert({hospital_id:me.hospital_id,product_id,code_type,code_value,active:true});if(error)return alert('코드 등록 실패: '+error.message);closeModal();await reloadAll();toast('코드 등록 완료')
+ let product_id=$('codeProduct').value,code_type=$('codeType').value,raw=$('codeValue').value.trim();if(!raw)return alert('코드값 입력');
+ let meta=parseGs1(raw),code_value=meta.gtin||raw;if(meta.gtin)code_type='BARCODE';
+ let existing=productCodes.find(x=>String(x.code_value).trim()===code_value);
+ if(existing){
+  if(existing.product_id===product_id)return alert('이미 이 품목에 등록된 코드입니다.');
+  return alert(`이미 다른 품목에 등록된 코드입니다: ${byId(products,existing.product_id)?.name||'-'}`)
+ }
+ if(meta.gtin&&!confirm(`GS1 코드가 확인되었습니다.\n제품 식별코드(01) ${meta.gtin}만 품목코드로 등록합니다.\n계속할까요?`))return;
+ let {error}=await sb.from('product_codes').insert({hospital_id:me.hospital_id,product_id,code_type,code_value,active:true});
+ if(error)return alert('코드 등록 실패: '+safeErrorMessage(error));
+ closeModal();await reloadAll();toast(meta.gtin?'GS1 제품코드(01) 등록 완료':'코드 등록 완료')
 }
 async function deactivateCode(id){
  if(!confirm('이 코드를 사용중지할까요?'))return;let {error}=await sb.from('product_codes').update({active:false}).eq('id',id);if(error)return alert(error.message);await reloadAll();toast('코드 사용중지')
@@ -1481,7 +1294,7 @@ function openMove(pid=''){
   <div class="notice"><b>${esc(p.name)}</b><br>위치가 없는 재고는 최초 위치 지정이 가능하고, 기존 위치 재고는 다른 위치로 이동할 수 있습니다. 총재고는 변하지 않습니다.</div>
   <div class="field"><label>출발 재고 / Lot</label><select id="mvLot" onchange="updateMoveInfo()">${lotOptions}</select><div id="mvInfo" class="tiny muted"></div></div>
   <div class="field"><label>도착 위치</label><select id="mvTo">${locations.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select></div>
-  <div class="field"><label>이동 수량</label><input id="mvQty" type="number" min="1" step="1" value="1"></div>
+  <div class="field"><label>이동 수량</label><input id="mvQty" type="number" inputmode="numeric" min="1" step="1" value="1"></div>
   <div class="field"><label>처리자</label><select id="mvActor">${profiles.map(u=>`<option value="${u.id}">${esc((u.emp_no||'')+' '+u.name)}</option>`).join('')}</select></div>
   <div class="field"><label>메모</label><input id="mvMemo" placeholder="선택 입력"></div>
  `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="submitMove('${pid}')">위치이동</button>`);
@@ -1499,20 +1312,25 @@ async function submitMove(pid){
  let lots=moveLotsForProduct(pid),idx=Number($('mvLot').value),src=lots[idx];
  if(!src)return alert('출발 재고를 다시 선택하세요.');
  let to=$('mvTo').value,qty=Number($('mvQty').value),actor=$('mvActor').value,memo=$('mvMemo').value.trim();
+ if(!to)return alert('도착 위치를 선택하세요.');
  if(src.location_id===to)return alert('현재 위치와 도착 위치가 같습니다.');
- if(!(qty>0))return alert('이동 수량을 입력하세요.');if(!Number.isInteger(qty))return alert('이동 수량은 1개 단위 정수로 입력하세요.');
+ if(!(qty>0))return alert('이동 수량을 입력하세요.');
+ if(!Number.isInteger(qty))return alert('이동 수량은 1개 단위 정수로 입력하세요.');
  if(qty>Number(src.quantity))return alert(`이동 가능한 재고는 ${fmt(src.quantity)}개입니다.`);
- let rpcName=src.location_id?'move_inventory':'assign_unlocated_inventory';
- let args=src.location_id?{
-  p_product_id:pid,p_quantity:qty,p_expiry_date:src.expiry_date||null,p_from_location_id:src.location_id,p_to_location_id:to,
-  p_actor_profile_id:actor,p_lot_no:src.lot_no||null,p_memo:memo||null,p_idempotency_key:`move-${crypto.randomUUID()}`
- }:{
-  p_product_id:pid,p_quantity:qty,p_expiry_date:src.expiry_date||null,p_to_location_id:to,p_actor_profile_id:actor,
-  p_lot_no:src.lot_no||null,p_memo:memo||'최초 위치 지정',p_idempotency_key:`assign-${crypto.randomUUID()}`
- };
- let {error}=await sb.rpc(rpcName,args);
- if(error)return alert((src.location_id?'위치이동':'위치지정')+' 실패: '+error.message);
- closeModal();toast(src.location_id?'위치이동 완료':'위치 지정 완료');await reloadAll()
+ let key=`move-${pid}`;if(!beginAction(key,'이동 중...'))return;
+ try{
+  let rpcName=src.location_id?'move_inventory':'assign_unlocated_inventory';
+  let args=src.location_id?{
+   p_product_id:pid,p_quantity:qty,p_expiry_date:src.expiry_date||null,p_from_location_id:src.location_id,p_to_location_id:to,
+   p_actor_profile_id:actor,p_lot_no:src.lot_no||null,p_memo:memo||null,p_idempotency_key:`move-${uid()}`
+  }:{
+   p_product_id:pid,p_quantity:qty,p_expiry_date:src.expiry_date||null,p_to_location_id:to,p_actor_profile_id:actor,
+   p_lot_no:src.lot_no||null,p_memo:memo||'최초 위치 지정',p_idempotency_key:`assign-${uid()}`
+  };
+  let {error}=await sb.rpc(rpcName,args);
+  if(error)return alert((src.location_id?'위치이동':'위치지정')+' 실패: '+error.message);
+  closeModal();toast(src.location_id?'위치이동 완료':'위치 지정 완료');await reloadAll()
+ }finally{endAction(key)}
 }
 function openScanHub(prefill=''){
  openModal('바코드 / QR 작업',`
@@ -1526,45 +1344,41 @@ function openScanHub(prefill=''){
  `,`<button class="secondary" onclick="closeModal()">닫기</button>`);
  if(prefill)setTimeout(resolveScanHub,0)
 }
+function openTransactionFromScan(type,pid,encodedRaw){
+ let raw='';
+ try{raw=decodeURIComponent(encodedRaw||'')}catch(_){raw=encodedRaw||''}
+ openTransaction(type,pid);
+ setTimeout(()=>{if($('txScanCode')){$('txScanCode').value=raw;resolveTxCode()}},0)
+}
+
 function resolveScanHub(){
  let code=$('hubCode')?.value.trim();if(!code)return;
- let candidates=scanCodeCandidates(code);
- let info=null;
- for(let c of candidates){
-  let parsed=parseGs1Code(c);
-  if(parsed.gtin||parsed.expiry||parsed.lot||parsed.serial){info=parsed;break}
- }
- if(!info)info=parseGs1Code(code);
-
- let p=findProductByCode(code),box=$('hubResult');
- window.__lastHubScanCode=code;
+ let res=resolveProductCode(code),p=res.product,meta=res.meta,box=$('hubResult');
  if(!box)return;
-
  if(p){
-  let corrected=candidates.find(c=>c!==code && productCodes.some(pc=>pc.product_id===p.id && normalizedStoredCodeCandidates(pc.code_value).includes(c)));
-  box.innerHTML=`<div><b style="font-size:16px">${esc(p.name)}</b><div class="tiny muted">현재재고 ${fmt(productQty(p.id))}${esc(p.base_unit||'개')}${corrected?' · 한/영 자동보정':''}${info.expiry?` · QR 유통기한 <b>${esc(info.expiry)}</b>`:''}${info.lot?` · Lot ${esc(info.lot)}`:''}</div></div>
+  let enc=encodeURIComponent(code);
+  box.innerHTML=`<div><b style="font-size:16px">${esc(p.name)}</b><div class="tiny muted">현재재고 ${fmt(productQty(p.id))}${esc(p.base_unit||'개')}${meta.isGs1?`<br>${esc(gs1Summary(meta))}`:''}</div></div>
   <div class="actions" style="margin-top:12px;flex-wrap:wrap">
-   <button class="primary" onclick="closeModal();openTransaction('USE','${p.id}',window.__lastHubScanCode||'')">사용</button>
-   <button class="danger" onclick="closeModal();openTransaction('DISCARD','${p.id}',window.__lastHubScanCode||'')">폐기</button>
+   <button class="primary" onclick="closeModal();openTransactionFromScan('USE','${p.id}','${enc}')">사용</button>
+   <button class="secondary" onclick="closeModal();openTransactionFromScan('IN','${p.id}','${enc}')">입고</button>
    <button class="secondary" onclick="closeModal();openMove('${p.id}')">위치이동</button>
-   <button class="secondary" onclick="closeModal();openTransaction('IN','${p.id}',window.__lastHubScanCode||'')">입고</button>
-   <button class="ghost" onclick="closeModal();openPurchase('${p.id}')">추가구매 요청</button>
+   <button class="danger" onclick="closeModal();openTransactionFromScan('DISCARD','${p.id}','${enc}')">폐기</button>
+   <button class="ghost" onclick="closeModal();openPurchase('${p.id}')">구매요청</button>
   </div>`
  }else{
-  let admin=isAdmin();
-  let corrected=candidates.find(c=>c!==code);
-  box.innerHTML=`<div class="notice bad"><b>등록되지 않은 코드</b><br><span class="code">${esc(code)}</span>${corrected?`<br><span class="tiny muted">한/영 보정값: ${esc(corrected)}</span>`:''}${info.gtin?`<br>GTIN ${esc(info.gtin)}`:''}${info.expiry?` · 유통기한 ${esc(info.expiry)}`:''}</div>
-  ${admin?`<div class="field"><label>기존 품목에 연결</label><select id="hubLinkProduct">${optionsProducts()}</select></div>
-  <div class="actions"><button class="primary" onclick="linkUnknownCode()">기존 품목에 연결</button><button class="secondary" onclick="registerProductFromUnknownCode()">신규 품목 등록 후 연결</button></div>`:
-  `<div class="muted small">품목명 검색으로 처리하거나 관리자에게 코드 등록을 요청하세요.</div>`}`
+  let gs=meta.isGs1?`<div class="tiny muted" style="margin-top:6px">${esc(gs1Summary(meta))}</div>`:'';
+  let adminBox=isAdmin()?`<div class="field" style="margin-top:12px"><label>기존 품목에 연결</label><select id="hubLinkProduct">${optionsProducts()}</select></div><div class="actions"><button class="primary" onclick="linkUnknownCode()">선택 품목에 코드 연결</button><button class="secondary" onclick="registerProductFromUnknownCode()">신규 품목 등록</button></div>`:'<div class="tiny muted" style="margin-top:8px">관리자에게 코드 등록을 요청해주세요.</div>';
+  box.innerHTML=`<div class="notice bad"><b>등록되지 않은 코드</b>${gs}</div>${adminBox}`
  }
 }
 async function linkUnknownCode(){
- let code=$('hubCode').value.trim(),pid=$('hubLinkProduct').value;
- if(!code||!pid)return;
- let {error}=await sb.from('product_codes').insert({hospital_id:me.hospital_id,product_id:pid,code_type:'BARCODE_OR_QR',code_value:code,active:true});
- if(error)return alert('코드 연결 실패: '+error.message);
- await reloadAll();toast('코드 연결 완료');resolveScanHub()
+ let raw=$('hubCode').value.trim(),pid=$('hubLinkProduct').value;if(!raw||!pid)return;
+ let meta=parseGs1(raw),code=meta.gtin||raw,type=meta.gtin?'BARCODE':'OTHER';
+ let dup=productCodes.find(x=>String(x.code_value).trim()===code);
+ if(dup&&dup.product_id!==pid)return alert(`이미 다른 품목에 연결된 코드입니다: ${byId(products,dup.product_id)?.name||'-'}`);
+ let {error}=await sb.from('product_codes').insert({hospital_id:me.hospital_id,product_id:pid,code_type:type,code_value:code,active:true});
+ if(error)return alert('코드 연결 실패: '+safeErrorMessage(error));
+ await reloadAll();toast(meta.gtin?'제품코드(01) 연결 완료':'코드 연결 완료');resolveScanHub()
 }
 function registerProductFromUnknownCode(){
  let code=$('hubCode').value.trim();
@@ -1573,7 +1387,7 @@ function registerProductFromUnknownCode(){
   <div class="field"><label>품목명</label><input id="newCodePName"></div>
   <div class="field"><label>분류</label><input id="newCodePCat" value="미분류"></div>
   <div class="field"><label>단위</label><input id="newCodePUnit" value="개"></div>
-  <div class="field"><label>저재고 기준</label><input id="newCodePMin" type="number" value="0"></div>
+  <div class="field"><label>저재고 기준</label><input id="newCodePMin" type="number" inputmode="numeric" value="0"></div>
   <div class="field"><label>코드 구분</label><select id="newCodeType"><option value="BARCODE">BARCODE</option><option value="QR">QR</option><option value="BOX_BARCODE">BOX BARCODE</option><option value="OTHER">OTHER</option></select></div>
  `,`<button class="secondary" onclick="openScanHub('${esc(code)}')">뒤로</button><button class="primary" onclick="saveProductWithUnknownCode('${esc(code)}')">등록 후 입고</button>`)
 }
@@ -1587,65 +1401,55 @@ async function saveProductWithUnknownCode(code){
 }
 async function startHubCameraScan(){
  let area=$('hubCamera');if(!area)return;
- if(!('BarcodeDetector' in window)){area.classList.remove('hide');area.innerHTML='<div class="notice bad">이 브라우저는 카메라 스캔을 지원하지 않습니다. 리더기 또는 직접입력을 사용하세요.</div>';return}
+ if(!('BarcodeDetector' in window)){area.classList.remove('hide');area.innerHTML='<div class="notice bad">이 브라우저는 카메라 코드 스캔을 지원하지 않습니다. USB 리더기를 사용하세요.</div>';return}
  try{
   if(scanStream)scanStream.getTracks().forEach(t=>t.stop());
   scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
-  area.classList.remove('hide');area.innerHTML='<video id="hubScanVideo" class="scan-video" autoplay playsinline></video><div class="small muted">바코드/QR을 카메라 중앙에 맞춰주세요.</div>';
-  let v=$('hubScanVideo');v.srcObject=scanStream;
-  let detector=new BarcodeDetector({formats:['qr_code','data_matrix','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf']});
-  let tries=0;
-  async function tick(){
-   if(!scanStream)return;tries++;
-   try{let codes=await detector.detect(v);if(codes.length){$('hubCode').value=codes[0].rawValue;stopCameraScan();resolveScanHub();return}}catch(e){}
-   if(tries<300)requestAnimationFrame(tick)
-  }
+  area.classList.remove('hide');area.innerHTML='<video id="scanVideo" class="scan-video" autoplay playsinline></video><div class="small muted">바코드 / QR / DataMatrix를 맞춰주세요.</div>';
+  let v=$('scanVideo');v.srcObject=scanStream,detector=await makeBarcodeDetector(),tries=0;
+  async function tick(){if(!scanStream)return;tries++;try{let codes=await detector.detect(v);if(codes.length){$('hubCode').value=codes[0].rawValue;resolveScanHub();stopCameraScan();return}}catch(e){}if(tries<300)requestAnimationFrame(tick)}
   requestAnimationFrame(tick)
- }catch(e){area.classList.remove('hide');area.innerHTML=`<div class="notice bad">카메라를 열 수 없습니다: ${esc(e.message)}</div>`}
+ }catch(e){area.classList.remove('hide');area.innerHTML=`<div class="notice bad">${esc(e.message)}</div>`}
 }
 
 async function submitTransaction(type){
  const pid=$('txProduct').value,qty=Number($('txQty').value),exp=$('txExpiry').value||null,loc=$('txLocation').value||null,actor=$('txActor').value,memo=$('txMemo').value.trim();
  if(!pid||!qty||qty<=0)return alert('품목과 수량을 확인하세요.');
  if(!Number.isInteger(qty))return alert('수량은 1개 단위 정수로 입력하세요.');
+ if(type==='IN'&&!loc)return alert('입고 위치를 선택해주세요.');
+ if(type==='IN'&&productNeedsExpiry(pid)&&!exp&&!confirm('유통기한이 입력되지 않았습니다.\n이 품목을 유통기한 미확인 상태로 입고할까요?'))return;
 
- const operator=byId(allProfiles,actor)||byId(profiles,actor);
- const enteredEmp=String($('txOperatorCode')?.value||'').trim();
- if(!enteredEmp)return alert('처리자 사번을 스캔하거나 입력하세요.');
- if(!operator)return alert('실제 처리자를 확인하세요.');
- if(enteredEmp.toLowerCase()!==String(operator.emp_no||'').trim().toLowerCase()){
-   if(!resolveOperatorCode())return alert('등록된 사번과 처리자가 일치하지 않습니다.');
- }
- const verifiedOperator=byId(allProfiles,$('txActor').value)||byId(profiles,$('txActor').value);
- const verifiedEmp=String($('txOperatorCode')?.value||'').trim();
- if(!verifiedOperator||verifiedEmp.toLowerCase()!==String(verifiedOperator.emp_no||'').trim().toLowerCase())return alert('처리자 사번 확인이 필요합니다.');
-
+ let selectedLot=null;
  if(['USE','DISCARD'].includes(type)){
-  let target=$('txLotSelect')?.dataset.targetExpiry||'',lots=txLotsTarget(pid,type,target),idx=Number($('txLotSelect')?.value||0),sel=lots[idx];
-  if(!sel)return alert('사용 가능한 재고가 없습니다.');
-  if(qty>Number(sel.quantity))return alert(`선택 Lot 재고는 ${fmt(sel.quantity)}개입니다.`);
-  if(!target&&idx>0&&lots[0]){
-   let first=lots[0];if(!confirm(`FEFO 경고\n더 빠른 유통기한 재고가 있습니다.\n권장: ${first.expiry_date||'미확인'} / ${byId(locations,first.location_id)?.name||'-'}\n그래도 현재 Lot으로 진행할까요?`))return
+  let lots=txLots(pid,type),idx=Number($('txLotSelect')?.value||0);selectedLot=lots[idx];
+  if(!selectedLot)return alert(type==='USE'?'사용 가능한 재고가 없습니다.':'폐기 가능한 재고가 없습니다.');
+  if(qty>Number(selectedLot.quantity))return alert(`선택 재고는 ${fmt(selectedLot.quantity)}개입니다.`);
+  if(type==='USE'&&idx>0&&lots[0]){
+   let first=lots[0];if(!confirm(`더 빠른 유통기한 재고가 있습니다.\n\n권장: ${byId(locations,first.location_id)?.name||'위치 미지정'} / ${expiryText(first.expiry_date)} / ${fmt(first.quantity)}개\n\n현재 선택한 재고로 사용 처리할까요?`))return
   }
  }
  let discardReason=null;
  if(type==='DISCARD'){
   discardReason=$('txDiscardReason').value;if(!discardReason)return alert('폐기 사유를 선택하세요.');
+  const u=byId(profiles,actor),entered=$('txEmpNo').value.trim();
+  if(!entered||entered.toLowerCase()!==String(u?.emp_no||'').toLowerCase())return alert('선택한 처리자의 사번을 정확히 입력하세요.');
   if(!confirm(`${byId(products,pid)?.name} ${qty}개를 폐기 처리할까요?`))return
  }
- const signed=type==='IN'?qty:-qty;
- const {error}=await sb.rpc('record_inventory_transaction_v18',{
-   p_product_id:pid,p_tx_type:type,p_quantity:signed,p_expiry_date:exp,p_location_id:loc,p_lot_no:null,
-   p_actor_profile_id:$('txActor').value,p_operator_emp_no:verifiedEmp,p_memo:memo||null,
-   p_discard_reason:discardReason,p_idempotency_key:crypto.randomUUID()
- });
- if(error)return alert('저장 실패: '+error.message);
- closeModal();toast(`${type==='IN'?'입고':type==='USE'?'사용':'폐기'} 저장 완료 · 처리자 ${verifiedEmp}`);await reloadAll()
+ let key=`transaction-${type}`;if(!beginAction(key,'저장 중...'))return;
+ try{
+  const signed=type==='IN'?qty:-qty,lotNo=selectedLot?.lot_no||$('txLotNo')?.value.trim()||null,operator=byId(profiles,actor);
+  const {error}=await sb.rpc('record_inventory_transaction_v18',{
+   p_product_id:pid,p_tx_type:type,p_quantity:signed,p_expiry_date:exp,p_location_id:loc,p_lot_no:lotNo,
+   p_actor_profile_id:actor,p_operator_emp_no:operator?.emp_no||null,p_memo:memo||null,p_discard_reason:discardReason,p_idempotency_key:uid()
+  });
+  if(error)return alert('저장 실패: '+safeErrorMessage(error));
+  closeModal();toast(type==='USE'?`${byId(products,pid)?.name||'품목'} ${qty}개 사용 완료`:type==='DISCARD'?'폐기 처리 완료':'입고 완료');await reloadAll()
+ }finally{endAction(key)}
 }
 function openPurchase(pid=''){
  openModal('구매요청',`
   <div class="field"><label>품목</label><select id="prProduct" onchange="updatePurchaseDueByProduct()">${optionsProducts(pid)}</select></div>
-  <div class="field"><label>요청수량</label><input id="prQty" type="number" min="10" step="10" value="10"></div>
+  <div class="field"><label>요청수량</label><input id="prQty" type="number" inputmode="numeric" min="10" step="10" value="10"></div>
   <div class="field"><label>실제 요청자</label><select id="prActor">${optionsProfiles()}</select></div>
   <div class="field"><label>예상 입고일</label><input id="prDue" type="date"><div id="prLeadHint" class="tiny muted"></div></div>
   <div class="field"><label>메모</label><textarea id="prMemo"></textarea></div>
@@ -1653,45 +1457,64 @@ function openPurchase(pid=''){
  setTimeout(updatePurchaseDueByProduct,0)
 }
 async function submitPurchase(){
- let pid=$('prProduct').value,qty=Number($('prQty').value),actor=$('prActor').value,due=$('prDue').value||null,memo=$('prMemo').value.trim();if(!pid||!qty)return alert('품목/수량 확인');
+ let pid=$('prProduct').value,qty=Number($('prQty').value),actor=$('prActor').value,due=$('prDue').value||null,memo=$('prMemo').value.trim();
+ if(!pid||!qty||qty<=0)return alert('품목/수량 확인');
+ if(!Number.isInteger(qty))return alert('요청수량은 정수로 입력하세요.');
  let dup=purchases.find(r=>r.product_id===pid&&['PENDING_APPROVAL','APPROVED','ORDERED','PARTIAL_RECEIVED'].includes(r.status));
  if(dup&&!confirm(`이 품목은 이미 진행 중인 구매요청이 있습니다. 추가 요청할까요?`))return;
- const {data:{user}}=await sb.auth.getUser();
- const {error}=await sb.from('purchase_requests').insert({hospital_id:me.hospital_id,product_id:pid,requested_qty:qty,requested_by_profile_id:actor,login_user_id:user.id,due_date:due,memo:memo||null});
- if(error)return alert(error.message);closeModal();toast('구매요청 등록');await reloadAll()
+ let key=`purchase-create-${pid}`;if(!beginAction(key,'등록 중...'))return;
+ try{
+  const {error}=await sb.rpc('create_purchase_request',{p_product_id:pid,p_requested_qty:qty,p_actor_profile_id:actor,p_due_date:due,p_memo:memo||null});
+  if(error)return alert('구매요청 실패: '+error.message);
+  closeModal();toast('구매요청 등록');await reloadAll()
+ }finally{endAction(key)}
 }
 
 async function markOrdered(id){
- let {error}=await sb.rpc('mark_purchase_ordered',{p_request_id:id});
- if(error)return alert(error.message);
- toast('발주 처리');await reloadAll()
+ let key=`purchase-order-${id}`;if(!beginAction(key,'처리 중...'))return;
+ try{
+  let {error}=await sb.rpc('mark_purchase_ordered',{p_request_id:id});
+  if(error)return alert(error.message);toast('발주 처리');await reloadAll()
+ }finally{endAction(key)}
 }
 function openReceivePurchase(id){
  let r=purchases.find(x=>x.id===id),p=byId(products,r?.product_id);if(!r||!p)return;
  let remain=Math.max(0,Number(r.requested_qty||0)-Number(r.received_qty||0));
  openModal('구매품 입고',`
   <div class="notice"><b>${esc(p.name)}</b><br>요청 ${fmt(r.requested_qty)} · 기입고 ${fmt(r.received_qty)} · 남은수량 ${fmt(remain)}</div>
-  <div class="field"><label>이번 입고수량</label><input id="rcvQty" type="number" min="1" step="1" value="${remain}"></div>
+  <div class="field"><label>이번 입고수량</label><input id="rcvQty" type="number" inputmode="numeric" min="1" step="1" value="${remain}"></div>
   <div class="field"><label>유통기한</label><input id="rcvExpiry" type="date"></div>
+  <div class="field"><label>Lot / 제조번호</label><input id="rcvLot" placeholder="선택 입력"></div>
   <div class="field"><label>보관위치</label><select id="rcvLocation">${optionsLocations()}</select></div>
   <div class="field"><label>실제 처리자</label><select id="rcvActor">${optionsProfiles()}</select></div>
   <div class="field"><label>메모</label><input id="rcvMemo"></div>
- `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="submitReceivePurchase('${id}')">입고 처리</button>`)
+ `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="submitReceivePurchase('${id}')">입고 처리</button>`);
+ setTimeout(()=>{if(p.default_location_id&&$('rcvLocation'))$('rcvLocation').value=p.default_location_id},0)
 }
 async function submitReceivePurchase(id){
- let r=purchases.find(x=>x.id===id),qty=Number($('rcvQty').value),remain=Math.max(0,Number(r.requested_qty||0)-Number(r.received_qty||0));
+ let r=purchases.find(x=>x.id===id),qty=Number($('rcvQty').value),remain=Math.max(0,Number(r?.requested_qty||0)-Number(r?.received_qty||0));
+ if(!r)return alert('구매요청 정보를 다시 불러와주세요.');
  if(!(qty>0)||qty>remain)return alert(`입고수량은 0보다 크고 남은수량 ${fmt(remain)} 이하여야 합니다.`);
- let {error}=await sb.rpc('receive_purchase_request',{
-  p_request_id:id,p_receive_qty:qty,p_expiry_date:$('rcvExpiry').value||null,p_location_id:$('rcvLocation').value,
-  p_actor_profile_id:$('rcvActor').value,p_lot_no:null,p_memo:$('rcvMemo').value.trim()||null,p_idempotency_key:`receive-${crypto.randomUUID()}`
- });
- if(error)return alert('입고 실패: '+error.message);
- closeModal();toast(qty<remain?'부분입고 완료':'입고완료');await reloadAll()
+ if(!Number.isInteger(qty))return alert('입고수량은 1개 단위 정수로 입력하세요.');
+ let loc=$('rcvLocation').value;if(!loc)return alert('보관위치를 선택하세요.');
+ let key=`purchase-receive-${id}`;if(!beginAction(key,'입고 중...'))return;
+ try{
+  let {error}=await sb.rpc('receive_purchase_request',{
+   p_request_id:id,p_receive_qty:qty,p_expiry_date:$('rcvExpiry').value||null,p_location_id:loc,
+   p_actor_profile_id:$('rcvActor').value,p_lot_no:$('rcvLot').value.trim()||null,p_memo:$('rcvMemo').value.trim()||null,p_idempotency_key:`receive-${uid()}`
+  });
+  if(error)return alert('입고 실패: '+error.message);
+  closeModal();toast(qty<remain?'부분입고 완료':'입고완료');await reloadAll()
+ }finally{endAction(key)}
 }
 
 async function approvePurchase(id,approve){
  let reason=null;if(!approve){reason=prompt('반려 사유를 입력하세요.');if(reason===null)return}
- const {error}=await sb.rpc('approve_purchase_request',{p_request_id:id,p_approve:approve,p_reason:reason});if(error)return alert(error.message);toast(approve?'승인 완료':'반려 완료');await reloadAll()
+ let key=`purchase-approve-${id}`;if(!beginAction(key,'처리 중...'))return;
+ try{
+  const {error}=await sb.rpc('approve_purchase_request',{p_request_id:id,p_approve:approve,p_reason:reason});
+  if(error)return alert(error.message);toast(approve?'승인 완료':'반려 완료');await reloadAll()
+ }finally{endAction(key)}
 }
 async function reviewAudit(id,checked){
  const {error}=await sb.rpc('review_audit_log',{p_audit_id:id,p_reviewed:checked});
@@ -1712,120 +1535,18 @@ async function bulkReviewAudit(checked){
  if(failed)alert(`${ids.length-failed}건 처리 완료 / ${failed}건 실패`);
  else toast(`${ids.length}건 ${checked?'확인완료':'확인해제'} 처리`)
 }
-
-function categoryDefaultFor(category){
- let d=categoryDefaults.find(x=>x.category===category);
- return {expiry_sensitivity:d?.expiry_sensitivity||'B',stock_sensitivity:d?.stock_sensitivity||'b'}
-}
-function applyProductCategoryDefaults(force=false){
- if(!$('pCat')||!$('pExpirySensitivity')||!$('pStockSensitivity'))return;
- let d=categoryDefaultFor($('pCat').value.trim()||'미분류');
- if(force||!$('pExpirySensitivity').value)$('pExpirySensitivity').value=d.expiry_sensitivity||'B';
- if(force||!$('pStockSensitivity').value)$('pStockSensitivity').value=d.stock_sensitivity||'b';
- if($('pExpiryHint'))$('pExpiryHint').textContent=`대분류 기본값: 유통기한 ${d.expiry_sensitivity||'B'} / 재고 ${d.stock_sensitivity||'b'} · 필요 시 이 품목만 변경`;
- updateProductStockHint()
-}
-function refreshCategoryGradeDefaults(){
- let el=$('gradeDefaultCategory');if(!el)return;
- let cur=el.value,cats=[...new Set(products.map(p=>p.category||'미분류'))].sort((a,b)=>a.localeCompare(b,'ko'));
- el.innerHTML=cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
- if(cur&&cats.includes(cur))el.value=cur;
- let c=el.value;if(!c)return;
- let d=categoryDefaultFor(c);$('gradeDefaultExpiry').value=d.expiry_sensitivity||'B';$('gradeDefaultStock').value=d.stock_sensitivity||'b';
- let custom=categoryDefaults.find(x=>x.category===c);
- $('gradeDefaultSummary').textContent=custom?`${c} · 유통기한 ${custom.expiry_sensitivity||'B'} / 재고 ${custom.stock_sensitivity||'b'} 기본값 저장됨`:`${c} · 별도 설정 없음 → 기본 B / b 적용`
-}
-async function saveCategoryGradeDefault(){
- let category=$('gradeDefaultCategory').value;if(!category)return alert('대분류를 선택하세요.');
- let exp=$('gradeDefaultExpiry').value,stock=$('gradeDefaultStock').value;
- let {error}=await sb.rpc('set_category_inventory_default',{p_category:category,p_expiry_sensitivity:exp,p_stock_sensitivity:stock});
- if(error)return alert('기본값 저장 실패: '+error.message);
- toast(`${category} 기본등급 저장`);await reloadAll();refreshCategoryGradeDefaults()
-}
-async function applyCategoryGradeDefault(){
- let category=$('gradeDefaultCategory').value;if(!category)return alert('대분류를 선택하세요.');
- let d=categoryDefaultFor(category);
- if(!confirm(`${category}에서 등급이 비어있는 품목에\n유통기한 ${d.expiry_sensitivity} / 재고 ${d.stock_sensitivity} 기본값을 적용할까요?\n이미 개별 설정된 품목은 유지됩니다.`))return;
- let {data,error}=await sb.rpc('apply_category_defaults_to_products',{p_category:category});
- if(error)return alert('적용 실패: '+error.message);
- toast(`${data||0}개 품목 확인/적용 완료`);await reloadAll()
-}
-
-
-function productCurrentQty(pid){return Number((balances.find(x=>x.product_id===pid)||{}).quantity||0)}
-function renderProductManagement(){
- if(!$('productManageBody'))return;
- let q=($('pmQ')?.value||'').toLowerCase(),status=$('pmStatus')?.value||'active';
- let arr=allProducts.filter(p=>{
-  if(status==='active'&&!p.active)return false;
-  if(status==='inactive'&&p.active)return false;
-  let codes=productCodesFor(p.id).map(c=>c.code_value).join(' ');
-  let s=(p.name+' '+(p.category||'')+' '+(p.subcategory||'')+' '+codes).toLowerCase();
-  return !q||s.includes(q)
- }).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
- $('productManageBody').innerHTML=arr.map(p=>`<tr>
-  <td><div class="product-main"><b>${esc(p.name)}</b><div class="product-submeta"><span class="info-chip">${esc(p.base_unit||'개')}</span>${p.package_qty?`<span class="info-chip">1포장 ${fmt(p.package_qty)}</span>`:''}</div></div></td>
-  <td>${esc(p.category||'미분류')}${p.subcategory?`<div class="tiny muted">${esc(p.subcategory)}</div>`:''}</td>
-  <td>${esc(p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B')}</td>
-  <td>${p.default_expiry_days!=null?`${fmt(p.default_expiry_days)}일`:'수동'}</td>
-  <td>${esc(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b')}<div class="tiny muted">${esc(stockCriteriaText(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b'))}</div></td>
-  <td>${esc(byId(locations,p.default_location_id)?.name||'-')}</td>
-  <td colspan="2">${renderCodeStack(p.id,true)}</td>
-  <td><span class="badge ${p.active?'b-ok':'b-dark'}">${p.active?'사용중':'비활성'}</span></td>
-  <td><div class="actions"><button class="primary" onclick="openProduct('${p.id}')">수정</button>${p.active?`<button class="danger" onclick="deactivateProduct('${p.id}')">삭제</button>`:`<button class="secondary" onclick="restoreProduct('${p.id}')">다시 활성화</button>`}</div></td>
- </tr>`).join('')||'<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 품목이 없습니다.</td></tr>'
-}
-async function deactivateProduct(id){
- let p=byId(allProducts,id);if(!p)return;
- let qty=productCurrentQty(id),msg=`${p.name} 품목을 삭제(비활성)할까요?\n과거 거래이력은 유지됩니다.`;
- if(qty>0)msg+=`\n\n현재 재고 ${fmt(qty)}개가 남아 있습니다.\n비활성 처리하면 일반 재고/알림 화면에서 숨겨집니다.`;
- if(!confirm(msg))return;
- let {error}=await sb.from('products').update({active:false,updated_at:new Date().toISOString()}).eq('id',id);
- if(error)return alert('삭제 실패: '+error.message);
- toast('품목 비활성 처리 완료');await reloadAll();renderProductManagement()
-}
-async function restoreProduct(id){
- let p=byId(allProducts,id);if(!p)return;
- if(!confirm(`${p.name} 품목을 다시 사용중으로 전환할까요?`))return;
- let {error}=await sb.from('products').update({active:true,updated_at:new Date().toISOString()}).eq('id',id);
- if(error)return alert('복구 실패: '+error.message);
- toast('품목 다시 활성화 완료');await reloadAll();renderProductManagement()
-}
-
 function openProduct(id=''){
- let p=id?byId(allProducts,id):null;
- let category=p?.category||'미분류',d=categoryDefaultFor(category);
- let expVal=p?.expiry_sensitivity||d.expiry_sensitivity||'B',stockVal=p?.stock_sensitivity||d.stock_sensitivity||'b';
- let barcode=id?primaryCode(id,'BARCODE'):'',qr=id?primaryCode(id,'QR'):'',box=id?primaryCode(id,'BOX_BARCODE'):'',extras=id?extraCodes(id):[];
- openModal(p?'품목정보 수정':'품목 등록',`
- ${p?`<div class="notice"><b>현재 등록 코드</b><div style="margin-top:8px">${renderCodeStack(id,true)}</div><div class="tiny muted" style="margin-top:6px">아래 입력칸에는 현재 등록값이 자동으로 불러와집니다. 수정 후 저장하세요.</div></div>`:''}
- <div class="form-section"><div class="form-section-title">기본 정보</div>
-  <div class="field"><label>품목명</label><input id="pName" value="${esc(p?.name||'')}"></div>
-  <div class="field"><label>대분류</label><input id="pCat" value="${esc(category)}" onchange="applyProductCategoryDefaults(${p?'false':'true'})"></div>
-  <div class="field"><label>소분류</label><input id="pSubcat" value="${esc(p?.subcategory||'')}"></div>
-  <div class="field"><label>관리단위</label><input id="pUnit" value="${esc(p?.base_unit||'개')}"></div>
- </div>
- <div class="form-section"><div class="form-section-title">바코드 / QR</div>
-  <div class="field"><label>1D 바코드</label><input id="pBarcode" value="${esc(barcode)}" placeholder="바코드 스캔 또는 직접입력"></div>
-  <div class="field"><label>QR / 2D 코드</label><input id="pQr" value="${esc(qr)}" placeholder="QR·DataMatrix 스캔값"></div>
-  <div class="field"><label>박스 바코드</label><input id="pBoxBarcode" value="${esc(box)}" placeholder="있을 경우 입력"></div>
-  ${extras.length?`<div class="tiny muted">기타 기존 코드: ${extras.map(c=>`${esc(c.code_type)} · ${esc(c.code_value)}`).join(' / ')}</div>`:''}
- </div>
- <div class="form-section"><div class="form-section-title">재고 / 유통기한 설정</div>
-  <div class="field"><label>1포장입수</label><input id="pPackageQty" type="number" min="0" step="1" value="${p?.package_qty??''}" placeholder="예: 10"></div>
-  <div class="field"><label>포장단위원문</label><input id="pPackageText" value="${esc(p?.package_unit_text||'')}" placeholder="예: 1박스 10개 / 1팩 4줄"></div>
-  <div class="field"><label>기본 유통기한 (등록일 기준)</label><div class="code-row"><input id="pDefaultExpiryDays" type="number" min="0" max="3650" step="1" value="${p?.default_expiry_days??''}" placeholder="예: 365"><span class="muted small">일</span></div><div class="tiny muted">QR에 유통기한이 없을 때 자동 계산. 비우면 입고 시 수동입력.</div></div>
-  <div class="field"><label>유통기한 등급</label><select id="pExpirySensitivity"><option value="A" ${expVal==='A'?'selected':''}>A · 1.5년 / 1년 / 6개월</option><option value="B" ${expVal==='B'?'selected':''}>B · 1년 / 6개월</option><option value="C" ${expVal==='C'?'selected':''}>C · 6개월</option></select><div id="pExpiryHint" class="tiny muted"></div></div>
-  <div class="field"><label>재고등급</label><select id="pStockSensitivity" onchange="updateProductStockHint()"><option value="a" ${stockVal==='a'?'selected':''}>a · 20개 미만</option><option value="b" ${stockVal==='b'?'selected':''}>b · 10개 미만</option><option value="c" ${stockVal==='c'?'selected':''}>c · 5개 미만</option></select></div>
-  <div class="field"><label>개별 저재고 기준</label><input id="pMin" type="number" min="0" step="1" value="${p?.low_stock_override??''}" placeholder="비우면 재고등급 기준"><div id="pStockHint" class="tiny muted"></div></div>
-  <div class="field"><label>기본 보관위치</label><select id="pDefaultLocation"><option value="">미설정</option>${locations.map(l=>`<option value="${l.id}" ${p?.default_location_id===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</select></div>
- </div>
- <div class="form-section"><div class="form-section-title">구매 / 기타</div>
-  <div class="field"><label>품목별 예상입고 소요일</label><input id="pLeadDays" type="number" min="0" max="365" step="1" value="${p?.lead_days??''}" placeholder="미입력 시 관리자 기본값 사용"></div>
-  <div class="field"><label>원장님 수정 비고</label><textarea id="pMasterNote" rows="2">${esc(p?.master_note||'')}</textarea></div>
- </div>
- `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveProduct('${id}')">${p?'수정 저장':'품목 등록'}</button>`);
- setTimeout(()=>{updateProductStockHint();applyProductCategoryDefaults(false)},0)
+ let p=id?byId(products,id):null;
+ openModal(p?'품목 설정':'품목 등록',`
+ <div class="field"><label>품목명</label><input id="pName" value="${esc(p?.name||'')}"></div>
+ <div class="field"><label>분류</label><input id="pCat" value="${esc(p?.category||'미분류')}"></div>
+ <div class="field"><label>단위</label><input id="pUnit" value="${esc(p?.base_unit||'개')}"></div>
+ <div class="field"><label>개별 저재고 기준 (예외 품목만)</label><input id="pMin" type="number" inputmode="numeric" min="0" step="1" value="${p?.low_stock_override??''}" placeholder="비우면 재고등급 기준 자동 적용"><div id="pStockHint" class="tiny muted"></div></div>
+ <div class="field"><label>유통기한 민감도</label><select id="pExpirySensitivity"><option value="">기본(90일)</option><option value="A" ${p?.expiry_sensitivity==='A'?'selected':''}>A · 민감 (1.5년)</option><option value="B" ${p?.expiry_sensitivity==='B'?'selected':''}>B · 중간 (1년)</option><option value="C" ${p?.expiry_sensitivity==='C'?'selected':''}>C · 덜민감 (6개월)</option></select></div>
+ <div class="field"><label>재고 민감도</label><select id="pStockSensitivity" onchange="updateProductStockHint()"><option value="">개별 기준 사용</option><option value="a" ${p?.stock_sensitivity==='a'?'selected':''}>a · 고빈도 (20개 권장)</option><option value="b" ${p?.stock_sensitivity==='b'?'selected':''}>b · 보통 (10개 권장)</option><option value="c" ${p?.stock_sensitivity==='c'?'selected':''}>c · 저빈도 (5개 권장)</option></select></div>
+ <div class="field"><label>기본 보관위치</label><select id="pDefaultLocation"><option value="">미설정</option>${locations.map(l=>`<option value="${l.id}" ${p?.default_location_id===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}</select><div class="tiny muted">입고 시 자동 선택되는 기본 위치입니다.</div></div>
+ <div class="field"><label>품목별 예상입고 소요일</label><input id="pLeadDays" type="number" inputmode="numeric" min="0" max="365" step="1" value="${p?.lead_days??''}" placeholder="미입력 시 관리자 기본값 사용"><div class="tiny muted">현재 관리자 기본값: ${Number(hospitalSettings?.default_lead_days??3)}일</div></div>
+ `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveProduct('${id}')">저장</button>`);setTimeout(updateProductStockHint,0)
 }
 function updateProductStockHint(){
  if(!$('pStockSensitivity')||!$('pStockHint'))return;
@@ -1837,23 +1558,9 @@ async function saveProduct(id=''){
  let name=$('pName').value.trim();if(!name)return alert('품목명 입력');
  let leadRaw=$('pLeadDays').value.trim(),lead=leadRaw===''?null:Number(leadRaw);
  if(lead!==null&&(!Number.isInteger(lead)||lead<0||lead>365))return alert('예상입고 소요일은 0~365일 정수로 입력하세요.');
- let ovRaw=$('pMin').value.trim(),ov=ovRaw===''?null:Number(ovRaw);
- if(ov!==null&&(!Number.isInteger(ov)||ov<0))return alert('개별 저재고 기준은 0 이상의 정수로 입력하세요.');
- let packRaw=$('pPackageQty').value.trim(),pack=packRaw===''?null:Number(packRaw);
- if(pack!==null&&(!Number.isFinite(pack)||pack<0))return alert('1포장입수를 확인하세요.');
- let deRaw=$('pDefaultExpiryDays').value.trim(),defaultExpiryDays=deRaw===''?null:Number(deRaw);
- if(defaultExpiryDays!==null&&(!Number.isInteger(defaultExpiryDays)||defaultExpiryDays<0||defaultExpiryDays>3650))return alert('기본 유통기한은 0~3650일 정수로 입력하세요.');
- let ss=$('pStockSensitivity').value||null,base=ss==='a'?20:ss==='b'?10:ss==='c'?5:0;
- let payload={name,category:$('pCat').value.trim()||'미분류',subcategory:$('pSubcat').value.trim()||null,
-  base_unit:$('pUnit').value.trim()||'개',package_qty:pack,package_unit_text:$('pPackageText').value.trim()||null,
-  low_stock_threshold:base,low_stock_override:ov,expiry_sensitivity:$('pExpirySensitivity').value||null,
-  stock_sensitivity:ss,lead_days:lead,default_location_id:$('pDefaultLocation').value||null,default_expiry_days:defaultExpiryDays,master_note:$('pMasterNote').value.trim()||null};
- let pid=id;
- if(id){let {error}=await sb.from('products').update(payload).eq('id',id);if(error)return alert('품목 저장 실패: '+error.message)}
- else{let {data,error}=await sb.from('products').insert({...payload,hospital_id:me.hospital_id}).select('id').single();if(error)return alert('품목 등록 실패: '+error.message);pid=data.id}
- let {error:codeErr}=await sb.rpc('set_product_primary_codes',{p_product_id:pid,p_barcode:$('pBarcode').value.trim()||null,p_qr:$('pQr').value.trim()||null,p_box_barcode:$('pBoxBarcode').value.trim()||null});
- if(codeErr)return alert('품목정보는 저장됐지만 코드 저장 실패: '+codeErr.message);
- closeModal();toast(id?'품목 설정 저장':'품목 등록');await reloadAll()
+ let ovRaw=$('pMin').value.trim(),ov=ovRaw===''?null:Number(ovRaw);if(ov!==null&&(!Number.isInteger(ov)||ov<0))return alert('개별 저재고 기준은 0 이상의 정수로 입력하세요.');let ss=$('pStockSensitivity').value||null,base=ss==='a'?20:ss==='b'?10:ss==='c'?5:0;let payload={name,category:$('pCat').value.trim()||'미분류',base_unit:$('pUnit').value.trim()||'개',low_stock_threshold:base,low_stock_override:ov,expiry_sensitivity:$('pExpirySensitivity').value||null,stock_sensitivity:ss,lead_days:lead,default_location_id:$('pDefaultLocation').value||null};
+ let q=id?sb.from('products').update(payload).eq('id',id):sb.from('products').insert({...payload,hospital_id:me.hospital_id});
+ let {error}=await q;if(error)return alert(error.message);closeModal();toast(id?'품목 설정 저장':'품목 등록');await reloadAll()
 }
 async function changeLoginId(){
  let id=$('adminLoginId').value.trim();if(!id)return alert('ID 입력');if(id===me.login_id)return;
@@ -1869,38 +1576,17 @@ async function changePassword(){
 }
 
 // Excel Import
-function parseQty(v,packQty=null){
+function parseQty(v){
  if(v===null||v===undefined||String(v).trim()==='')return {q:null,issue:'재고수량 미입력'};
  if(typeof v==='number'&&Number.isFinite(v))return {q:v};
  let s=String(v).trim();
- if(/^x$|없음|모름/i.test(s))return {q:null,issue:'재고 없음/미확인'};
- if(/폐기|교환/i.test(s))return {q:null,issue:'재고수량 문자표기 확인'};
- let direct=Number(s.replace(/,/g,''));
- if(Number.isFinite(direct))return {q:direct};
-
- // 40(2box), 12(1box)처럼 앞 숫자가 실제 수량인 경우
- let lead=s.match(/^\s*(\d+(?:\.\d+)?)\s*\(/);
- if(lead)return {q:Number(lead[1])};
-
- // 152줄, 44개, 7병, 3팩 등
- let unit=s.match(/^\s*(\d+(?:\.\d+)?)\s*(개|줄|병|팩|박스|box)\s*$/i);
- if(unit){
-  let n=Number(unit[1]),u=unit[2].toLowerCase();
-  if((u==='박스'||u==='box')&&packQty&&Number(packQty)>0)return {q:n*Number(packQty),issue:'박스수량을 1포장입수 기준 환산'};
-  return {q:n};
- }
-
- // 2box이고 포장입수 모르면 자동 수량 환산 불가
- let box=s.match(/^\s*(\d+(?:\.\d+)?)\s*(box|박스)\s*$/i);
- if(box){
-  let n=Number(box[1]);
-  if(packQty&&Number(packQty)>0)return {q:n*Number(packQty),issue:'박스수량을 1포장입수 기준 환산'};
-  return {q:null,issue:`${n}박스 · 1포장입수 확인 필요`}
- }
-
- let stripped=s.replace(/,/g,'').replace(/개|줄|병|팩|박스|box/gi,'').trim();
- let n=Number(stripped);
- return Number.isFinite(n)?{q:n}:{q:null,issue:'재고수량 확인'}
+ if(/폐기|모름|교환|없음|재고\s*없/i.test(s))return {q:null,issue:'재고수량 문자표기 확인'};
+ let clean=s.replace(/,/g,'').trim();
+ let exact=clean.match(/^[-+]?\d+(?:\.\d+)?$/);
+ if(exact){let n=Number(clean);return Number.isFinite(n)?{q:n}:{q:null,issue:'재고수량 확인'}}
+ let lead=clean.match(/^([-+]?\d+(?:\.\d+)?)(?:\s*(?:개|줄|병|팩|박스|box|BOX))?(?:\s*\([^)]*\))?\s*$/);
+ if(lead){let n=Number(lead[1]);return Number.isFinite(n)?{q:n,issue:/\(|box|박스/i.test(clean)?'포장표기 포함 · 수량값 자동추출':''}:{q:null,issue:'재고수량 확인'}}
+ return {q:null,issue:'재고수량 확인'}
 }
 
 function normDate(v){
@@ -1922,249 +1608,67 @@ function normDate(v){
  let y=Number(mm[1]);if(y<100)y+=2000;
  return `${y}-${String(mm[2]).padStart(2,'0')}-${String(mm[3]).padStart(2,'0')}`
 }
-
-function productCodesFor(pid){return productCodes.filter(c=>c.product_id===pid&&c.active)}
-function codeLooks1D(v){return /^\d{8,18}$/.test(String(v||'').trim())}
-function codeLooks2D(v){
- let s=String(v||'').trim();
- return s.length>18||/^\(01\)/.test(s)||/^01\d{14}/.test(s)||/\(17\)|\(10\)|\(21\)/.test(s)
-}
-function primaryCode(pid,type){
- let cs=productCodesFor(pid),exact=cs.find(c=>c.code_type===type);
- if(exact)return exact.code_value||'';
- // legacy BARCODE_OR_QR / OTHER fallback
- let legacy=cs.filter(c=>['BARCODE_OR_QR','OTHER'].includes(c.code_type));
- if(type==='BARCODE'){
-  let c=legacy.find(x=>codeLooks1D(x.code_value));if(c)return c.code_value||''
- }
- if(type==='QR'){
-  let c=legacy.find(x=>codeLooks2D(x.code_value));if(c)return c.code_value||''
- }
- return ''
-}
-function extraCodes(pid){
- let main=new Set([primaryCode(pid,'BARCODE'),primaryCode(pid,'QR'),primaryCode(pid,'BOX_BARCODE')].filter(Boolean));
- return productCodesFor(pid).filter(c=>!main.has(c.code_value))
-}
-function renderCodeStack(pid,showExtra=true){
- let b=primaryCode(pid,'BARCODE'),q=primaryCode(pid,'QR'),box=primaryCode(pid,'BOX_BARCODE'),extras=showExtra?extraCodes(pid):[];
- return `<div class="code-stack">
-  <div class="code-line"><span class="code-label">BAR</span><span class="code-value ${b?'':'code-empty'}">${esc(b||'미등록')}</span></div>
-  <div class="code-line"><span class="code-label">QR</span><span class="code-value ${q?'':'code-empty'}">${esc(q||'미등록')}</span></div>
-  ${box?`<div class="code-line"><span class="code-label">BOX</span><span class="code-value">${esc(box)}</span></div>`:''}
-  ${extras.slice(0,2).map(c=>`<div class="code-line"><span class="code-label">${esc(c.code_type||'기타')}</span><span class="code-value">${esc(c.code_value)}</span></div>`).join('')}
- </div>`
-}
-function expiryCriteriaText(g){g=String(g||'').toUpperCase();return g==='A'?'1년 6개월 / 1년 / 6개월':g==='B'?'1년 / 6개월':g==='C'?'6개월':''}
-function stockCriteriaText(g){g=String(g||'').toLowerCase();return g==='a'?'20개 미만':g==='b'?'10개 미만':g==='c'?'5개 미만':''}
-function downloadProductMasterExcel(){
- let rows=allProducts.map(p=>({
-   '품목ID(수정금지)':p.id,'사용상태':p.active?'사용중':'비활성',
-   '대분류':p.category||'미분류','소분류':p.subcategory||'','품목명':p.name||'',
-   '유통기한 등급':p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B','기본 유통기한(일)':p.default_expiry_days??'','유통기한 기준':expiryCriteriaText(p.expiry_sensitivity||categoryDefaultFor(p.category).expiry_sensitivity||'B'),
-   '재고등급':p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b','재고등급 기준':stockCriteriaText(p.stock_sensitivity||categoryDefaultFor(p.category).stock_sensitivity||'b'),
-   '개별 저재고 기준':p.low_stock_override??'','기본 보관위치':byId(locations,p.default_location_id)?.name||'',
-   '관리단위':p.base_unit||'개','1포장입수':p.package_qty??'','포장단위원문':p.package_unit_text||'',
-   '바코드':primaryCode(p.id,'BARCODE'),'QR코드':primaryCode(p.id,'QR'),'박스바코드':primaryCode(p.id,'BOX_BARCODE'),
-   '원장님 수정 비고':p.master_note||''
- }));
- let ws=XLSX.utils.json_to_sheet(rows),book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,ws,'품목마스터');
- let guide=XLSX.utils.aoa_to_sheet([
-  ['작성안내','내용'],
-  ['사용방법','다운로드한 이 파일을 그대로 수정해서 다시 업로드할 수 있습니다.'],
-  ['품목ID','숨김 시스템 식별값입니다. 기존 품목은 삭제/수정하지 마세요.'],
-  ['사용상태','사용중 / 비활성 중 하나를 입력합니다. 삭제하려면 비활성으로 변경합니다.'],
-  ['품목 추가','새 행 추가 시 품목ID는 비워두고 품목명부터 입력합니다.'],['기본 유통기한(일)','QR/2D 코드에 유통기한이 없을 때 입고일로부터 자동 계산할 일수입니다. 비워두면 수동입력합니다.'],
-  ['바코드/QR','바코드, QR/2D, 박스바코드를 수정할 수 있습니다. 동일 코드는 중복 등록되지 않습니다.'],
-  ['중요','품목마스터 업로드는 품목정보만 변경하며 현재 재고/Lot 수량은 변경하지 않습니다.']
- ]);
- XLSX.utils.book_append_sheet(book,guide,'작성안내');XLSX.writeFile(book,`올리본의원_품목마스터_${localTodayISO().replaceAll('-','')}.xlsx`)
-}
-async function importProductMasterExcel(file){
- if(!file)return;
- try{
-  let ab=await file.arrayBuffer(),book=XLSX.read(ab,{type:'array',cellDates:true}),sn=book.SheetNames.includes('품목마스터')?'품목마스터':book.SheetNames[0];
-  let data=XLSX.utils.sheet_to_json(book.Sheets[sn],{defval:'',raw:false});if(!data.length)return alert('품목마스터 데이터가 없습니다.');
-  let rows=[],errors=[];
-  data.forEach((r,i)=>{
-   let productId=String(r['품목ID(수정금지)']||'').trim(),name=String(r['품목명']||r['제품명']||'').trim();if(!name)return;
-   let exp=String(r['유통기한 등급']||r['유통기한등급']||'').trim().toUpperCase(),stock=String(r['재고등급']||'').trim().toLowerCase(),loc=String(r['기본 보관위치']||'').trim();
-   if(exp&&!['A','B','C'].includes(exp))errors.push(`${i+2}행 ${name}: 유통기한 등급 확인`);
-   if(stock&&!['a','b','c'].includes(stock))errors.push(`${i+2}행 ${name}: 재고등급 확인`);
-   if(loc&&!locations.some(x=>x.name===loc))errors.push(`${i+2}행 ${name}: 등록되지 않은 위치 "${loc}"`);
-   let pack=String(r['1포장입수']??'').trim(),override=String(r['개별 저재고 기준']??'').trim(),defaultExpiry=String(r['기본 유통기한(일)']??'').trim();
-   if(defaultExpiry&&(!Number.isInteger(Number(defaultExpiry))||Number(defaultExpiry)<0||Number(defaultExpiry)>3650))errors.push(`${i+2}행 ${name}: 기본 유통기한(일) 확인`);
-   if(pack&&(!Number.isFinite(Number(pack))||Number(pack)<0))errors.push(`${i+2}행 ${name}: 1포장입수 숫자 확인`);
-   if(override&&(!Number.isFinite(Number(override))||Number(override)<0))errors.push(`${i+2}행 ${name}: 개별 저재고 기준 확인`);
-   let activeStatus=String(r['사용상태']||'사용중').trim();if(!['사용중','비활성'].includes(activeStatus))errors.push(`${i+2}행 ${name}: 사용상태는 사용중/비활성`);rows.push({product_id:productId,active:activeStatus,name,default_expiry_days:defaultExpiry,category:String(r['대분류']||'미분류').trim()||'미분류',subcategory:String(r['소분류']||'').trim(),
-    default_expiry_days:defaultExpiry,expiry_sensitivity:exp||categoryDefaultFor(String(r['대분류']||'미분류').trim()||'미분류').expiry_sensitivity||'B',stock_sensitivity:stock||categoryDefaultFor(String(r['대분류']||'미분류').trim()||'미분류').stock_sensitivity||'b',low_stock_override:override,location:loc,unit:String(r['관리단위']||'개').trim()||'개',
-    package_qty:pack,package_unit_text:String(r['포장단위원문']||'').trim(),barcode:String(r['바코드']||'').trim(),
-    qr:String(r['QR코드']||r['QR']||'').trim(),box_barcode:String(r['박스바코드']||'').trim(),master_note:String(r['원장님 수정 비고']||'').trim()})
-  });
-  if(errors.length)return alert('업로드 전 확인이 필요합니다.\n\n'+errors.slice(0,12).join('\n')+(errors.length>12?`\n외 ${errors.length-12}건`:''));
-  if(!rows.length)return alert('반영할 품목이 없습니다.');
-  let existing=rows.filter(r=>(r.product_id&&allProducts.some(p=>p.id===r.product_id))||allProducts.some(p=>p.name.trim().toLowerCase()===r.name.toLowerCase())).length,fresh=rows.length-existing;
-  if(!confirm(`품목마스터 ${rows.length}건을 반영합니다.\n기존 품목 수정 ${existing}건 / 신규 품목 ${fresh}건\n\n현재 재고수량과 Lot 이력은 변경되지 않습니다.\n계속할까요?`))return;
-  let {data:result,error}=await sb.rpc('upsert_product_master_rows',{p_rows:rows});if(error)return alert('품목마스터 업로드 실패: '+error.message);
-  await reloadAll();alert(`품목마스터 반영 완료\n신규 ${result?.new_products??fresh}건\n수정 ${result?.updated_products??existing}건\n코드 ${result?.codes??0}건`)
- }catch(e){console.error(e);alert('품목마스터 읽기 실패: '+(e?.message||String(e)))}
-}
-
 async function parseExcel(file){
  if(!file)return;
- importRows=[];importFilter='all';renderImport();
- $('importInfo').classList.remove('hide');$('importActions').classList.add('hide');$('importSummary').classList.add('hide');
- $('importInfo').textContent='Excel 파일 읽는 중...';
  try{
-  const ab=await file.arrayBuffer();
-  const wb=XLSX.read(ab,{type:'array',cellDates:true});
-  const targetNames=wb.SheetNames.includes('시스템Import')?['시스템Import']:
-                    wb.SheetNames.includes('전품목')?['전품목']:
-                    wb.SheetNames.filter(n=>!/^sheet\d*$/i.test(n));
-  let arr=[],excluded=0;
+  $('importInfo').classList.remove('hide');$('importInfo').textContent='Excel 파일 읽는 중...';
+  const ab=await file.arrayBuffer(),wb=XLSX.read(ab,{type:'array',cellDates:true});
+  let arr=[],excluded=0,targetSheets=wb.SheetNames.includes('시스템Import')?['시스템Import']:wb.SheetNames;
+  for(const sn of targetSheets){
+   let rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:'',raw:true});if(!rows.length)continue;
+   let hi=rows.findIndex(r=>r.some(x=>/품목명/.test(String(x).trim()))&&r.some(x=>/(현재재고|최신조사.*재고|최신.*재고)/.test(String(x).trim())));
+   if(hi<0)continue;
+   let h=rows[hi].map(x=>String(x).replace(/\s+/g,' ').trim()),ix=n=>h.indexOf(n),
+       ixAny=(...names)=>{for(const n of names){let i=ix(n);if(i>=0)return i}return -1},
+       ixRegex=(...patterns)=>{for(let i=0;i<h.length;i++)if(patterns.some(p=>p.test(h[i])))return i;return -1};
 
-  for(const sn of targetNames){
-   const sh=wb.Sheets[sn],data=XLSX.utils.sheet_to_json(sh,{header:1,defval:null,raw:true});
-   if(!data.length)continue;
-   let hi=-1;
-   for(let r=0;r<Math.min(15,data.length);r++){
-    let hs=data[r].map(x=>String(x??'').trim());
-    let hasName=hs.some(x=>['품목명','제품명','상품명'].includes(x));
-    let hasQty=hs.some(x=>['재고최종','현재재고','재고','수량','최신조사'].includes(x))||hs.some(x=>x.includes('재고'));
-    if(hasName&&hasQty){hi=r;break}
-   }
-   if(hi<0){excluded+=Math.max(0,data.length-1);continue}
+   let nameI=ixRegex(/^품목명$/, /제품명/, /품목/),
+       latestQtyI=ixRegex(/최신조사.*재고/, /최신.*재고/),
+       qtyI=latestQtyI>=0?latestQtyI:ixRegex(/^현재재고$/, /^재고$/),
+       latestExpI=ixRegex(/최신조사.*유통기한/, /최신.*유통기한/),
+       expI=latestExpI>=0?latestExpI:ixRegex(/^유통기한$/),
+       typeI=ix('데이터종류'),locI=ixAny('보관위치','위치'),catI=ixAny('대분류','분류'),subcatI=ixAny('소분류'),
+       reviewI=ix('검토상태'),memoI=ixAny('비고','커멘트','코멘트','최신조사 커멘트','최신조사 코멘트'),
+       expGradeI=ixAny('유통기한등급','유통기한 등급','유통기한 민감도'),
+       stockGradeI=ixAny('재고등급','재고알람등급','재고알람  민감도','재고알람 민감도'),
+       packI=ixAny('1포장입수','1박스입수'),lotI=ixAny('Lot','LOT','Lot번호','로트번호','제조번호'),
+       barcodeI=ixAny('바코드','바코드/QR'),qrI=ixAny('QR코드','QR'),boxBarcodeI=ixAny('박스바코드','BOX BARCODE');
 
-   const hs=data[hi].map(x=>String(x??'').trim());
-   const ix=(...names)=>{for(const n of names){let i=hs.indexOf(n);if(i>=0)return i}return -1};
+   if(nameI<0||qtyI<0)continue;
+   let carryCat='',carrySub='',carryName='';
+   for(let r=hi+1;r<rows.length;r++){
+    let row=rows[r],typ=typeI>=0?String(row[typeI]??'').trim():'';
+    if(typ&&typ!=='현재재고'){excluded++;continue}
+    let rawCat=catI>=0?String(row[catI]??'').trim():'',rawSub=subcatI>=0?String(row[subcatI]??'').trim():'',rawName=String(row[nameI]??'').trim();
+    if(rawCat)carryCat=rawCat;if(rawSub)carrySub=rawSub;if(rawName)carryName=rawName;
+    let name=rawName||carryName;if(!name)continue;
 
-   let nameI=ix('품목명','제품명','상품명');
-   let catI=ix('대분류','분류');
-   let subI=ix('소분류','세부분류');
-   let expI=ix('유통기한','사용기한','유효기간');
-   let barcodeI=ix('바코드','1D 바코드','BARCODE');
-   let qrI=ix('큐알','QR','QR코드','2D코드','2D/GS1 스캔값','큐알코드');
-   let boxBarcodeI=ix('박스바코드','바코드3');
-   let locI=ix('보관위치','위치');
-   let loc2I=ix('보관위치2','위치2');
-   let unitI=ix('관리단위','단위');
-   let packI=ix('1포장입수','1박스입수');
-   let expGradeI=ix('유통기한등급','유통기한 등급','유통기한 민감도','유통기한 중요도');
-   let stockGradeI=ix('재고등급','재고알람등급','재고알람 민감도','재고중요도');
-   let reviewI=ix('검토상태','확인상태');
-   let memoI=ix('비고','커멘트','코멘트');
-
-   // 최종 파일은 재고최종이 절대 우선
-   let qtyI=ix('재고최종');
-   if(qtyI<0)qtyI=ix('현재재고');
-   let qtyCandidates=[];
-   hs.forEach((h,i)=>{if(h==='재고'||h==='수량'||h.includes('재고'))qtyCandidates.push(i)});
-   if(qtyI<0){
-    let latestI=hs.indexOf('최신조사'),after=latestI>=0?qtyCandidates.filter(i=>i>latestI):[];
-    if(after.length)qtyI=after[after.length-1];
-    else if(qtyCandidates.length)qtyI=qtyCandidates[qtyCandidates.length-1]
-   }
-
-   if(nameI<0||qtyI<0){excluded+=Math.max(0,data.length-hi-1);continue}
-
-   let lastName='',lastCat='',lastSub='';
-   for(let r=hi+1;r<data.length;r++){
-    const row=data[r];
-    let rawName=String(row[nameI]??'').trim();
-    let rawCat=catI>=0?String(row[catI]??'').trim():'';
-    let rawSub=subI>=0?String(row[subI]??'').trim():'';
-    if(rawCat)lastCat=rawCat;if(rawSub)lastSub=rawSub;
-
-    let exp=expI>=0?normDate(row[expI]):'';
-    let qtyRaw=row[qtyI];
-    let hasMeaningful=rawName||exp||(qtyRaw!==null&&qtyRaw!=='')||
-      (barcodeI>=0&&row[barcodeI])||(qrI>=0&&row[qrI])||(boxBarcodeI>=0&&row[boxBarcodeI]);
-    if(!hasMeaningful){excluded++;continue}
-
-    let noteLike=/팩마다|소분류가 있습니다|최신자료|참고파일|대분류 만들어|항목/i.test(rawName);
-    if(rawName&&!noteLike)lastName=rawName;
-    let name=(!noteLike&&rawName)?rawName:lastName;
-    if(!name){excluded++;continue}
-
-    let packQty=packI>=0?(Number(row[packI])||null):null;
-    let pq=parseQty(qtyRaw,packQty),issue=pq.issue||'';
-    if(pq.q===null && /없음|미확인/.test(issue)){excluded++;continue}
-
-    let category=rawCat||lastCat||'미분류',subcategory=rawSub||lastSub||'';
-    let rawLoc=locI>=0?String(row[locI]??'').trim():'';
-    let rawLoc2=loc2I>=0?String(row[loc2I]??'').trim():'';
-    let location=normalizeClinicLocation(rawLoc);
-    let secondary=normalizeClinicLocation(rawLoc2)||secondaryClinicLocation(rawLoc);
-
-    let barcode=barcodeI>=0?String(row[barcodeI]??'').trim():'';
-    let qr=qrI>=0?String(row[qrI]??'').trim():'';
-    let boxBarcode=boxBarcodeI>=0?String(row[boxBarcodeI]??'').trim():'';
-    let memo=memoI>=0?String(row[memoI]??'').trim():'';
-
-    // 원본 Excel의 코드 열 구분을 그대로 보존한다.
-    // 바코드 열 값은 BARCODE로, QR/2D 열 값은 QR로 저장한다.
-    // QR 내부 AI(01) GTIN은 검색/매칭용으로만 파싱하며 BARCODE 칸으로 복사하지 않는다.
-    let rawCodeCells=[];
-    [barcodeI,qrI,boxBarcodeI].forEach(i=>{if(i>=0&&row[i]!==null&&String(row[i]).trim())rawCodeCells.push(String(row[i]).trim())});
-
-    // 명시적인 바코드/QR 헤더가 아예 없는 구형 파일에서만 코드 형태를 추정한다.
-    if(barcodeI<0 && !barcode && rawCodeCells.length){
-      let one=rawCodeCells.find(s=>/^\d{8,18}$/.test(s));
-      if(one)barcode=one
-    }
-    if(qrI<0 && !qr && rawCodeCells.length){
-      let two=rawCodeCells.find(s=>s!==barcode&&(s.length>18||/^01/.test(s)||/^\(01\)/.test(s)));
-      if(two)qr=two
-    }
-
-    // QR/2D의 유통기한만 읽어오되 원문 QR 값은 그대로 유지한다.
-    if(qr){
-      let gi=parseGs1Code(qr);
-      if(gi.expiry&&!exp)exp=gi.expiry;
-    }
-    // 바코드 열에 사용자가 실제로 GS1 문자열을 넣은 경우에도 원문은 변경하지 않고
-    // 유통기한 정보만 보조적으로 사용할 수 있다.
-    if(barcode){
-      let gi=parseGs1Code(barcode);
-      if(gi.expiry&&!exp)exp=gi.expiry;
-    }
-
-    if(secondary&&secondary!==location){
-      memo=(memo?memo+' / ':'')+`보조위치:${secondary}`
-    }
-
-    let status=pq.q===null?'error':issue?'warn':'ok',reviewed=status==='ok';
-    if(reviewI>=0){
-      let rv=String(row[reviewI]??'').trim();
-      if(/확정|검토완료|원장확인완료/.test(rv))reviewed=true
-    }
-
+    let rawQty=row[qtyI]??'',pq=parseQty(rawQty),rawExp=expI>=0?row[expI]:'',exp=normDate(rawExp),
+        location=locI>=0?String(row[locI]??'').trim():'',review=reviewI>=0?String(row[reviewI]??'').trim():'',
+        memo=memoI>=0?String(row[memoI]??'').trim():'',issues=[];
+    if(pq.issue)issues.push(pq.issue);
+    if(rawExp!==''&&!exp)issues.push('유통기한 형식 확인');
+    if(review&&review!=='등록가능'&&review!=='원장확인완료'&&review!=='자료와 일치')issues.push(review);
+    if(memo)issues.push(`커멘트: ${memo}`);
+    let issue=issues.filter(Boolean).join(' | ');
     arr.push({
-      sheet:sn,row:r+1,category,subcategory,name,expiry:exp,qty:pq.q,
-      unit:unitI>=0?String(row[unitI]??'').trim():'',
-      location,barcode,qr,boxBarcode,
-      expiryGrade:expGradeI>=0?String(row[expGradeI]??'').trim():'',
-      stockGrade:stockGradeI>=0?String(row[stockGradeI]??'').trim():'',
-      packageQty:packQty,memo,issue,status,reviewed,selected:false
+      sheet:sn,row:r+1,name,qty:pq.q,expiry:exp,location,category:carryCat||'미분류',subcategory:carrySub||'',
+      expiryGrade:expGradeI>=0?String(row[expGradeI]??'').trim():'',stockGrade:stockGradeI>=0?String(row[stockGradeI]??'').trim():'',
+      packageQty:packI>=0?(Number(row[packI])||null):null,lotNo:lotI>=0?String(row[lotI]??'').trim():'',
+      barcode:barcodeI>=0?String(row[barcodeI]??'').trim():'',qr:qrI>=0?String(row[qrI]??'').trim():'',
+      boxBarcode:boxBarcodeI>=0?String(row[boxBarcodeI]??'').trim():'',sourceNote:memo,
+      issue,status:pq.q===null?'error':issue?'warn':'ok',reviewed:!issue,selected:false
     })
    }
   }
-
-  importRows=arr;importFilter='all';
-  if(!arr.length){
-    $('importInfo').textContent=`읽을 수 있는 재고 행이 없습니다. 확인한 시트: ${targetNames.join(', ')}`;
-    $('importBody').innerHTML='<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">제품명/품목명과 재고최종/현재재고 열을 확인해주세요.</td></tr>';
-    return
-  }
-  let coded=arr.filter(x=>x.barcode||x.qr||x.boxBarcode).length;
-  let located=arr.filter(x=>x.location).length;
-  $('importInfo').textContent=`읽기 완료 · ${arr.length}행 · 코드 ${coded}행 · 위치 ${located}행 · 비대상 ${excluded}행 제외 · 재고최종 우선 · 바코드/QR 원본열 그대로 보존`;
-  $('importActions').classList.remove('hide');$('importSummary').classList.remove('hide');renderImport()
- }catch(e){
-  console.error(e);
-  $('importInfo').textContent='Excel 읽기 실패: '+(e?.message||String(e));
-  $('importBody').innerHTML=`<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">Excel 읽기 실패: ${esc(e?.message||String(e))}</td></tr>`;
-  alert('Excel 읽기 실패: '+(e?.message||String(e)))
+  importRows=arr;importFilter='all';$('importActions').classList.remove('hide');$('importSummary').classList.remove('hide');
+  $('importInfo').textContent=`읽기 완료 · ${targetSheets.join(', ')} 기준 · ${arr.length}행 확인 · 비대상 ${excluded}행 제외`;
+  renderImport();if(!arr.length)alert('읽을 수 있는 재고 행이 없습니다. 품목명/현재재고 또는 최신조사 재고 헤더를 확인하세요.');
+ }catch(err){
+  console.error('Excel Import Error',err);importRows=[];$('importSummary')?.classList.add('hide');$('importActions')?.classList.add('hide');$('importInfo').classList.remove('hide');
+  $('importInfo').textContent=`Excel 읽기 실패: ${safeErrorMessage(err)}`;
+  if($('importBody'))$('importBody').innerHTML=`<tr><td colspan="7" style="text-align:center;padding:28px;color:#b55245"><b>Excel 읽기 실패</b><br>${esc(safeErrorMessage(err))}</td></tr>`;
+  alert('Excel 파일을 읽는 중 오류가 발생했습니다: '+safeErrorMessage(err));
  }
 }
 
@@ -2234,10 +1738,9 @@ function renderImport(){
    <td><b>${esc(r.name)}</b></td>
    <td>${esc(r.expiry||'-')}</td>
    <td>${r.qty===null?'-':fmt(r.qty)}</td>
-   <td><div class="tiny">${esc(r.barcode||'-')}</div><div class="tiny muted">${esc(r.qr||'')}</div></td>
    <td>${esc(r.location||'-')}</td>
    <td>${esc(r.sheet)} #${r.row}</td>
-  </tr>`).join('') || `<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">현재 선택한 필터에 표시할 항목이 없습니다. 위의 ‘전체’를 눌러 전체 데이터를 확인하세요.</td></tr>`;
+  </tr>`).join('') || `<tr><td colspan="7" class="muted" style="text-align:center;padding:28px">현재 선택한 필터에 표시할 항목이 없습니다. 위의 ‘전체’를 눌러 전체 데이터를 확인하세요.</td></tr>`;
  updateImportSelectionUi()
 }
 function markSelectedReviewed(){
@@ -2258,105 +1761,99 @@ function removeSelectedImport(){
 function usableImportRows(){
  return importRows.filter(r=>r.status!=='error' && (r.status==='ok' || r.reviewed) && r.qty!==null && Number.isFinite(Number(r.qty)))
 }
-
-function importCodeConflictInfo(rows){
- const fields=[['barcode','BARCODE'],['qr','QR'],['boxBarcode','BOX_BARCODE']];
- const fileOwners=new Map();
- for(const r of rows){
-  for(const [field,type] of fields){
-   let code=String(r[field]||'').trim();if(!code)continue;
-   let key=code;
-   if(!fileOwners.has(key))fileOwners.set(key,new Set());
-   fileOwners.get(key).add(String(r.name||'').trim())
-  }
- }
- const duplicateCodes=new Set([...fileOwners.entries()].filter(([k,v])=>v.size>1).map(([k])=>k));
- const dbConflictCodes=new Set();
- for(const r of rows){
-  for(const [field,type] of fields){
-   let code=String(r[field]||'').trim();if(!code||duplicateCodes.has(code))continue;
-   let existing=productCodes.find(c=>c.active&&String(c.code_value||'').trim()===code);
-   if(!existing)continue;
-   let owner=byId(allProducts,existing.product_id);
-   if(owner && String(owner.name||'').trim()!==String(r.name||'').trim()){
-    dbConflictCodes.add(code)
-   }
-  }
- }
- return {duplicateCodes,dbConflictCodes}
-}
-function safeImportPayload(rows){
- const info=importCodeConflictInfo(rows);
- let skipped=0;
- const payload=rows.map(r=>{
-  let b=String(r.barcode||'').trim(),q=String(r.qr||'').trim(),box=String(r.boxBarcode||'').trim();
-  const unsafe=c=>c&&(info.duplicateCodes.has(c)||info.dbConflictCodes.has(c));
-  if(unsafe(b)){b='';skipped++}
-  if(unsafe(q)){q='';skipped++}
-  if(unsafe(box)){box='';skipped++}
-  return {name:r.name,subcategory:r.subcategory||'',qty:Number(r.qty),expiry:r.expiry||'',location:r.location||'',category:r.category||'미분류',barcode:b,qr:q,box_barcode:box,expiry_sensitivity:r.expiryGrade||categoryDefaultFor(r.category||'미분류').expiry_sensitivity||'B',stock_sensitivity:r.stockGrade||categoryDefaultFor(r.category||'미분류').stock_sensitivity||'b',package_qty:r.packageQty||null}
- });
- return {payload,skipped,duplicateCount:info.duplicateCodes.size,dbConflictCount:info.dbConflictCodes.size}
-}
-
 function importPayload(rows){
- return safeImportPayload(rows).payload
+ const normCode=v=>{
+  let raw=String(v||'').trim();if(!raw)return '';
+  let m=parseGs1(raw);return m.gtin||raw
+ };
+ return rows.map(r=>({
+  name:r.name,qty:Number(r.qty),expiry:r.expiry||'',location:r.location||'',category:r.category||'미분류',subcategory:r.subcategory||'',
+  expiry_sensitivity:r.expiryGrade||'',stock_sensitivity:r.stockGrade||'',package_qty:r.packageQty||null,lot_no:r.lotNo||'',
+  barcode:normCode(r.barcode),qr:normCode(r.qr),box_barcode:normCode(r.boxBarcode)
+ }))
 }
 async function commitUsableImport(){
  let rows=usableImportRows(),excluded=importRows.length-rows.length;
  if(!rows.length)return alert('반영 가능한 정상/검토완료 데이터가 없습니다.');
- let safe=safeImportPayload(rows);
  let msg=`${rows.length}건을 현재 재고에 추가 반영합니다.`;
  if(excluded>0)msg+=`\n오류/미확인 ${excluded}건은 제외됩니다.`;
- if(safe.skipped>0)msg+=`\n중복/기존충돌 코드 ${safe.skipped}건은 코드 연결만 제외하고 재고는 반영됩니다.`;
  msg+='\n\n※ 기존 현재재고는 유지되고 수량이 추가됩니다.';
  if(!confirm(msg))return;
- $('importInfo').textContent='정상 데이터 서버 반영 중...';
- let filename=selectedImportFilename();
- let {error}=await sb.rpc('atomic_import_initial_stock',{
-  p_rows:safe.payload,p_actor_profile_id:me.id,p_filename:filename
- });
- if(error){
-  $('importInfo').textContent='추가 반영 취소 · '+error.message;
-  return alert('Import 전체 취소: '+error.message)
- }
- $('importInfo').textContent=`추가 반영 완료 ${rows.length}건 · 제외 ${excluded}건${safe.skipped?` · 충돌코드 ${safe.skipped}건 연결 제외`:''}`;
- await reloadAll();toast(`Excel ${rows.length}건 추가 반영 완료`);showImportResult(rows,excluded,'append')
+ let key='excel-append';if(!beginAction(key,'반영 중...'))return;
+ try{
+  $('importInfo').textContent='정상 데이터 서버 반영 중...';
+  let filename=$('excelFile')?.files?.[0]?.name||'initial_import.xlsx';
+  let {error}=await sb.rpc('atomic_import_initial_stock_v18',{p_rows:importPayload(rows),p_actor_profile_id:me.id,p_filename:filename});
+  if(error){$('importInfo').textContent='추가 반영 취소 · '+safeErrorMessage(error);return alert('Import 전체 취소: '+safeErrorMessage(error))}
+  $('importInfo').textContent=`추가 반영 완료 ${rows.length}건 · 제외 ${excluded}건`;
+  await reloadAll();toast(`Excel ${rows.length}건 추가 반영 완료`);showImportResult(rows,excluded,'append')
+ }finally{endAction(key)}
 }
 async function replaceInventoryFromImport(){
  let rows=usableImportRows(),excluded=importRows.length-rows.length;
- if(!rows.length)return alert('현재재고 재설정에 사용할 정상/검토완료 데이터가 없습니다.');
- openModal('현재재고를 이 Excel 기준으로 재설정',`
-  <div class="notice"><b>${rows.length}개 Lot</b>을 기준으로 현재재고를 다시 만듭니다.${excluded?`<br>오류/미확인 ${excluded}건은 제외됩니다.`:''}</div>
-  <div class="field" style="margin-top:14px"><label style="display:flex;gap:9px;align-items:flex-start"><input id="replaceDeactivateMissing" type="checkbox" checked style="margin-top:3px"><span><b>새 Excel에 없는 기존 품목은 비활성 처리</b><div class="tiny muted">추천 · 사용하지 않는 예전 품목이 재고 0 / 저재고 알림으로 계속 남는 것을 방지합니다. 거래이력은 삭제되지 않습니다.</div></span></label></div>
-  <div class="notice">체크 해제 시 새 Excel에 없는 품목도 품목목록에는 그대로 유지되고 현재재고만 0이 됩니다.</div>
- `,`<button class="secondary" onclick="closeModal()">취소</button><button class="danger" onclick="confirmReplaceInventory()">현재재고 재설정 실행</button>`);
- window.__replaceRows=rows;window.__replaceExcluded=excluded
-}
-async function confirmReplaceInventory(){
- let rows=window.__replaceRows||[],excluded=window.__replaceExcluded||0,deactivate=!!$('replaceDeactivateMissing')?.checked;
- if(!rows.length)return alert('반영할 데이터가 없습니다.');
- let safe=safeImportPayload(rows);
- let codeMsg=safe.skipped?`\n중복/기존충돌 코드 ${safe.skipped}건은 코드 연결만 건너뛰고 재고는 정상 반영합니다.`:'';
- if(!confirm(`현재 재고를 Excel 기준으로 다시 생성합니다.\n${deactivate?'Excel에 없는 기존 품목은 비활성 처리됩니다.':'기존 품목은 유지하고 재고만 0으로 만듭니다.'}${codeMsg}\n\n정말 실행할까요?`))return;
- closeModal();
- $('importInfo').textContent=`현재재고 재설정 처리 중...${safe.skipped?` · 충돌코드 ${safe.skipped}건 자동 제외`:''}`;
- let filename=selectedImportFilename();
- let {error}=await sb.rpc('replace_current_inventory_from_excel_v18',{p_rows:safe.payload,p_actor_profile_id:me.id,p_filename:filename,p_deactivate_missing:deactivate});
- if(error){
-  $('importInfo').textContent='현재재고 재설정 취소 · '+error.message;
-  return alert('현재재고 재설정 취소: '+error.message)
- }
- $('importInfo').textContent=`현재재고 재설정 완료 · ${rows.length}개 Lot 반영 · 제외 ${excluded}건${safe.skipped?` · 충돌코드 ${safe.skipped}건 연결 제외`:''}${deactivate?' · 미포함 품목 비활성':''}`;
- await reloadAll();
- let productCount=products.filter(p=>productQty(p.id)>0).length;
- toast(`현재재고 재설정 완료 · ${rows.length} Lot / ${productCount} 품목${safe.skipped?` / 코드 ${safe.skipped}건 제외`:''}`);
- showImportResult(rows,excluded,'replace');
- showPage('inventory');if($('invStockFilter'))$('invStockFilter').value='positive';if($('invSort'))$('invSort').value='name';renderInventory()
+ if(!rows.length)return alert('전체교체에 사용할 정상/검토완료 데이터가 없습니다.');
+ let deactivateMissing=!!$('deactivateMissingProducts')?.checked;
+ let first=`현재 시스템의 모든 현재재고를 0으로 맞춘 뒤,\n이 Excel의 ${rows.length}건으로 현재재고를 다시 생성합니다.`;
+ if(excluded>0)first+=`\n오류/미확인 ${excluded}건은 새 재고에서 제외됩니다.`;
+ if(deactivateMissing)first+='\nExcel에 없는 기존 품목은 사용중지 처리됩니다.';
+ first+='\n\n거래이력/감사로그는 삭제되지 않습니다.\n계속할까요?';
+ if(!confirm(first))return;
+ if(!confirm('현재재고를 이 Excel 기준으로 재설정합니다.\n현재 재고수량이 새 Excel 기준으로 바뀝니다.\n정말 실행할까요?'))return;
+ let key='excel-replace';if(!beginAction(key,'재설정 중...'))return;
+ try{
+  $('importInfo').textContent='현재재고 재설정 중... 기존재고 0 처리 → Excel 재생성';
+  let filename=$('excelFile')?.files?.[0]?.name||'replacement_import.xlsx';
+  let {error}=await sb.rpc('replace_current_inventory_from_excel_v18',{
+   p_rows:importPayload(rows),p_actor_profile_id:me.id,p_filename:filename,p_deactivate_missing:deactivateMissing
+  });
+  if(error){$('importInfo').textContent='전체교체 취소 · '+safeErrorMessage(error);return alert('현재재고 재설정 취소: '+safeErrorMessage(error))}
+  $('importInfo').textContent=`현재재고 재설정 완료 · 새 Excel ${rows.length}건 반영 · 제외 ${excluded}건`;
+  await reloadAll();toast('현재재고 재설정 완료');showImportResult(rows,excluded,'replace')
+ }finally{endAction(key)}
 }
 async function commitImport(){ return commitUsableImport() }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('modal').classList.contains('hide')){e.preventDefault();closeModal()}if(e.key==='Enter'&&!$('modal').classList.contains('hide')&&!['TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){let b=$('modalFoot').querySelector('.primary');if(b){e.preventDefault();b.click()}}});
+
+const isIOSDevice=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+if(isIOSDevice){
+ document.addEventListener('focusin',e=>{
+  const el=e.target;
+  if(!el?.matches?.('input,textarea,select'))return;
+  setTimeout(()=>{
+   try{el.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'})}catch(_){}
+  },250);
+ },true);
+ if(window.visualViewport){
+  const syncIOSViewport=()=>{
+   document.documentElement.style.setProperty('--vvh',`${window.visualViewport.height}px`);
+  };
+  window.visualViewport.addEventListener('resize',syncIOSViewport);
+  window.visualViewport.addEventListener('scroll',syncIOSViewport);
+  syncIOSViewport();
+ }
+}
+
+
+sb.auth.onAuthStateChange((event,session)=>{
+ if(event==='SIGNED_OUT'&&!$('appView')?.classList.contains('hide'))location.reload()
+});
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible'&&me&&Date.now()-(lastSyncAt?.getTime?.()||0)>120000)reloadAll()
+});
+window.addEventListener('unhandledrejection',e=>{
+ console.error('Unhandled promise rejection',e.reason);
+ if(!/AbortError/i.test(String(e.reason?.name||'')))toast('처리 중 오류가 발생했습니다. 화면을 새로고침하거나 다시 시도해주세요.')
+});
+
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&!$('modal').classList.contains('hide')){e.preventDefault();closeModal();return}
+ if(e.key==='Enter'&&!$('modal').classList.contains('hide')){
+  let tag=e.target?.tagName;
+  if(['INPUT','TEXTAREA','SELECT','BUTTON'].includes(tag))return;
+  let b=$('modalFoot')?.querySelector('.primary:not(:disabled)');
+  if(b){e.preventDefault();b.click()}
+ }
+});
 startup();
 </script>
 </body>
