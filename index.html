@@ -147,7 +147,7 @@ input,textarea,select{
 }
 
 
-/* V18 cross-platform stability */
+/* V18.1 cross-platform stability */
 button:disabled{opacity:.55;cursor:not-allowed}
 .network-banner{
  position:fixed;left:50%;top:10px;transform:translateX(-50%);
@@ -166,7 +166,7 @@ input[type="number"]{font-variant-numeric:tabular-nums}
 }
 
 
-/* V18 operational hardening */
+/* V18.1 operational hardening */
 .sync-state{font-size:10px;color:var(--muted);white-space:nowrap}
 .sync-state.bad{color:#a94f45;font-weight:900}
 .sync-state.good{color:#53605a}
@@ -480,6 +480,20 @@ let me=null, hospitalSettings=null, products=[], balances=[], lotBalances=[], pr
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString('ko-KR',{maximumFractionDigits:3});
 const dstr=v=>String(v||'').slice(0,10);
+function dateObj(v){
+ if(!v)return null;
+ let d=v instanceof Date?v:new Date(v);
+ return isNaN(d)?null:d
+}
+function localDateTime(v){
+ let d=dateObj(v);if(!d)return '-';
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+}
+function localDate(v){
+ let d=dateObj(v);if(!d)return '-';
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
 const actionLocks=new Set(), actionButtons=new Map();
 function uid(){
  try{if(globalThis.crypto?.randomUUID)return uid()}catch(_){}
@@ -646,7 +660,7 @@ function renderAlerts(){
   $('alertsBody').innerHTML=arr.map(a=>`<div class="alert-item"><span class="alert-dot"></span><div style="flex:1"><strong>${esc(a.kind)}${a.raw?.stage?` · ${esc(a.raw.stage)}`:''} · ${esc(a.title)}</strong><div class="muted small">${esc(a.text)}</div></div><button class="primary" onclick="${a.action}">${a.kind==='저재고'?'구매요청':a.kind==='승인대기'?'구매관리':a.raw?.stage==='만료'?'폐기처리':'상세보기'}</button></div>`).join('')||'<div class="notice">현재 확인할 알림이 없습니다.</div>'
  }else{
   let arr=alertHistoryVisible().sort((a,b)=>String(b.first_seen_at).localeCompare(String(a.first_seen_at)));
-  $('alertsBody').innerHTML=arr.map(a=>`<div class="alert-item"><span class="alert-dot"></span><div style="flex:1"><strong>${esc(a.kind)} · ${esc(a.title)}</strong><div class="muted small">${esc(a.detail||'')}</div><div class="tiny muted">발생 ${esc(String(a.first_seen_at||'').replace('T',' ').slice(0,16))}${a.resolved_at?` · 해제 ${esc(String(a.resolved_at).replace('T',' ').slice(0,16))}`:' · 현재 진행중'}</div></div><span class="badge ${a.status==='OPEN'?'b-warn':'b-ok'}">${a.status==='OPEN'?'진행중':'해제'}</span></div>`).join('')||'<div class="notice">조건에 맞는 알림 이력이 없습니다.</div>'
+  $('alertsBody').innerHTML=arr.map(a=>`<div class="alert-item"><span class="alert-dot"></span><div style="flex:1"><strong>${esc(a.kind)} · ${esc(a.title)}</strong><div class="muted small">${esc(a.detail||'')}</div><div class="tiny muted">발생 ${esc(localDateTime(a.first_seen_at))}${a.resolved_at?` · 해제 ${esc(localDateTime(a.resolved_at))}`:' · 현재 진행중'}</div></div><span class="badge ${a.status==='OPEN'?'b-warn':'b-ok'}">${a.status==='OPEN'?'진행중':'해제'}</span></div>`).join('')||'<div class="notice">조건에 맞는 알림 이력이 없습니다.</div>'
  }
 }
 function renderDashboardAlerts(){
@@ -867,7 +881,7 @@ function renderDashboard(){
  $('kExp6').textContent=purchases.filter(r=>r.due_date&&r.due_date<localTodayISO()&&!['DONE','REJECTED','CANCELLED'].includes(r.status)).length;
  $('kLow').textContent=products.filter(p=>productQty(p.id)<gradeStockThreshold(p)).length;
  $('kPurchase').textContent=purchases.filter(x=>x.status==='PENDING_APPROVAL').length;
- $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
+ $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc(localDateTime(t.created_at))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
  renderDashboardAlerts()
 }
 function renderInventory(){
@@ -944,7 +958,7 @@ function renderHistory(){
  let arr=historyVisibleRows();
  $('historyBody').innerHTML=arr.map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id),loc=byId(locations,t.location_id),reversed=transactions.some(x=>x.related_tx_id===t.id&&x.tx_type==='REVERSAL');return `<tr class="${historySelected.has(t.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${historySelected.has(t.id)?'checked':''} onchange="setHistorySelected('${t.id}',this.checked)"></td>
- <td>${esc((t.created_at||'').replace('T',' ').slice(0,16))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
+ <td>${esc(localDateTime(t.created_at))}</td><td><span class="badge ${t.tx_type==='DISCARD'?'b-low':t.tx_type==='REVERSAL'?'b-warn':'b-dark'}">${esc(t.tx_type)}</span></td>
  <td><b>${esc(p?.name||'-')}</b></td><td>${esc(t.expiry_date||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc(loc?.name||'-')}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td><td>${t.discard_reason?`<b>${esc(t.discard_reason)}</b><br>`:''}${esc(t.memo||'')}</td>
  <td>${isAdmin()&&t.tx_type!=='REVERSAL'&&!reversed&&['IN','USE','DISCARD','INITIAL_STOCK','IMPORT_ADJUST'].includes(t.tx_type)?`<button class="danger" onclick="reverseTransaction('${t.id}')">되돌리기</button>`:reversed?'<span class="badge b-ok">되돌림 완료</span>':'-'}</td>
  </tr>`}).join('')||`<tr><td colspan="10" class="muted" style="text-align:center;padding:28px">조건에 맞는 이력이 없습니다.</td></tr>`;
@@ -976,7 +990,7 @@ function renderAudit(){
  let arr=auditVisibleRows();
  $('auditBody').innerHTML=arr.map(a=>{let u=byId(profiles,a.actor_profile_id);return `<tr class="${auditSelected.has(a.id)?'selected-row':''}">
  <td><input class="checkbox" type="checkbox" ${auditSelected.has(a.id)?'checked':''} onchange="setAuditSelected('${a.id}',this.checked)"></td>
- <td>${esc((a.created_at||'').replace('T',' ').slice(0,16))}</td><td><b>${esc(a.action)}</b></td><td><span class="tiny">${esc(JSON.stringify(a.detail||{}))}</span></td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td>
+ <td>${esc(localDateTime(a.created_at))}</td><td><b>${esc(a.action)}</b></td><td><span class="tiny">${esc(JSON.stringify(a.detail||{}))}</span></td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td>
  <td><label><input class="checkbox" type="checkbox" ${a.review_status==='REVIEWED'?'checked':''} onchange="reviewAudit('${a.id}',this.checked)"> 확인</label></td>
  </tr>`}).join('')||`<tr><td colspan="6" class="muted" style="text-align:center;padding:28px">조건에 맞는 감사로그가 없습니다.</td></tr>`;
  updateAuditSelectionUi()
