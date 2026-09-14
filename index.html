@@ -147,7 +147,7 @@ input,textarea,select{
 }
 
 
-/* V18.1 cross-platform stability */
+/* V18.2 cross-platform stability */
 button:disabled{opacity:.55;cursor:not-allowed}
 .network-banner{
  position:fixed;left:50%;top:10px;transform:translateX(-50%);
@@ -166,7 +166,7 @@ input[type="number"]{font-variant-numeric:tabular-nums}
 }
 
 
-/* V18.1 operational hardening */
+/* V18.2 operational hardening */
 .sync-state{font-size:10px;color:var(--muted);white-space:nowrap}
 .sync-state.bad{color:#a94f45;font-weight:900}
 .sync-state.good{color:#53605a}
@@ -458,7 +458,7 @@ input[type="number"]{font-variant-numeric:tabular-nums}
 <div class="panel"><div class="panel-head"><div class="panel-title">위치 관리</div><button class="primary" onclick="openLocationModal()">+ 위치 추가</button></div>
       <div class="panel-body table-wrap"><table><thead><tr><th>위치명</th><th>상태</th><th>관리</th></tr></thead><tbody id="locationAdminBody"></tbody></table></div>
     </div>
-    <div class="panel"><div class="panel-head"><div class="panel-title">바코드 / QR 코드 관리</div><button class="primary" onclick="openCodeModal()">+ 코드 등록</button></div>
+    <div class="panel"><div class="panel-head"><div class="panel-title">바코드 / QR / DataMatrix 관리</div><button class="primary" onclick="openCodeModal()">+ 코드 등록</button></div>
       <div class="panel-body table-wrap"><table><thead><tr><th>품목</th><th>구분</th><th>코드</th><th>상태</th><th>관리</th></tr></thead><tbody id="codeAdminBody"></tbody></table></div>
     </div>
 </section>
@@ -743,12 +743,12 @@ function parseGs1(raw){
  return out
 }
 function resolveProductCode(raw){
- let code=String(raw||'').trim(),meta=parseGs1(code);
- let exact=productCodes.find(x=>String(x.code_value||'').trim()===code);
+ let code=String(raw||'').trim(),meta=parseGs1(code),activeCodes=productCodes.filter(x=>x.active!==false);
+ let exact=activeCodes.find(x=>String(x.code_value||'').trim()===code);
  if(exact)return {product:byId(products,exact.product_id),meta,matched:code};
  if(meta.gtin){
   let candidates=[meta.gtin,meta.gtin.replace(/^0/,'')];
-  let pc=productCodes.find(x=>candidates.includes(String(x.code_value||'').trim()));
+  let pc=activeCodes.find(x=>candidates.includes(String(x.code_value||'').trim()));
   if(pc)return {product:byId(products,pc.product_id),meta,matched:String(pc.code_value)};
  }
  return {product:null,meta,matched:null}
@@ -840,7 +840,7 @@ async function reloadAll(){
   sb.from('products').select('*').eq('active',true).order('name'),
   sb.from('inventory_product_balances').select('*'),
   sb.from('inventory_lot_balances').select('*'),
-  sb.from('product_codes').select('*').eq('active',true),
+  isAdmin()?sb.from('product_codes').select('*').order('active',{ascending:false}):sb.from('product_codes').select('*').eq('active',true),
   sb.from('inventory_transactions').select('*').order('created_at',{ascending:false}).limit(1500),
   sb.from('purchase_requests').select('*').order('created_at',{ascending:false}).limit(1000),
   isAdmin()?sb.from('profiles').select('*').order('name'):sb.from('profiles').select('*').eq('active',true).order('name'),
@@ -1074,7 +1074,7 @@ function renderAdmin(){
  $('adminLoginId').value=me.login_id||'';if($('adminDefaultLeadDays'))$('adminDefaultLeadDays').value=Number(hospitalSettings?.default_lead_days??3);
  $('staffBody').innerHTML=profiles.filter(x=>!x.is_emergency_admin).map(u=>`<tr><td>${esc(u.emp_no||'')}</td><td><b>${esc(u.name||'')}</b><div class="tiny muted">${esc(u.login_id||'')}</div></td><td>${esc(u.role)}</td><td><span class="badge ${u.purchase_approver?'b-ok':'b-dark'}">${u.purchase_approver?'검토자':'일반'}</span></td><td>${u.active?'활성':'중지'}</td><td><div class="staff-manage-actions"><button class="secondary" onclick="openStaffModal('${u.id}')">수정</button><button class="${u.purchase_approver?'danger':'secondary'}" onclick="setPurchaseApprover('${u.id}',${!u.purchase_approver})">${u.purchase_approver?'검토자 해제':'검토자 지정'}</button>${u.id!==me.id?`<button class="${u.active?'danger':'secondary'}" onclick="toggleStaffActive('${u.id}',${!u.active})">${u.active?'사용중지':'복구'}</button>`:''}</div></td></tr>`).join('');
  if($('locationAdminBody'))$('locationAdminBody').innerHTML=locations.map(l=>`<tr><td><b>${esc(l.name)}</b></td><td>${l.active?'사용중':'중지'}</td><td><div class="actions"><button class="secondary" onclick="openLocationModal('${l.id}')">이름변경</button><button class="danger" onclick="deactivateLocation('${l.id}')">사용중지</button></div></td></tr>`).join('');
- if($('codeAdminBody'))$('codeAdminBody').innerHTML=productCodes.map(c=>`<tr><td>${esc(byId(products,c.product_id)?.name||'-')}</td><td>${esc(c.code_type)}</td><td><span class="code">${esc(c.code_value)}</span></td><td>${c.active?'사용중':'중지'}</td><td><button class="danger" onclick="deactivateCode('${c.id}')">사용중지</button></td></tr>`).join('')
+ if($('codeAdminBody'))$('codeAdminBody').innerHTML=productCodes.map(c=>`<tr class="${c.active===false?'muted':''}"><td>${esc(byId(products,c.product_id)?.name||'-')}</td><td>${esc(c.code_type||'-')}</td><td><span class="code">${esc(c.code_value||'')}</span></td><td><span class="badge ${c.active===false?'b-dark':'b-ok'}">${c.active===false?'사용중지':'사용중'}</span></td><td><div class="actions"><button class="secondary" onclick="openCodeModal('${c.id}')">수정</button>${c.active===false?`<button class="primary" onclick="restoreCode('${c.id}')">복구</button>`:`<button class="danger" onclick="deactivateCode('${c.id}')">사용중지</button>`}</div></td></tr>`).join('')
 }
 
 async function setPurchaseApprover(profileId,enabled){
@@ -1266,24 +1266,60 @@ async function deactivateLocation(id){
  let l=byId(locations,id);if(!confirm(`${l?.name||'이 위치'}를 사용중지할까요?\n기존 재고/이력은 유지됩니다.`))return;
  let {error}=await sb.from('locations').update({active:false}).eq('id',id);if(error)return alert(error.message);await reloadAll();toast('위치 사용중지')
 }
-function openCodeModal(){
- openModal('바코드 / QR 코드 등록',`<div class="field"><label>품목</label><select id="codeProduct">${optionsProducts()}</select></div><div class="field"><label>구분</label><select id="codeType"><option value="BARCODE">BARCODE</option><option value="QR">QR</option><option value="BOX_BARCODE">BOX BARCODE</option><option value="OTHER">OTHER</option></select></div><div class="field"><label>코드값</label><input id="codeValue" placeholder="스캔값 또는 문자 입력"></div>`,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveCode()">등록</button>`)
+function openCodeModal(id=''){
+ let c=id?productCodes.find(x=>x.id===id):null;
+ openModal(c?'바코드 / QR 코드 수정':'바코드 / QR 코드 등록',`
+  <div class="field"><label>품목</label><select id="codeProduct">${optionsProducts(c?.product_id||'')}</select></div>
+  <div class="field"><label>코드 구분</label><select id="codeType">
+   <option value="BARCODE" ${c?.code_type==='BARCODE'?'selected':''}>BARCODE</option>
+   <option value="QR" ${c?.code_type==='QR'?'selected':''}>QR</option>
+   <option value="BOX_BARCODE" ${c?.code_type==='BOX_BARCODE'?'selected':''}>BOX BARCODE</option>
+   <option value="DATA_MATRIX" ${c?.code_type==='DATA_MATRIX'?'selected':''}>DATA MATRIX</option>
+   <option value="OTHER" ${c?.code_type==='OTHER'?'selected':''}>OTHER</option>
+  </select></div>
+  <div class="field"><label>코드값</label><input id="codeValue" value="${esc(c?.code_value||'')}" placeholder="리더기로 스캔하거나 문자 입력"></div>
+  ${c?`<div class="notice">코드값을 수정하면 기존 코드로는 더 이상 품목 조회가 되지 않습니다.</div>`:''}
+ `,`<button class="secondary" onclick="closeModal()">취소</button><button class="primary" onclick="saveCode('${id}')">${c?'수정 저장':'등록'}</button>`)
 }
-async function saveCode(){
- let product_id=$('codeProduct').value,code_type=$('codeType').value,raw=$('codeValue').value.trim();if(!raw)return alert('코드값 입력');
- let meta=parseGs1(raw),code_value=meta.gtin||raw;if(meta.gtin)code_type='BARCODE';
- let existing=productCodes.find(x=>String(x.code_value).trim()===code_value);
+async function saveCode(id=''){
+ let product_id=$('codeProduct').value,code_type=$('codeType').value,raw=$('codeValue').value.trim();
+ if(!product_id)return alert('품목을 선택하세요.');
+ if(!raw)return alert('코드값을 입력하세요.');
+ let meta=parseGs1(raw),code_value=meta.gtin||raw;
+ if(meta.gtin)code_type='BARCODE';
+
+ let existing=productCodes.find(x=>x.id!==id&&String(x.code_value||'').trim()===code_value);
  if(existing){
-  if(existing.product_id===product_id)return alert('이미 이 품목에 등록된 코드입니다.');
-  return alert(`이미 다른 품목에 등록된 코드입니다: ${byId(products,existing.product_id)?.name||'-'}`)
+  let owner=byId(products,existing.product_id)?.name||'-';
+  if(existing.product_id===product_id){
+   return alert(`이미 이 품목에 등록된 코드입니다.${existing.active===false?'\n현재 사용중지 상태이므로 복구해서 사용하세요.':''}`)
+  }
+  return alert(`이미 다른 품목에 등록된 코드입니다: ${owner}`)
  }
- if(meta.gtin&&!confirm(`GS1 코드가 확인되었습니다.\n제품 식별코드(01) ${meta.gtin}만 품목코드로 등록합니다.\n계속할까요?`))return;
- let {error}=await sb.from('product_codes').insert({hospital_id:me.hospital_id,product_id,code_type,code_value,active:true});
- if(error)return alert('코드 등록 실패: '+safeErrorMessage(error));
- closeModal();await reloadAll();toast(meta.gtin?'GS1 제품코드(01) 등록 완료':'코드 등록 완료')
+ if(meta.gtin&&!confirm(`GS1 코드가 확인되었습니다.\n\n제품 식별코드(01) ${meta.gtin} 를 저장합니다.\n박스별 Serial(21)은 품목 식별코드로 저장하지 않습니다.\n계속할까요?`))return;
+
+ let payload={product_id,code_type,code_value,active:true};
+ let q=id?sb.from('product_codes').update(payload).eq('id',id).eq('hospital_id',me.hospital_id)
+         :sb.from('product_codes').insert({hospital_id:me.hospital_id,...payload});
+ let {error}=await q;
+ if(error)return alert((id?'코드 수정 실패: ':'코드 등록 실패: ')+safeErrorMessage(error));
+ closeModal();await reloadAll();toast(id?'코드 수정 완료':meta.gtin?'GS1 제품코드(01) 등록 완료':'코드 등록 완료')
 }
 async function deactivateCode(id){
- if(!confirm('이 코드를 사용중지할까요?'))return;let {error}=await sb.from('product_codes').update({active:false}).eq('id',id);if(error)return alert(error.message);await reloadAll();toast('코드 사용중지')
+ let c=productCodes.find(x=>x.id===id),p=byId(products,c?.product_id);
+ if(!c)return;
+ if(!confirm(`${p?.name||'해당 품목'}의 코드\n${c.code_value}\n\n사용중지할까요?`))return;
+ let {error}=await sb.from('product_codes').update({active:false}).eq('id',id).eq('hospital_id',me.hospital_id);
+ if(error)return alert('사용중지 실패: '+safeErrorMessage(error));
+ await reloadAll();toast('코드 사용중지')
+}
+async function restoreCode(id){
+ let c=productCodes.find(x=>x.id===id);if(!c)return;
+ let duplicate=productCodes.find(x=>x.id!==id&&x.active!==false&&String(x.code_value||'').trim()===String(c.code_value||'').trim());
+ if(duplicate)return alert(`같은 코드가 이미 다른 활성 항목에 등록되어 있어 복구할 수 없습니다.\n품목: ${byId(products,duplicate.product_id)?.name||'-'}`);
+ let {error}=await sb.from('product_codes').update({active:true}).eq('id',id).eq('hospital_id',me.hospital_id);
+ if(error)return alert('복구 실패: '+safeErrorMessage(error));
+ await reloadAll();toast('코드 복구 완료')
 }
 
 
