@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ALL RE BORN Inventory V15</title>
+<title>ALL RE BORN Inventory V18.5</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -280,6 +280,7 @@ input[type="number"]{font-variant-numeric:tabular-nums}
 <section id="page-inventory" class="page hide">
     <div class="panel"><div class="panel-head"><div class="panel-title">전체 재고</div><div class="toolbar">
 <input id="invQ" placeholder="품목명 검색" oninput="renderInventory()">
+<select id="invCategory" onchange="renderInventory()"><option value="all">전체 분류</option></select>
 <select id="invLocation" onchange="renderInventory()"><option value="all">전체 위치</option></select>
 <select id="invExpiryFilter" onchange="renderInventory()"><option value="all">전체 유통기한</option><option value="3m">3개월 이하</option><option value="6m">6개월 이하</option></select>
 <select id="invStockFilter" onchange="renderInventory()"><option value="all">전체 재고</option><option value="positive">재고 보유</option><option value="low">저재고</option></select>
@@ -884,10 +885,25 @@ function renderDashboard(){
  $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc(localDateTime(t.created_at))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
  renderDashboardAlerts()
 }
+function refreshInventoryCategoryFilter(){
+ let el=$('invCategory');if(!el)return;
+ let current=el.value||'all';
+ let vals=[...new Set(products.flatMap(p=>[p.category,p.subcategory]).map(v=>String(v||'').trim()).filter(Boolean))]
+  .sort((a,b)=>a.localeCompare(b,'ko'));
+ el.innerHTML='<option value="all">전체 분류</option>'+vals.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+ if(vals.includes(current))el.value=current;else el.value='all'
+}
 function renderInventory(){
- let q=($('invQ')?.value||'').toLowerCase(),locFilter=$('invLocation')?.value||'all',expFilter=$('invExpiryFilter')?.value||'all',stockFilter=$('invStockFilter')?.value||'all';
+ refreshInventoryCategoryFilter();
+ let q=($('invQ')?.value||'').toLowerCase(),
+     categoryFilter=$('invCategory')?.value||'all',
+     locFilter=$('invLocation')?.value||'all',
+     expFilter=$('invExpiryFilter')?.value||'all',
+     stockFilter=$('invStockFilter')?.value||'all';
  let arr=products.filter(p=>{
-  if(!p.name.toLowerCase().includes(q))return false;
+  let searchText=`${p.name||''} ${p.category||''} ${p.subcategory||''}`.toLowerCase();
+  if(q&&!searchText.includes(q))return false;
+  if(categoryFilter!=='all'&&String(p.category||'').trim()!==categoryFilter&&String(p.subcategory||'').trim()!==categoryFilter)return false;
   let qty=productQty(p.id),lots=productLots(p.id);
   if(locFilter==='__UNASSIGNED__'&&!lots.some(x=>!x.location_id&&Number(x.quantity)>0))return false;
   if(locFilter!=='all'&&locFilter!=='__UNASSIGNED__'&&!lots.some(x=>x.location_id===locFilter&&Number(x.quantity)>0))return false;
@@ -898,11 +914,13 @@ function renderInventory(){
   if(expFilter==='6m'&&!(ex&&days<=180))return false;
   return true
  });
- let sort=$('invSort')?.value||'name';arr.sort((a,b)=>sort==='qtyAsc'?productQty(a.id)-productQty(b.id):sort==='qtyDesc'?productQty(b.id)-productQty(a.id):a.name.localeCompare(b.name,'ko'));
+ let sort=$('invSort')?.value||'name';
+ arr.sort((a,b)=>sort==='qtyAsc'?productQty(a.id)-productQty(b.id):sort==='qtyDesc'?productQty(b.id)-productQty(a.id):a.name.localeCompare(b.name,'ko'));
  $('inventoryBody').innerHTML=arr.map(p=>{
   let qty=productQty(p.id),threshold=gradeStockThreshold(p),low=qty<threshold,nearest=productNearestExpiry(p.id),nearestText=expiryText(nearest);
   let locs=productLocations(p.id).map(x=>`<span class="loc-chip">${esc(x.id?byId(locations,x.id)?.name||'미등록':'★ 위치 미지정')} <b>${fmt(x.qty)}</b></span>`).join('')||'<span class="muted">재고 없음</span>';
-  return `<tr><td><button class="ghost" style="padding:0;font-weight:900" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="tiny muted">${esc(p.base_unit||'개')}</div></td><td>${esc(p.category||'미분류')}</td><td>${locs}</td><td><b>${fmt(qty)}</b></td><td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`민감도 ${p.expiry_sensitivity}`:'기본')}</div></td><td>${fmt(threshold)} 미만${p.stock_sensitivity?`<div class="tiny muted">${esc(p.stock_sensitivity)}등급${p.low_stock_override!=null?' · 개별예외':''}</div>`:''}</td><td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td><td><div class="actions"><button class="secondary" onclick="openTransaction('USE','${p.id}')">사용</button><button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button><button class="secondary" onclick="openMove('${p.id}')">위치 지정/이동</button><button class="ghost" onclick="openProductDetail('${p.id}')">상세</button><button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button><button class="ghost" onclick="openPurchase('${p.id}')">요청</button>${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">설정</button>`:''}</div></td></tr>`
+  let categoryText=[p.category,p.subcategory].filter(Boolean).join(' · ')||'미분류';
+  return `<tr><td><button class="ghost" style="padding:0;font-weight:900" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="tiny muted">${esc(p.base_unit||'개')}</div></td><td>${esc(categoryText)}</td><td>${locs}</td><td><b>${fmt(qty)}</b></td><td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`민감도 ${p.expiry_sensitivity}`:'기본')}</div></td><td>${fmt(threshold)} 미만${p.stock_sensitivity?`<div class="tiny muted">${esc(p.stock_sensitivity)}등급${p.low_stock_override!=null?' · 개별예외':''}</div>`:''}</td><td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td><td><div class="actions"><button class="secondary" onclick="openTransaction('USE','${p.id}')">사용</button><button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button><button class="secondary" onclick="openMove('${p.id}')">위치 지정/이동</button><button class="ghost" onclick="openProductDetail('${p.id}')">상세</button><button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button><button class="ghost" onclick="openPurchase('${p.id}')">요청</button>${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">설정</button>`:''}</div></td></tr>`
  }).join('')||`<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
 }
 
@@ -996,13 +1014,14 @@ function renderAudit(){
  updateAuditSelectionUi()
 }
 
+function countStatusText(s){return {DRAFT:'작성중',SUBMITTED:'확인대기',APPROVED:'반영완료',OPEN:'진행중',PENDING:'확인대기',DONE:'완료',CANCELLED:'취소'}[s]||s}
 function renderCounts(){
  if(!$('countBody'))return;
- $('countBody').innerHTML=counts.map(c=>{let n=countItems.filter(i=>i.count_id===c.id).length;return `<tr><td>${dstr(c.created_at)}</td><td><b>${esc(c.name)}</b></td><td><span class="badge b-dark">${esc(c.status)}</span></td><td>${n}</td><td><button class="secondary" onclick="openCount('${c.id}')">실사입력</button>${c.status!=='APPROVED'?`<button class="primary" onclick="approveCount('${c.id}')">승인/반영</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="5" class="muted" style="text-align:center;padding:28px">실사 기록이 없습니다.</td></tr>'
+ $('countBody').innerHTML=counts.map(c=>{let n=countItems.filter(i=>i.count_id===c.id).length;return `<tr><td>${dstr(c.created_at)}</td><td><b>${esc(c.name)}</b></td><td><span class="badge b-dark">${esc(countStatusText(c.status))}</span></td><td>${n}</td><td><button class="secondary" onclick="openCount('${c.id}')">실사입력</button>${c.status!=='APPROVED'?`<button class="primary" onclick="approveCount('${c.id}')">승인/반영</button>`:''}</td></tr>`}).join('')||'<tr><td colspan="5" class="muted" style="text-align:center;padding:28px">실사 기록이 없습니다.</td></tr>'
 }
 async function createInventoryCount(){
  let name=prompt('실사명','정기재고실사 '+localTodayISO());if(!name)return;
- let {data:c,error}=await sb.from('inventory_counts').insert({hospital_id:me.hospital_id,name,status:'DRAFT',created_by:me.id}).select().single();if(error)return alert(error.message);
+ let {data:c,error}=await sb.from('inventory_counts').insert({hospital_id:me.hospital_id,name,status:'DRAFT',created_by:me.id}).select().single();if(error)return alert('재고실사 생성 실패: '+safeErrorMessage(error));
  let rows=lotBalances.filter(l=>Number(l.quantity)!==0).map(l=>({count_id:c.id,hospital_id:me.hospital_id,product_id:l.product_id,expiry_date:l.expiry_date||null,lot_no:l.lot_no||null,location_id:l.location_id||null,system_qty:Number(l.quantity),actual_qty:null}));
  if(rows.length){let ins=await sb.from('inventory_count_items').insert(rows);if(ins.error)return alert('실사항목 생성 실패: '+ins.error.message)}
  await reloadAll();toast('재고실사 생성');openCount(c.id)
