@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ALL RE BORN Inventory V18.5</title>
+<title>ALL RE BORN · 재고관리 V19.0</title>
+<meta name="theme-color" content="#ab6255">
+<meta name="color-scheme" content="light">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -181,76 +183,96 @@ input[type="number"]{font-variant-numeric:tabular-nums}
 }
 
 </style>
+<link rel="stylesheet" href="clinic-ui.css">
 </head>
 <body>
 <div id="networkBanner" class="network-banner hide">인터넷 연결 없음 · 저장 작업은 연결 후 다시 시도해주세요.</div>
 <div id="setupView" class="center hide">
  <div class="auth-card">
   <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory · 최초 1회 설정</span></div></div>
-  <div class="notice">이 화면은 최초 1회만 사용됩니다. 관리자 계정과 비상 복구계정을 Supabase Auth에 생성합니다.</div>
+  <div class="notice">이 화면은 최초 1회만 사용됩니다. 관리자 계정과 비상 복구계정을 생성합니다.</div>
   <div class="field"><label>초기 관리자 ID</label><input id="setupId" value="kmk"></div>
   <div class="field"><label>초기 관리자 비밀번호</label><input id="setupPw" type="password" value="1234"></div>
   <button class="primary full" onclick="bootstrap()">초기 시스템 설정</button>
-  <div id="setupMsg"></div>
+  <div id="setupMsg"></div><button class="ghost full setup-back" onclick="goLoginAfterSetup()" type="button">로그인으로 돌아가기</button>
  </div>
 </div>
 
 <div id="loginView" class="center hide">
- <div class="auth-card">
-  <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>Inventory Management</span></div></div>
-  <div class="field"><label>로그인 ID</label><input id="loginId" autocomplete="username" enterkeyhint="next" onkeydown="if(event.key==='Enter'){event.preventDefault();$('loginPw').focus()}"></div>
-  <div class="field"><label>비밀번호</label><input id="loginPw" type="password" autocomplete="current-password" enterkeyhint="go" onkeydown="if(event.key==='Enter'){event.preventDefault();login()}"></div>
-  <button class="primary full" onclick="login()">로그인</button>
-  <button class="ghost full" onclick="showSetup()">최초 설정 화면</button>
-  <div id="loginMsg"></div>
+ <div class="auth-layout">
+  <aside class="auth-story" aria-hidden="true">
+   <div class="eyebrow">ALL RE BORN CLINIC</div>
+   <h1>A little more<br>care, every day.</h1>
+   <p>재고를 살피는 일은 더 간결하게.<br>환자에게 집중하는 시간은 더 충분하게.</p>
+   <div class="auth-story-footer"><span><span data-icon="box"></span>재고 현황</span><span><span data-icon="scan"></span>빠른 스캔</span><span><span data-icon="bell"></span>재고 알림</span></div>
+   <div class="auth-arch"></div>
+  </aside>
+  <div class="auth-card">
+   <div class="brand"><div class="logo">AR</div><div><b>ALL RE BORN CLINIC</b><span>INVENTORY MANAGEMENT</span></div></div>
+   <h2>반가워요.</h2><p class="auth-subtitle">올리본의원 재고관리 시스템에 로그인하세요.</p>
+   <form onsubmit="event.preventDefault();login()">
+    <div class="field"><label for="loginId">로그인 ID</label><input id="loginId" autocomplete="username" placeholder="아이디를 입력하세요" enterkeyhint="next" onkeydown="if(event.key==='Enter'){event.preventDefault();$('loginPw').focus()}"></div>
+    <div class="field"><label for="loginPw">비밀번호</label><div class="password-field"><input id="loginPw" type="password" autocomplete="current-password" placeholder="비밀번호를 입력하세요" enterkeyhint="go"><button id="clinicPasswordToggle" class="password-toggle" type="button" onclick="toggleClinicPassword()" aria-label="비밀번호 보기" aria-pressed="false"><span data-icon="eye"></span></button></div></div>
+    <button id="loginButton" class="primary full" type="submit">로그인</button>
+   </form>
+   <div id="loginMsg" aria-live="polite"></div>
+   <p class="auth-support">계정 문의는 병원 관리자에게 연락해주세요.</p>
+   <button class="ghost full auth-setup" onclick="showSetup()" type="button">최초 시스템 설정</button>
+  </div>
  </div>
 </div>
 
 <div id="appView" class="app hide">
  <aside class="sidebar">
-  <div class="side-brand"><b>ALL RE BORN</b><div>CLINIC INVENTORY</div></div>
-  <div class="nav">
-   <button data-page="dashboard" onclick="showPage('dashboard')">⌂ <span class="label">대시보드</span></button>
-   <button data-page="inventory" onclick="showPage('inventory')">▤ <span class="label">재고</span></button>
-   <button data-page="scan" onclick="showPage('scan')">▣ <span class="label">스캔</span></button>
-   <button class="admin-only" data-page="usage" onclick="showPage('usage')">▥ <span class="label">사용량</span></button>
-   <button data-page="alerts" onclick="showPage('alerts')">! <span class="label">알림</span></button>
-   <button data-page="purchase" onclick="showPage('purchase')">◫ <span class="label">구매요청</span></button>
-   <button data-page="history" onclick="showPage('history')">◷ <span class="label">이력</span></button>
-   <button class="admin-only" data-page="audit" onclick="showPage('audit')">✓ <span class="label">감사로그</span></button>
-   <button class="admin-only" data-page="import" onclick="showPage('import')">⇧ <span class="label">Excel Import</span></button>
-   <button class="admin-only" data-page="count" onclick="showPage('count')">≋ <span class="label">재고실사</span></button>
-   <button class="admin-only" data-page="admin" onclick="showPage('admin')">⚙ <span class="label">관리자</span></button>
-  </div>
-  <div class="side-user"><b id="sideUser"></b><div class="detail" id="sideRole"></div><button class="ghost" style="color:#fff;padding-left:0" onclick="logout()">로그아웃</button></div>
+  <div class="side-brand"><div class="clinic-monogram">ar</div><div><b>ALL RE BORN</b><div>CLINIC INVENTORY</div></div></div>
+  <nav class="nav" aria-label="주 메뉴">
+   <div class="nav-heading">일상 업무</div>
+   <button data-page="dashboard" onclick="showPage('dashboard')" aria-label="대시보드"><span data-icon="home"></span><span class="label">대시보드</span></button>
+   <button data-page="inventory" onclick="showPage('inventory')" aria-label="재고 현황"><span data-icon="box"></span><span class="label">재고 현황</span></button>
+   <button data-page="scan" onclick="showPage('scan')" aria-label="바코드 스캔"><span data-icon="scan"></span><span class="label">바코드 스캔</span></button>
+   <button data-page="purchase" onclick="showPage('purchase')" aria-label="구매요청"><span data-icon="purchase"></span><span class="label">구매요청</span></button>
+   <button data-page="alerts" onclick="showPage('alerts')" aria-label="알림센터"><span data-icon="bell"></span><span class="label">알림센터</span><span id="navAlertCount" class="nav-count hide">0</span></button>
+   <button data-page="history" onclick="showPage('history')" aria-label="작업 이력"><span data-icon="clock"></span><span class="label">작업 이력</span></button>
+   <div class="nav-heading admin-only">관리 및 분석</div>
+   <button class="admin-only" data-page="usage" onclick="showPage('usage')" aria-label="사용량 분석"><span data-icon="chart"></span><span class="label">사용량 분석</span></button>
+   <button class="admin-only" data-page="count" onclick="showPage('count')" aria-label="재고실사"><span data-icon="count"></span><span class="label">재고실사</span></button>
+   <button class="admin-only" data-page="import" onclick="showPage('import')" aria-label="Excel 재고 등록"><span data-icon="upload"></span><span class="label">Excel 재고 등록</span></button>
+   <button class="admin-only" data-page="audit" onclick="showPage('audit')" aria-label="감사로그"><span data-icon="shield"></span><span class="label">감사로그</span></button>
+   <button class="admin-only" data-page="admin" onclick="showPage('admin')" aria-label="관리자 설정"><span data-icon="settings"></span><span class="label">관리자 설정</span></button>
+  </nav>
+  <div class="side-user"><div id="clinicAvatar" class="user-avatar" aria-hidden="true">A</div><div class="user-copy"><b id="sideUser"></b><div class="detail" id="sideRole"></div></div><button class="ghost" onclick="logout()" aria-label="로그아웃">나가기</button></div>
  </aside>
 
  <main class="main">
-  <header class="topbar"><h1 id="pageTitle">대시보드</h1><div class="actions"><button class="secondary" onclick="reloadAll()">↻ 새로고침</button><button class="primary" onclick="openQuick()">＋ 빠른작업</button></div></header>
+  <header class="topbar"><div><h1 id="pageTitle">대시보드</h1><div class="page-description" id="pageDescription"></div></div><div class="actions"><span class="sync-state" id="syncState" aria-live="polite">연결 확인 중</span><button class="secondary" onclick="reloadAll()" aria-label="데이터 새로고침"><span data-icon="refresh"></span> 새로고침</button><button class="primary" onclick="openQuick()"><span data-icon="plus"></span> 빠른 작업</button></div></header>
   <div class="content">
    <section id="page-dashboard" class="page">
     <div id="pwBanner" class="notice hide"><b>초기 비밀번호 변경 권장</b><br>현재 초기 계정으로 로그인했습니다. 관리자 → 계정 보안에서 변경할 수 있습니다.</div>
+    <div class="clinic-welcome"><div><div class="eyebrow">YOUR DAILY INVENTORY</div><h2>오늘의 재고를 한눈에.</h2><p id="clinicGreeting">오늘 필요한 재고와 처리할 일을 확인하세요.</p></div><div class="welcome-summary"><div id="clinicDate" class="clinic-date"></div><div class="summary-pills"><span class="summary-pill">등록 품목<b id="kProducts">0</b></span><button class="summary-pill late" onclick="showPage('purchase')">입고 지연<b id="kExp6">0</b></button></div></div></div>
     <div class="grid4">
-     <div class="kpi clickable" onclick="dashboardDrill('low')"><small>저재고</small><b id="kLow">0</b></div>
-     <div class="kpi clickable" onclick="showPage('alerts')"><small>유통기한 경고</small><b id="kExp3">0</b></div>
-     <div class="kpi clickable" onclick="dashboardDrill('unassigned')"><small>위치 미지정</small><b id="kStock">0</b></div>
-     <div class="kpi clickable" onclick="dashboardDrill('pending')"><small>승인대기 구매</small><b id="kPurchase">0</b></div>
+     <button class="kpi clickable" onclick="dashboardDrill('low')"><span class="kpi-icon" data-icon="box"></span><small>저재고 품목</small><b id="kLow">0</b><span class="kpi-hint">발주가 필요한 품목 확인 →</span></button>
+     <button class="kpi clickable" onclick="showPage('alerts')"><span class="kpi-icon" data-icon="clock"></span><small>유통기한 경고</small><b id="kExp3">0</b><span class="kpi-hint">먼저 사용할 재고 확인 →</span></button>
+     <button class="kpi clickable" onclick="dashboardDrill('unassigned')"><span class="kpi-icon" data-icon="pin"></span><small>위치 미지정</small><b id="kStock">0</b><span class="kpi-hint">보관위치를 지정하세요 →</span></button>
+     <button class="kpi clickable" onclick="dashboardDrill('pending')"><span class="kpi-icon" data-icon="purchase"></span><small>승인대기 구매</small><b id="kPurchase">0</b><span class="kpi-hint">구매 진행 상황 확인 →</span></button>
     </div>
-    <div class="grid4" style="margin-top:12px">
-     <div class="kpi"><small>등록 품목</small><b id="kProducts">0</b></div>
-     <div class="kpi clickable" onclick="showPage('alerts')"><small>입고 지연</small><b id="kExp6">0</b></div>
+    <div class="dashboard-actions" aria-label="빠른 재고 작업">
+     <button class="action-tile featured" onclick="showPage('scan')"><span data-icon="scan"></span><div><strong>바코드 스캔</strong><small>품목 조회 · 바로 작업</small></div></button>
+     <button class="action-tile" onclick="openTransaction('USE')"><span data-icon="use"></span><div><strong>재고 사용</strong><small>사용 수량 기록</small></div></button>
+     <button class="action-tile" onclick="openTransaction('IN')"><span data-icon="in"></span><div><strong>재고 입고</strong><small>새로운 재고 등록</small></div></button>
+     <button class="action-tile" onclick="openTransaction('DISCARD')"><span data-icon="trash"></span><div><strong>재고 폐기</strong><small>폐기 사유 기록</small></div></button>
+     <button class="action-tile" onclick="openPurchase()"><span data-icon="purchase"></span><div><strong>구매요청</strong><small>필요한 품목 요청</small></div></button>
     </div>
-    <div class="panel"><div class="panel-head"><div class="panel-title">빠른 작업</div></div><div class="panel-body actions">
-      <button class="primary" onclick="showPage('scan')">바코드 / QR 스캔</button><button class="secondary" onclick="openTransaction('USE')">사용</button><button class="secondary" onclick="openTransaction('IN')">입고</button><button class="secondary" onclick="openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="openPurchase()">구매요청</button>
-    </div></div>
-    <div class="panel"><div class="panel-head"><div class="panel-title">알림센터</div><button class="ghost" onclick="showPage('alerts')">전체보기</button></div><div class="panel-body"><div id="dashboardAlerts" class="alert-list"></div></div></div>
-    <div class="panel"><div class="panel-head"><div class="panel-title">최근 재고 작업</div></div><div class="panel-body table-wrap"><table><thead><tr><th>일시</th><th>구분</th><th>품목</th><th>수량</th><th>처리자</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
+    <div class="dashboard-detail">
+     <div class="panel"><div class="panel-head"><div><div class="panel-title">이번 주 재고 작업</div><div class="muted small">입고부터 사용까지, 매일의 기록</div></div><button class="ghost" onclick="showPage('history')" aria-label="작업 이력 보기">이력 보기 →</button></div><div class="panel-body"><div class="chart-top"><div id="activityTotal" class="chart-total">0<small>최근 7일 작업 건수</small></div><div class="chart-legend"><span><i style="--legend:#899d80"></i>입고</span><span><i style="--legend:#bd8e75"></i>사용</span><span><i style="--legend:#d3b85d"></i>폐기</span></div></div><div id="activityChart"></div><div class="chart-note" id="activityNote"></div></div></div>
+     <div class="panel"><div class="panel-head"><div><div class="panel-title">지금 확인할 일</div><div class="muted small">필요한 작업을 바로 이어서 처리하세요.</div></div><button class="ghost" onclick="showPage('alerts')">전체보기 →</button></div><div class="panel-body"><div id="dashboardAlerts" class="alert-list"></div></div></div>
+    </div>
+    <div class="panel"><div class="panel-head"><div class="panel-title">최근 재고 작업</div><button class="ghost" onclick="showPage('history')">전체 이력 →</button></div><div class="panel-body table-wrap"><table><thead><tr><th>일시</th><th>작업</th><th>품목</th><th>수량</th><th>처리자</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
    </section>
 
    
    <section id="page-scan" class="page hide"><div class="panel"><div class="panel-body scan-home">
-    <div class="muted">바코드 / QR을 스캔하면 품목을 조회하고 작업을 선택합니다.</div>
-    <button class="primary scan-main-btn" onclick="openScanHub()">SCAN</button>
+    <div class="eyebrow">SCAN & GO</div><h2>스캔 한 번으로, 빠르게.</h2><div class="muted small">바코드 / QR로 품목을 찾고 필요한 작업을 선택하세요.</div>
+    <button class="primary scan-main-btn" onclick="openScanHub()"><span data-icon="scan"></span>스캔 시작</button>
     <div class="code-row" style="width:min(620px,100%)"><input id="scanHomeCode" placeholder="리더기로 스캔 또는 코드 직접 입력" onkeydown="if(event.key==='Enter'){event.preventDefault();scanFromHome()}"><button class="secondary" onclick="scanFromHome()">조회</button></div>
     <div class="small muted" style="margin-top:10px">사용 · 폐기 · 위치이동 · 입고 · 추가구매 요청</div>
    </div></div></section>
@@ -278,15 +300,19 @@ input[type="number"]{font-variant-numeric:tabular-nums}
     </div>
    </div></section>
 <section id="page-inventory" class="page hide">
-    <div class="panel"><div class="panel-head"><div class="panel-title">전체 재고</div><div class="toolbar">
-<input id="invQ" placeholder="품목명 검색" oninput="renderInventory()">
-<select id="invCategory" onchange="renderInventory()"><option value="all">전체 분류</option></select>
-<select id="invLocation" onchange="renderInventory()"><option value="all">전체 위치</option></select>
-<select id="invExpiryFilter" onchange="renderInventory()"><option value="all">전체 유통기한</option><option value="3m">3개월 이하</option><option value="6m">6개월 이하</option></select>
-<select id="invStockFilter" onchange="renderInventory()"><option value="all">전체 재고</option><option value="positive">재고 보유</option><option value="low">저재고</option></select>
-<select id="invSort" onchange="renderInventory()"><option value="name">이름순</option><option value="qtyAsc">수량 적은순</option><option value="qtyDesc">수량 많은순</option></select>
-<button class="secondary" onclick="openScanHub()">바코드 / QR 작업</button><button class="admin-only secondary" onclick="openBulkLocationAssign()">위치 미지정 일괄지정</button><button class="admin-only secondary" onclick="openProduct()">+ 품목등록</button>
-</div></div><div class="panel-body table-wrap"><table><thead><tr><th>품목</th><th>분류</th><th>위치별 재고</th><th>총재고</th><th>가장 빠른 유통기한</th><th>저재고 기준</th><th>상태</th><th>작업</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
+    <div class="panel"><div class="panel-head inventory-head"><div><div class="panel-title">전체 재고</div><div id="inventoryCount" class="muted small" aria-live="polite"></div></div><div class="inventory-actions"><button class="secondary" onclick="openScanHub()"><span data-icon="scan"></span> 스캔 작업</button><button class="admin-only secondary" onclick="openBulkLocationAssign()">위치 일괄지정</button><button class="admin-only primary" onclick="openProduct()">＋ 품목등록</button></div></div>
+     <div id="inventoryFilters" class="inventory-filters"><div class="inventory-search"><span data-icon="search"></span><input id="invQ" placeholder="품목명이나 분류를 검색하세요" oninput="renderInventory()" aria-label="품목명 또는 분류 검색"><button id="inventoryFilterToggle" class="secondary filter-toggle" onclick="toggleInventoryFilters()" aria-expanded="false" aria-controls="inventoryFilterControls"><span data-icon="filter"></span>필터</button></div>
+      <div id="inventoryFilterControls" class="filter-controls">
+       <select id="invCategory" onchange="renderInventory()" aria-label="품목 분류"><option value="all">전체 분류</option></select>
+       <select id="invLocation" onchange="renderInventory()" aria-label="보관 위치"><option value="all">전체 위치</option></select>
+       <select id="invExpiryFilter" onchange="renderInventory()" aria-label="유통기한"><option value="all">전체 유통기한</option><option value="3m">3개월 이하</option><option value="6m">6개월 이하</option></select>
+       <select id="invStockFilter" onchange="renderInventory()" aria-label="재고 상태"><option value="all">전체 재고</option><option value="positive">재고 보유</option><option value="low">저재고</option></select>
+       <select id="invSort" onchange="renderInventory()" aria-label="재고 정렬"><option value="name">이름순</option><option value="qtyAsc">수량 적은순</option><option value="qtyDesc">수량 많은순</option></select>
+       <button class="ghost" onclick="resetClinicInventoryFilters()">초기화</button>
+      </div><div id="inventoryFilterChips" class="filter-chips"></div>
+     </div>
+     <div class="panel-body table-wrap desktop-inventory"><table><thead><tr><th>품목</th><th>분류</th><th>위치별 재고</th><th>총재고</th><th>가장 빠른 유통기한</th><th>저재고 기준</th><th>상태</th><th>작업</th></tr></thead><tbody id="inventoryBody"></tbody></table></div><div id="mobileInventory" class="mobile-inventory"></div>
+    </div>
    </section>
 
    <section id="page-purchase" class="page hide">
@@ -467,12 +493,13 @@ input[type="number"]{font-variant-numeric:tabular-nums}
  </main>
 </div>
 
-<nav class="mobile-nav hide" id="mobileNav">
- <button onclick="showPage('dashboard')"><b>⌂</b>홈</button><button onclick="showPage('inventory')"><b>▤</b>재고</button><button onclick="openQuick()"><b>＋</b>작업</button><button onclick="showPage('purchase')"><b>◫</b>구매</button><button onclick="openMobileMore()"><b>☰</b>더보기</button>
+<nav class="mobile-nav hide" id="mobileNav" aria-label="모바일 메뉴">
+ <button data-page="dashboard" onclick="showPage('dashboard')"><span data-icon="home"></span>홈</button><button data-page="inventory" onclick="showPage('inventory')"><span data-icon="box"></span>재고</button><button class="mobile-work" onclick="openQuick()"><span data-icon="plus"></span>작업</button><button data-page="purchase" onclick="showPage('purchase')"><span data-icon="purchase"></span>구매</button><button data-more onclick="openMobileMore()"><span data-icon="more"></span>더보기</button>
 </nav>
 
-<div id="modal" class="modal hide" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><b id="modalTitle"></b><button class="ghost" onclick="closeModal()">Esc ✕</button></div><div class="sheet-body" id="modalBody"></div><div class="sheet-foot" id="modalFoot"></div></div></div>
+<div id="modal" class="modal hide" onclick="if(event.target===this)closeModal()"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"><div class="sheet-head"><b id="modalTitle"></b><button class="ghost" onclick="closeModal()" aria-label="작업창 닫기">×</button></div><div class="sheet-body" id="modalBody"></div><div class="sheet-foot" id="modalFoot"></div></div></div>
 
+<script src="clinic-ui.js"></script>
 <script>
 const SB_URL = "https://wjzadmeshuxgsidjlgui.supabase.co";
 const SB_KEY = "sb_publishable_9S_S00tlN42u3tFkwBY7ZQ_pO1G44vP";
@@ -497,7 +524,7 @@ function localDate(v){
 
 const actionLocks=new Set(), actionButtons=new Map();
 function uid(){
- try{if(globalThis.crypto?.randomUUID)return uid()}catch(_){}
+ try{if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID()}catch(_){}
  try{
   let a=new Uint8Array(16);crypto.getRandomValues(a);
   a[6]=(a[6]&15)|64;a[8]=(a[8]&63)|128;
@@ -505,11 +532,11 @@ function uid(){
   return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`
  }catch(_){return `${Date.now()}-${Math.random().toString(36).slice(2)}`}
 }
-function beginAction(key,label='처리 중...'){
+function beginAction(key,label='처리 중...',button=null){
  if(actionLocks.has(key))return false;
  if(!navigator.onLine){alert('인터넷 연결이 없습니다. 연결 후 다시 시도해주세요.');return false}
  actionLocks.add(key);
- let b=document.activeElement;
+ let b=button||document.activeElement;
  if(b?.tagName==='BUTTON'){
   actionButtons.set(key,{b,text:b.textContent});
   b.disabled=true;b.textContent=label;b.setAttribute('aria-busy','true')
@@ -644,8 +671,7 @@ function recommendedOrder(pid,days=30){
  let need=Math.max(0,Math.ceil(avg*(lead+safetyDays)-stock-incoming)),p=byId(products,pid),pack=Number(p?.package_qty||0);
  return need>0&&pack>1?Math.ceil(need/pack)*pack:need
 }
-function alertsData(){
- let kind=$('alertKind')?.value||'all';
+function alertsData(kind=$('alertKind')?.value||'all'){
  let arr=alertEvents.filter(a=>a.status==='OPEN').map(a=>({kind:a.kind,title:a.title,text:a.detail||'',action:alertActionForEvent(a),raw:a}));
  if(!arr.length){
   let today=localTodayISO();
@@ -665,8 +691,8 @@ function renderAlerts(){
  }
 }
 function renderDashboardAlerts(){
- if(!$('dashboardAlerts'))return;let arr=alertsData().slice(0,5);
- $('dashboardAlerts').innerHTML=arr.map(a=>`<div class="alert-item"><span class="alert-dot"></span><div><strong>${esc(a.kind)} · ${esc(a.title)}</strong><div class="muted small">${esc(a.text)}</div></div></div>`).join('')||'<div class="muted">현재 확인할 알림이 없습니다.</div>'
+ if(!$('dashboardAlerts'))return;let arr=alertsData('all').slice(0,4);
+ $('dashboardAlerts').innerHTML=arr.map(a=>`<div class="alert-item"><span class="alert-kind-icon">${clinicIcon(a.kind==='저재고'?'box':a.kind==='유통기한'?'clock':a.kind==='입고지연'?'in':'purchase')}</span><div class="alert-copy"><strong>${esc(a.title)}</strong><div class="muted small">${esc(a.kind)} · ${esc(a.text)}</div></div><button class="secondary" style="font-size:11px;min-height:32px;padding:6px 9px" onclick="${a.action}" aria-label="${esc(a.title)} ${a.kind==='저재고'?'구매요청':'확인'}">${a.kind==='저재고'?'구매요청':'확인'} →</button></div>`).join('')||`<div class="empty-state">${clinicIcon('check')}<b>확인할 알림이 없습니다.</b><small>재고와 구매 상황을 이곳에서 확인할 수 있어요.</small></div>`
 }
 function renderUsage(){
  if(!$('usageBody'))return;
@@ -787,7 +813,7 @@ function findProductByCode(code){return resolveProductCode(code).product}
 
 
 async function startup(){
- updateNetworkState();
+ initClinicUI();updateNetworkState();
  $('purchaseMonth').value=monthNow();$('auditMonth').value=monthNow();if($('histMonth'))$('histMonth').value=monthNow();
  let today=localTodayISO();
  ['histDay','histFrom','histTo','auditDay','auditFrom','auditTo','purchaseDay','purchaseFrom','purchaseTo'].forEach(id=>{if($(id))$(id).value=today});
@@ -815,13 +841,15 @@ async function bootstrap(){
 function goLoginAfterSetup(){$('setupView').classList.add('hide');$('loginView').classList.remove('hide');$('loginId').value=$('setupId').value;$('loginPw').value=$('setupPw').value}
 async function login(){
  const login_id=$('loginId').value.trim(),password=$('loginPw').value;
+ if(!login_id||!password)return msg($('loginMsg'),'아이디와 비밀번호를 입력하세요.','bad');
+ if(!beginAction('login','로그인 중...',$('loginButton')))return;
  msg($('loginMsg'),'로그인 확인 중...');
  try{
   const res=await fetch(`${SB_URL}/functions/v1/login-with-id`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY},body:JSON.stringify({login_id,password})});
   const j=await res.json(); if(!res.ok||!j.session)throw new Error('ID 또는 비밀번호를 확인하세요.');
   const {error}=await sb.auth.setSession({access_token:j.session.access_token,refresh_token:j.session.refresh_token}); if(error)throw error;
   await afterSession();
- }catch(e){msg($('loginMsg'),e.message,'bad')}
+ }catch(e){msg($('loginMsg'),safeErrorMessage(e),'bad')}finally{endAction('login')}
 }
 async function logout(){await sb.auth.signOut();location.reload()}
 async function afterSession(){
@@ -871,8 +899,10 @@ async function reloadAll(){
 function renderAll(){renderDashboard();renderInventory();renderPurchases();renderHistory();if(isAdmin()){renderAudit();renderAdmin()}}
 const titles={dashboard:'대시보드',inventory:'재고',purchase:'구매요청',history:'이력',audit:'감사로그',import:'Excel Import',admin:'관리자',scan:'스캔',usage:'사용량 분석',alerts:'알림센터',count:'재고실사'};
 function showPage(p){
- document.querySelectorAll('.page').forEach(x=>x.classList.add('hide'));let e=$('page-'+p);if(!e)return;e.classList.remove('hide');$('pageTitle').textContent=titles[p]||p;
- document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ const e=$('page-'+p);if(!e)return;
+ if(['usage','audit','import','admin','count'].includes(p)&&!isAdmin()){toast('관리자에게만 표시되는 메뉴입니다.');return}
+ document.querySelectorAll('.page').forEach(x=>x.classList.add('hide'));e.classList.remove('hide');$('pageTitle').textContent=titles[p]||p;
+ clinicPageChanged(p);
  if(p==='inventory')renderInventory();if(p==='purchase')renderPurchases();if(p==='history')renderHistory();if(p==='audit')renderAudit();if(p==='admin')renderAdmin();if(p==='usage')renderUsage();if(p==='alerts')renderAlerts();if(p==='count')renderCounts()
 }
 function renderDashboard(){
@@ -882,8 +912,8 @@ function renderDashboard(){
  $('kExp6').textContent=purchases.filter(r=>r.due_date&&r.due_date<localTodayISO()&&!['DONE','REJECTED','CANCELLED'].includes(r.status)).length;
  $('kLow').textContent=products.filter(p=>productQty(p.id)<gradeStockThreshold(p)).length;
  $('kPurchase').textContent=purchases.filter(x=>x.status==='PENDING_APPROVAL').length;
- $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc(localDateTime(t.created_at))}</td><td>${esc(t.tx_type)}</td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
- renderDashboardAlerts()
+ $('recentBody').innerHTML=transactions.slice(0,8).map(t=>{let p=byId(products,t.product_id),u=byId(profiles,t.actor_profile_id);return `<tr><td>${esc(localDateTime(t.created_at))}</td><td><span class="badge ${t.tx_type==='IN'?'b-ok':t.tx_type==='DISCARD'?'b-low':'b-dark'}">${esc(({IN:'입고',USE:'사용',DISCARD:'폐기',INITIAL_STOCK:'초기재고',IMPORT_ADJUST:'재고조정',REVERSAL:'되돌리기',MOVE:'위치이동'})[t.tx_type]||t.tx_type)}</span></td><td>${esc(p?.name||'-')}</td><td>${Number(t.quantity)>0?'+':''}${fmt(t.quantity)}</td><td>${esc((u?.emp_no||'')+' '+(u?.name||''))}</td></tr>`}).join('');
+ renderDashboardAlerts();renderClinicDashboard()
 }
 function refreshInventoryCategoryFilter(){
  let el=$('invCategory');if(!el)return;
@@ -921,7 +951,8 @@ function renderInventory(){
   let locs=productLocations(p.id).map(x=>`<span class="loc-chip">${esc(x.id?byId(locations,x.id)?.name||'미등록':'★ 위치 미지정')} <b>${fmt(x.qty)}</b></span>`).join('')||'<span class="muted">재고 없음</span>';
   let categoryText=[p.category,p.subcategory].filter(Boolean).join(' · ')||'미분류';
   return `<tr><td><button class="ghost" style="padding:0;font-weight:900" onclick="openProductDetail('${p.id}')">${esc(p.name)}</button><div class="tiny muted">${esc(p.base_unit||'개')}</div></td><td>${esc(categoryText)}</td><td>${locs}</td><td><b>${fmt(qty)}</b></td><td>${esc(nearestText)}<div class="tiny muted">${esc(p.expiry_sensitivity?`민감도 ${p.expiry_sensitivity}`:'기본')}</div></td><td>${fmt(threshold)} 미만${p.stock_sensitivity?`<div class="tiny muted">${esc(p.stock_sensitivity)}등급${p.low_stock_override!=null?' · 개별예외':''}</div>`:''}</td><td><span class="badge ${low?'b-low':'b-ok'}">${low?'저재고':'정상'}</span></td><td><div class="actions"><button class="secondary" onclick="openTransaction('USE','${p.id}')">사용</button><button class="secondary" onclick="openTransaction('IN','${p.id}')">입고</button><button class="secondary" onclick="openMove('${p.id}')">위치 지정/이동</button><button class="ghost" onclick="openProductDetail('${p.id}')">상세</button><button class="danger" onclick="openTransaction('DISCARD','${p.id}')">폐기</button><button class="ghost" onclick="openPurchase('${p.id}')">요청</button>${isAdmin()?`<button class="ghost" onclick="openProduct('${p.id}')">설정</button>`:''}</div></td></tr>`
- }).join('')||`<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`
+ }).join('')||`<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">조건에 맞는 재고가 없습니다.</td></tr>`;
+ renderClinicInventory(arr)
 }
 
 function togglePurchaseDateInputs(){
@@ -1135,29 +1166,24 @@ function updatePurchaseDueByProduct(){
  if($('prLeadHint'))$('prLeadHint').textContent=`오늘(${today}) 기준 +${days}일 · 필요 시 날짜 직접 변경 가능`
 }
 
-function openModal(title,body,foot=''){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalFoot').innerHTML=foot;$('modal').classList.remove('hide')}
-function closeModal(){stopCameraScan();$('modal').classList.add('hide')}
+function openModal(title,body,foot=''){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalFoot').innerHTML=foot;$('modal').classList.remove('hide');clinicModalOpened()}
+function closeModal(){stopCameraScan();$('modal').classList.add('hide');clinicModalClosed()}
 function optionsProducts(selected=''){return products.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}
 function optionsProfiles(){
  return profiles.filter(x=>x.active!==false&&!x.is_emergency_admin).map(u=>`<option value="${u.id}" ${u.id===me.id?'selected':''}>${esc(u.emp_no||'')} · ${esc(u.name||'')}</option>`).join('')
 }
 function optionsLocations(){return locations.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}
 function openMobileMore(){
- let items=[
-  ['이력','◷',()=>showPage('history')],
-  ['알림센터','!',()=>showPage('alerts')],
-  ['사용량 분석','▥',()=>showPage('usage')],
-  ['스캔','⌁',()=>showPage('scan')]
- ];
- if(isAdmin()){
-  items.push(['재고실사','✓',()=>showPage('count')],['Excel Import','⇧',()=>showPage('import')],['감사로그','◎',()=>showPage('audit')],['관리자','⚙',()=>showPage('admin')])
- }
- openModal('전체 메뉴',`<div class="detail-grid">${items.map((x,i)=>`<button class="detail-card" style="text-align:left;cursor:pointer" onclick="closeModal();mobileMoreGo(${i})"><b style="font-size:20px">${x[1]}</b><div style="font-weight:900;margin-top:5px">${x[0]}</div></button>`).join('')}</div><button class="danger" style="width:100%;margin-top:14px" onclick="logout()">로그아웃</button>`,`<button class="secondary" onclick="closeModal()">닫기</button>`);
- window.__mobileMoreItems=items
+ let items=[['작업 이력','clock',()=>showPage('history')],['알림센터','bell',()=>showPage('alerts')],['바코드 스캔','scan',()=>showPage('scan')]];
+ if(isAdmin())items.push(['사용량 분석','chart',()=>showPage('usage')],['재고실사','count',()=>showPage('count')],['Excel 재고 등록','upload',()=>showPage('import')],['감사로그','shield',()=>showPage('audit')],['관리자 설정','settings',()=>showPage('admin')]);
+ openModal('전체 메뉴',`<div class="quick-menu">${items.map((x,i)=>`<button class="action-tile" onclick="closeModal();mobileMoreGo(${i})">${clinicIcon(x[1])}<div><strong>${x[0]}</strong></div></button>`).join('')}</div><button class="danger full" style="margin-top:16px" onclick="logout()">로그아웃</button>`,`<button class="secondary" onclick="closeModal()">닫기</button>`);window.__mobileMoreItems=items
 }
 function mobileMoreGo(i){let fn=window.__mobileMoreItems?.[i]?.[2];if(fn)fn()}
 
-function openQuick(){openModal('빠른 작업',`<div class="actions"><button class="primary" onclick="closeModal();openTransaction('USE')">사용</button><button class="secondary" onclick="closeModal();openTransaction('IN')">입고</button><button class="danger" onclick="closeModal();openTransaction('DISCARD')">폐기</button><button class="secondary" onclick="closeModal();openPurchase()">구매요청</button></div>`)}
+function openQuick(){
+ const items=[['재고 사용','use','사용 수량을 기록합니다',"openTransaction('USE')"],['재고 입고','in','새로운 재고를 등록합니다',"openTransaction('IN')"],['재고 폐기','trash','폐기 수량과 사유를 기록합니다',"openTransaction('DISCARD')"],['구매요청','purchase','필요한 품목을 요청합니다','openPurchase()'],['바코드 스캔','scan','스캔으로 품목을 찾습니다','openScanHub()']];
+ openModal('어떤 작업을 할까요?',`<div class="quick-menu">${items.map(x=>`<button class="action-tile" onclick="closeModal();${x[3]}">${clinicIcon(x[1])}<div><strong>${x[0]}</strong><small>${x[2]}</small></div></button>`).join('')}</div>`,`<button class="secondary" onclick="closeModal()">닫기</button>`)
+}
 function openTransaction(type,pid=''){
  let outward=['USE','DISCARD'].includes(type);
  openModal(type==='IN'?'입고':type==='USE'?'사용':'폐기',`
@@ -1200,11 +1226,11 @@ function renderUseLotCards(type){
  $('useLotCards').innerHTML=lots.map((x,i)=>{
   let loc=byId(locations,x.location_id)?.name||'위치 미지정',exp=x.expiry_date?expiryText(x.expiry_date):'유통기한 미확인';
   let recommended=type==='USE'&&i===0;
-  return `<div class="use-lot-card ${i===selIdx?'active':''}" onclick="selectUseLot(${i},'${type}')">
+  return `<button type="button" class="use-lot-card ${i===selIdx?'active':''}" aria-pressed="${i===selIdx}" onclick="selectUseLot(${i},'${type}')">
     <div class="use-lot-main"><div class="use-lot-title">${esc(loc)} ${recommended?'<span class="badge b-ok">추천</span>':''}</div><div class="use-lot-meta">${esc(exp)}${x.lot_no?` · Lot ${esc(x.lot_no)}`:''}</div></div>
     <div class="use-lot-qty">${fmt(x.quantity)}개</div>
-  </div>`
- }).join('')||`<div class="notice">${type==='USE'?'사용 가능한 재고가 없습니다. 만료 재고는 사용 대상에서 제외됩니다.':'폐기 가능한 재고가 없습니다.'}</div>`
+  </button>`
+ }).join('')||`<div class="notice">${type==='USE'?'사용 가능한 재고가 없습니다. 만료 재고는 사용 대상에서 제외됩니다.':'폐기 가능한 재고가 없습니다.'}</div>`;renderTransactionPreview()
 }
 function selectUseLot(idx,type){
  if(!$('txLotSelect'))return;
